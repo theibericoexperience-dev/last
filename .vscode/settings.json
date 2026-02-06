@@ -1,0 +1,10 @@
+{
+  // Reduce noisy editor diagnostics for this workspace
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+  // Disable automatic JSON schema downloads which can fail in restricted environments
+  "json.schemaDownload.enable": false,
+  // Keep JSON validation enabled but avoid fetching external schemas
+  "json.validate": true
+}

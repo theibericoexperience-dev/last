@@ -1,0 +1,10 @@
+export { default as PanelSidebar } from './PanelSidebar';
+export { default as ReservationSection } from './ReservationSection';
+export { default as PaymentsSection } from './PaymentsSection';
+export { default as TravelersSection } from './TravelersSection';
+export { default as ProfileSection } from './ProfileSection';
+export { default as SupportSection } from './SupportSection';
+export { default as BonusSection } from './BonusSection';
+export { default as CallSection } from './CallSection';
+export type { PanelSection } from '../types';
+export { default as WhatsAppSection } from './WhatsAppSection';

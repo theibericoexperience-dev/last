@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+yarn-error.log*
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+build/
+dist/
+
+# Misc
+.DS_Store
+*.pem
+*.log
+
+# Env
+.env
+.env*.local
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Editor directories and files
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+*.suo
+*.ntvs
+*.njsproj
+*.sln
+*.sw?
+
+# Project specific
+public/MEDIAWEB
+report.json
+analysis.json
+stats.json
+unused-files.json
+
+# Generated files
+public/compiled-globals.css
+scripts/migration_logs/

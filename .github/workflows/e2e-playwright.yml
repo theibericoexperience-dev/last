@@ -1,0 +1,25 @@
+name: E2E Playwright
+
+on:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install
+        run: |
+          npm ci
+          npx playwright install --with-deps
+      - name: Start dev server
+        run: |
+          export STRIPE_WEBHOOK_SECRET="$STRIPE_WEBHOOK_SECRET"
+          npm run dev &
+          sleep 5
+      - name: Run Playwright tests
+        run: npx playwright test

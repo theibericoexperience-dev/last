@@ -1,0 +1,488 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Project spacing tokens mapped to the Tailwind-friendly scale above.
+   Use these in custom CSS when you want the canonical spacing scale:
+   e.g. padding: var(--s-4); margin: var(--s-2); */
+:root {
+  --s-0: 0px;
+  --s-1: 0.25rem; /* 4px */
+  --s-2: 0.5rem;  /* 8px */
+  --s-3: 0.75rem; /* 12px */
+  --s-4: 1rem;    /* 16px */
+  --s-5: 1.25rem; /* 20px */
+  --s-6: 1.5rem;  /* 24px */
+  --s-8: 2rem;    /* 32px */
+  --s-10: 2.5rem; /* 40px */
+  --s-12: 3rem;   /* 48px */
+  --s-16: 4rem;   /* 64px */
+  --s-20: 5rem;   /* 80px */
+  --s-24: 6rem;   /* 96px */
+  --s-32: 8rem;   /* 128px */
+  --s-40: 10rem;  /* 160px */
+  --s-44: 11rem;  /* 176px */
+  --s-48: 12rem;  /* 192px */
+  --s-56: 14rem;  /* 224px */
+  --s-64: 16rem;  /* 256px */
+}
+
+/* Canonical UI spacing rule
+   - --ui-space: main spacing used for container padding & element offsets
+   - Use helper classes below to apply the canonical spacing consistently.
+   - Adjusting --ui-space will update layout spacing app-wide. */
+:root {
+  --ui-space-unit: var(--s-2); /* default 8px */
+  --ui-space-xs: calc(var(--ui-space-unit) * 0.5); /* 4px */
+  --ui-space-sm: var(--ui-space-unit);            /* 8px */
+  --ui-space-md: calc(var(--ui-space-unit) * 2);  /* 16px */
+  --ui-space-lg: calc(var(--ui-space-unit) * 3);  /* 24px */
+  --ui-space-xl: calc(var(--ui-space-unit) * 4);  /* 32px */
+  --ui-space: var(--ui-space-md);
+}
+
+/* Utility helpers for consistent spacing */
+.ui-pad { padding: var(--ui-space) !important; }
+.ui-pad-sm { padding: var(--ui-space-sm) !important; }
+.ui-pad-md { padding: var(--ui-space-md) !important; }
+.ui-gap { gap: var(--ui-space) !important; }
+.ui-gap-sm { gap: var(--ui-space-sm) !important; }
+.ui-gap-md { gap: var(--ui-space-md) !important; }
+
+/* Standard container to align left/right padding across the app */
+.ui-container { padding-left: var(--ui-space-md); padding-right: var(--ui-space-md); }
+
+/* Helper to apply consistent margin from the edges for panels and modals */
+.ui-edge-offset { margin-left: var(--ui-space-md); margin-right: var(--ui-space-md); }
+
+* {
+  scroll-behavior: smooth;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+/* Hero scroll arrow styles */
+@keyframes arrow-rotate {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(6px) rotate(-6deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(6px) rotate(6deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes arrow-glow {
+  0% { box-shadow: 0 0 0 rgba(255,255,255,0); }
+  50% { box-shadow: 0 6px 18px rgba(255,215,120,0.12); }
+  100% { box-shadow: 0 0 0 rgba(255,255,255,0); }
+}
+
+.hero-scroll-arrow {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  /* transparent center so arrow sits cleanly over the video; keep subtle border */
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: transform 180ms ease;
+  animation: arrow-rotate 2.4s ease-in-out infinite, arrow-glow 2.4s ease-in-out infinite;
+}
+
+.hero-scroll-arrow:focus {
+  outline: 3px solid rgba(255,215,120,0.85);
+  outline-offset: 4px;
+}
+
+.hero-scroll-arrow svg {
+  width: 36px;
+  height: 36px;
+  transform-origin: center;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.45));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-scroll-arrow { animation: none; }
+}
+
+body {
+  font-family: var(--font-inter);
+  background: #ffffff;
+  color: #1f2937;
+  font-weight: 300;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Brand font for the central IBERO headline on the landing header.
+   Uses Playfair Display (Google Fonts) as a free serif alternative to the
+   reference site typography. Scoped to a class to avoid global changes. */
+/* removed .font-ibero-brand: restored original typography for IBERO header */
+
+/* Additional styles omitted for brevity in this generated file */
+
+/* Video background optimizations */
+video {
+  will-change: transform;
+}
+
+.video-background {
+  /* Keep the hero video fixed so it doesn't move while page scrolls. Using fixed
+     avoids the visual motion that may make users dizzy when the rest of the page scrolls. */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Liquid glass button effect */
+.liquid-glass-button {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: liquid-glass-scale 3s ease-in-out infinite;
+}
+
+@keyframes liquid-glass-scale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Illuminate highlight used for initial UX attention (user button, tours panel) */
+.illuminate {
+  /* subtle persistent glow */
+  box-shadow: 0 2px 6px rgba(255,255,255,0.12), 0 1px 2px rgba(255,255,255,0.04) inset;
+  transform: translateY(0);
+  /* give a slightly longer transition so the settle feels smoother */
+  transition: box-shadow 600ms cubic-bezier(.22,.9,.35,1), transform 600ms cubic-bezier(.22,.9,.35,1);
+}
+
+/* Landing buttons: start with a transparent border; reveal border when illuminated */
+#landing-open-map-btn,
+#landing-open-user-btn {
+  border-width: 0.75px; /* slightly thinner border */
+  border-style: solid;
+  border-color: transparent; /* hidden until illuminate */
+  transition: border-color 420ms cubic-bezier(.22,.9,.35,1), box-shadow 420ms cubic-bezier(.22,.9,.35,1);
+}
+
+/* Make the landing buttons more compact so the border occupies less visual space
+   without changing internal icons/symbols. This overrides the Button's size-lg padding. */
+#landing-open-map-btn,
+#landing-open-user-btn {
+  padding: 8px 12px !important; /* slightly smaller */
+  min-width: auto !important;
+  min-height: 40px; /* touch target kept but smaller */
+  font-size: 0.95rem; /* small reduction to button text */
+}
+
+/* Peak: strong border during the bright peak */
+#landing-open-map-btn.illuminate-peak,
+#landing-open-user-btn.illuminate-peak {
+  border-color: rgba(255,255,255,0.95);
+}
+
+/* After peak: subtle persistent border while illuminated */
+#landing-open-map-btn.illuminate,
+#landing-open-user-btn.illuminate {
+  border-color: rgba(255,255,255,0.45);
+}
+
+/* Ensure keyboard focus remains visible even if border is transparent */
+#landing-open-map-btn:focus-visible,
+#landing-open-user-btn:focus-visible {
+  outline: 3px solid rgba(255,255,255,0.9);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #landing-open-map-btn,
+  #landing-open-user-btn {
+    border-color: rgba(255,255,255,0.45);
+    transition: none;
+  }
+}
+
+/* peak classes used during the initial brighter animation */
+.illuminate-peak {
+  /* reduced peak intensity */
+  box-shadow: 0 4px 14px rgba(255,255,255,0.28), 0 1px 4px rgba(255,255,255,0.06) inset;
+  transform: translateY(-1.2px);
+}
+
+.illuminate-peak-pulse {
+  /* use a smooth custom easing and keep the final state (forwards) so we can settle into the subtle glow */
+  /* slightly longer total-duration so the climb to peak feels smoother */
+  animation: illuminatePeak 5s cubic-bezier(.22,.9,.35,1) 1 forwards;
+  animation-fill-mode: forwards;
+}
+
+@keyframes illuminatePeak {
+  /* Smooth ramp down from peak to final subtle state */
+  /* smoother ramp to peak (later), very short peak hold, then quick settle to subtle glow */
+  0% {
+    box-shadow: 0 3px 10px rgba(255,255,255,0.18);
+    transform: translateY(-0.4px);
+  }
+  30% {
+    box-shadow: 0 5px 18px rgba(255,255,255,0.34);
+    transform: translateY(-1.8px);
+  }
+  /* peak around 45% of the animation time */
+  45% {
+    box-shadow: 0 6.5px 22px rgba(255,255,255,0.46);
+    transform: translateY(-2.2px);
+  }
+  /* very short hold at max brightness */
+  47% {
+    box-shadow: 0 6.5px 22px rgba(255,255,255,0.46);
+    transform: translateY(-2.2px);
+  }
+  60% {
+    box-shadow: 0 4px 14px rgba(255,255,255,0.26);
+    transform: translateY(-1.0px);
+  }
+  85% {
+    box-shadow: 0 3px 10px rgba(255,255,255,0.18);
+    transform: translateY(-0.4px);
+  }
+  100% {
+    box-shadow: 0 2px 6px rgba(255,255,255,0.10);
+    transform: translateY(0);
+  }
+}
+
+/* Landing-specific overrides */
+.landing-main {
+  margin-top: 0; /* video is fixed and covers the hero; remove forced offset */
+}
+
+/* Force header text to pure white on the landing to avoid semi-transparent appearance */
+header a, header .text-white, header .font-normal, header .font-extrabold, header .text-4xl, header .text-5xl {
+  color: #ffffff !important;
+}
+
+/* Ensure landing action buttons (map + user) have visible white border matching one another */
+#landing-open-map-btn, #landing-open-user-btn {
+  border-color: rgba(255,255,255,0.95) !important;
+}
+
+/* Hero overlay that sits above the fixed video */
+.hero-overlay {
+  pointer-events: none; /* individual controls will enable pointer-events */
+}
+
+/* Ensure arrow is fixed and centered relative to viewport */
+.hero-scroll-arrow {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: 28px !important;
+  background: transparent !important;
+  z-index: 60 !important;
+}
+
+/* Restore landing buttons to the larger size they had previously */
+#landing-open-map-btn, #landing-open-user-btn {
+  padding: 0.75rem 2rem !important; /* px-8 py-4 equivalent */
+  min-height: 48px !important;
+}
+
+/* State when the tour section is visible: collapse header into a single user icon */
+body.tour-visible header {
+  transform: translateY(-100%);
+  opacity: 0;
+  transition: transform 320ms ease, opacity 320ms ease;
+}
+
+/* Mini user icon fixed at top-right when tour-visible */
+.mini-user-icon {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 70;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,0.06);
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,0.95);
+}
+
+body.tour-visible #mini-user {
+  display: block !important;
+}
+
+body.tour-visible .hero-overlay { pointer-events: none; }
+body.tour-visible .hero-overlay .pointer-events-auto { pointer-events: none; }
+body.tour-visible #landing-open-map-btn, body.tour-visible #landing-open-user-btn { display: none !important; }
+
+/* Ensure tour-grid can overlay the video */
+#tour-grid { z-index: 20; position: relative; }
+
+/* Initialization helper: suppress transitions and animations while we measure layout */
+.no-transitions, .initializing {
+  /* make sure layout is stable during initial measurement */
+}
+.no-transitions *, .initializing * {
+  transition: none !important;
+  animation: none !important;
+}
+
+.initializing { opacity: 1; }
+
+/* Map label defaults: controls background color for inline map labels */
+:root {
+  --map-label-bg: rgba(0,0,0,0.3);
+}
+
+.ibe-map-label {
+  /* Ensure small caps-like appearance and subtle text shadow for readability */
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 11px;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.12);
+}
+
+/* Responsive modal rules: ensure modal adapts to viewport, respects safe-area insets,
+   avoids overlapping other elements and provides a predictable content area with
+   internal scroll when needed. These rules are deliberately conservative so JS
+   layout math can still drive precise sizes while CSS provides robust fallbacks. */
+:root {
+  --modal-max-width: 1200px;
+  --modal-edge-gap: 1rem; /* fallback gap from viewport edges */
+  --modal-vertical-gap: 48px; /* gap between viewport top/bottom and modal */
+}
+
+/* Ensure media boxes always fill their grid cell and media elements cover the area */
+.grid .row-span-1, .grid .row-span-2, .grid > * {
+  min-height: 0;
+}
+
+.media-box img, .media-box video, img.object-cover, video.object-cover, img.block, video.block {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Make sure InlineMap container fills its parent */
+.w-full.h-full {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure the top grid inside the tour modal keeps a minimum separation between the media and the map.
+   This rule targets the specific grid template used by the tour modal in `TourClient.tsx` and enforces
+   a small visual divider so the image/media and the map never butt against one another. */
+.tour-grid-separation > div[style*="gridTemplateAreas: 'days media' 'days map'"] {
+  /* The inline grid has columnGap and rowGap but some browsers may shrink; provide a min-gap via padding on cells */
+}
+
+/* Add a subtle inner divider to the right edge of the media cell so it visually separates from the map. */
+.tour-grid-separation .media-cell {
+  padding-right: 10px;
+}
+.tour-grid-separation .map-cell {
+  padding-left: 10px;
+}
+
+/* Ensure modal panel children don't overflow the rounded corners and provide an inner safe padding */
+.modal-panel > * {
+  box-sizing: border-box;
+}
+
+.responsive-modal {
+  width: 100%;
+  max-width: min(var(--modal-max-width), calc(100vw - (var(--modal-edge-gap) * 2)));
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  /* keep a minimum visual gap from the viewport edges to avoid collision */
+  padding-left: var(--ui-space-md);
+  padding-right: var(--ui-space-md);
+  /* visual safety: allow slightly taller backdrop on small screens */
+  --modal-top-offset: env(safe-area-inset-top, 12px);
+  --modal-bottom-offset: env(safe-area-inset-bottom, 12px);
+}
+
+/* Modal panel visual constraints and adaptive behaviour */
+.responsive-modal.modal-panel {
+  /* keep the outer border radius reasonable but reduce on very small screens */
+  border-radius: 12px;
+  /* Prefer CSS-managed max-height; JS may write inline heights but CSS ensures fallback */
+  max-height: calc(100vh - (var(--modal-vertical-gap) + var(--modal-top-offset) + var(--modal-bottom-offset)));
+  overflow: visible; /* inner scroll region will manage overflow */
+}
+
+/* Scrollable content area inside modals. Use this on the scroll container so
+   the internal sections can snap/scroll without causing the modal to overflow
+   or clip the viewport. */
+.modal-scroll {
+  max-height: calc(100vh - (var(--modal-vertical-gap) + var(--modal-top-offset) + var(--modal-bottom-offset)));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure on very narrow devices the modal uses most of the screen but leaves
+   a tiny inset so status bars and other chrome don't overlap interactive controls. */
+@media (max-width: 640px) {
+  .responsive-modal {
+    max-width: calc(100vw - 1rem);
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .responsive-modal.modal-panel { border-radius: 8px; }
+}
+
+/* When there are neighboring UI elements (sticky headers etc.), prefer smaller
+   vertical gaps on large screens but keep proportionate spacing. */
+@media (min-width: 1280px) {
+  :root { --modal-edge-gap: 1.5rem; --modal-vertical-gap: 64px; }
+}

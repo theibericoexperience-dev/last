@@ -1,0 +1,7 @@
+LICENSE & ACKNOWLEDGMENT
+-------------------------
+
+Los mapas SVG provienen del proyecto "SVG-World-Map" de Raphael Lepuschitz:
+https://github.com/raphaellepuschitz/SVG-World-Map
+
+Ese proyecto está disponible bajo licencia MIT. Asegúrate de conservar la nota de licencia si redistribuyes el mapa o tu versión modificada.

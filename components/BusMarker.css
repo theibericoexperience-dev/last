@@ -1,0 +1,196 @@
+/* =========================
+   BUS MARKER - REALISTIC MINIBUS 3/4 VIEW
+   Inspired by modern touring minibuses
+   ========================= */
+
+.ibe-bus-icon {
+	display: block;
+	/* compact canvas: reduced ~20% for a smaller marker */
+	width: 48px;
+	height: 32px;
+	position: relative;
+	transform-origin: center center;
+}
+
+.ibe-bus {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	transform-origin: center center;
+	will-change: transform;
+}
+
+/* ===== MAIN BODY (silver/white minibus) ===== */
+.ibe-bus .bus-body {
+	position: relative;
+	/* scaled-down body for compact marker */
+	width: 40px;
+	height: 14px;
+	margin: 0 auto;
+	border-radius: 4px 6px 4px 4px;
+	/* soft metallic paint */
+	background: linear-gradient(
+		to bottom,
+		#f7f9fb 0%,
+		#e9eef3 20%,
+		#d6dce3 48%,
+		#c0c6cf 78%,
+		#aeb6bf 100%
+	);
+	box-shadow:
+		inset 0 1px 0 rgba(255,255,255,0.95),
+		inset 0 -2px 2px rgba(0,0,0,0.12),
+		0 3px 6px rgba(0,0,0,0.28);
+	transform: skewY(-6deg) translateY(-1px);
+	z-index: 5; /* body above wheels */
+}
+
+/* ===== ROOF (white/light gray, visible from 3/4 top) ===== */
+.ibe-bus .bus-body::before {
+	/* roof strip and AC unit in 3/4 perspective (scaled) */
+	content: "";
+	position: absolute;
+	left: 2px;
+	right: 5px;
+	top: -6px;
+	height: 6px;
+	border-radius: 4px 5px 0 0;
+	background: linear-gradient(to bottom, #ffffff 0%, #eef2f6 55%, #dfe6ea 100%);
+	transform: skewY(6deg) perspective(100px) rotateX(16deg) translateY(-1px);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,1), 0 -1px 2px rgba(0,0,0,0.08);
+	z-index: 8;
+}
+
+/* ===== WINDOWS (large panoramic, dark tinted) ===== */
+.ibe-bus .bus-windows {
+	position: absolute;
+	left: 4px;
+	right: 10px;
+	top: 2px;
+	height: 8px;
+	border-radius: 2px 3px 2px 2px;
+	/* dark panoramic glass with vertical separators (pillars) */
+	background:
+		linear-gradient(to bottom, rgba(35,50,70,0.88) 0%, rgba(18,28,40,0.95) 100%),
+		repeating-linear-gradient(to right, transparent 0 18px, rgba(190,200,210,0.65) 18px 19px);
+	box-shadow: inset 0 2px 2px rgba(120,150,180,0.22), inset 0 -1px 0 rgba(0,0,0,0.28);
+	transform: skewY(6deg) translateY(-1px);
+	z-index: 9; /* windows above body */
+}
+
+/* subtle white top reflection on window */
+.ibe-bus .bus-windows::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 1px;
+	height: 2px;
+	background: linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0));
+	border-radius: 2px 3px 0 0;
+	transform: skewY(-6deg);
+	z-index: 10;
+}
+
+/* ===== FRONT CABIN (windshield + nose) ===== */
+.ibe-bus .bus-front {
+	/* front/nose removed per user request - keep element in DOM but hide it so other layout remains stable */
+	display: none;
+}
+
+/* driver mirror */
+.ibe-bus .bus-body::after {
+	/* Two separate crisp wheels (left/front and right/rear) - scaled for compact size */
+	content: "";
+	position: absolute;
+	bottom: -5px;
+	left: 0;
+	right: 0;
+	height: 8px;
+	pointer-events: none;
+	/* move wheels slightly outward to increase separation */
+	background-position: 5px center, calc(100% - 5px) center;
+	background-size: 8px 8px, 8px 8px;
+}
+
+/* ===== FRONT GRILLE/BUMPER ===== */
+.ibe-bus .bus-front::before {
+	content: "";
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 5px;
+	background: linear-gradient(to bottom, #c7ccd2, #8f959c);
+	border-radius: 0 0 4px 0;
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.45);
+}
+
+/* ===== HEADLIGHTS ===== */
+.ibe-bus .bus-front .headlight {
+	position: absolute;
+	right: 2px;
+	top: 10px;
+	width: 3px;
+	height: 2px;
+	background: radial-gradient(ellipse, #fffef0 30%, #ffd47a 100%);
+	border-radius: 1px;
+	box-shadow: 0 -5px 0 0 #fffef0, 0 0 3px 1px rgba(255,245,190,0.45);
+	z-index: 13;
+}
+
+/* ===== WHEELS (realistic with rims) ===== */
+.ibe-bus .bus-body::after {
+	/* Two separate crisp wheels (left/front and right/rear) */
+	content: "";
+	position: absolute;
+	bottom: -6px;
+	left: 0;
+	right: 0;
+	height: 10px;
+	pointer-events: none;
+	background-repeat: no-repeat;
+	/* move wheels slightly outward to increase separation */
+	background-position: 6px center, calc(100% - 6px) center;
+	background-size: 10px 10px, 10px 10px;
+	background-image:
+		radial-gradient(circle at center, #0f0f0f 0 40%, #222 42% 48%, #c9ced4 48% 58%, #8f9398 58% 64%, transparent 65%),
+		radial-gradient(circle at center, #0f0f0f 0 40%, #222 42% 48%, #c9ced4 48% 58%, #8f9398 58% 64%, transparent 65%);
+	transform: skewY(6deg);
+	z-index: 2; /* wheels visually under body but above shadow */
+}
+
+/* ===== DECORATIVE STRIPE (side livery) ===== */
+.ibe-bus .bus-details {
+	position: absolute;
+	left: 5px;
+	right: 10px;
+	bottom: 2px;
+	height: 2px;
+	background: linear-gradient(to right, transparent 0%, rgba(40,95,170,0.72) 12%, rgba(40,95,170,0.72) 88%, transparent 100%);
+	border-radius: 2px;
+	transform: skewY(6deg) translateY(-1px);
+	z-index: 6;
+}
+
+/* ===== SHADOW (realistic ground contact) ===== */
+.ibe-bus .bus-shadow {
+	position: absolute;
+	left: 50%;
+	bottom: -8px;
+	width: 38px;
+	height: 9px;
+	background: radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 45%, rgba(0,0,0,0.04) 75%, transparent 100%);
+	border-radius: 50%;
+	transform: translateX(-50%) scaleX(1.12) skewX(-5deg);
+	filter: blur(1.6px);
+	z-index: 0; /* shadow at bottom */
+}
+
+/* ===== LEAFLET CLEANUP ===== */
+.leaflet-div-icon.ibe-bus-icon {
+	background: transparent;
+	border: 0;
+}

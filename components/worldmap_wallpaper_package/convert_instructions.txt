@@ -1,0 +1,18 @@
+Instrucciones para convertir el SVG a PNG/JPEG (opciones):
+
+1) Inkscape (GUI o CLI)
+   - CLI (Inkscape 1.0+):
+     inkscape world-states-provinces.svg --export-type=png --export-filename=wallpaper-3840x2160.png --export-width=3840 --export-height=2160
+   - GUI: abre el SVG y Export PNG desde File > Export
+
+2) rsvg-convert (librsvg)
+   - rsvg-convert -w 3840 -h 2160 world-states-provinces.svg -o wallpaper-3840x2160.png
+
+3) ImageMagick (si tiene soporte SVG)
+   - convert -density 300 world-states-provinces.svg -resize 3840x2160 wallpaper-3840x2160.png
+   (nota: ImageMagick a veces rasteriza con diferencias en fuentes; preferir Inkscape/rsvg)
+
+Consejos:
+ - Para un wallpaper responsive usa el SVG directamente en CSS (background-size: cover) para evitar rasterizados fijos.
+ - Si necesitas colores / estilos personalizados, abre el SVG en un editor vectorial (Inkscape / Illustrator) y edita fills/strokes.
+ - Respeta la licencia MIT del repositorio; incluye la nota de copyright si redistribuyes.
