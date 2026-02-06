@@ -1,5 +1,5 @@
 // lib/media-resolver.ts
-import manifest from '../build/supabase-storage-manifest.json';
+import manifest from '../data/supabase-storage-manifest.json';
 
 /**
  * Resolves a local media path to its corresponding Supabase public URL

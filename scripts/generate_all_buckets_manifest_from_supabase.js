@@ -15,7 +15,7 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 
-const OUT_DIR = path.join(process.cwd(), 'build');
+const OUT_DIR = path.join(process.cwd(), 'data');
 const OUT_FILE = path.join(OUT_DIR, 'supabase-storage-manifest.json');
 const PAGE_SIZE = 500;
 
