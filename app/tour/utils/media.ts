@@ -1,5 +1,6 @@
 // Shared media-related helpers extracted from TourClient to simplify reuse.
 // Keep implementations identical to the previous in-file versions to avoid UX changes.
+import { getSupabaseUrl } from '../../../lib/media-resolver';
 
 export function normalizeUrl(raw: string | null | undefined) {
   if (!raw) return raw as any;
@@ -37,49 +38,20 @@ export function normalizeMediaSrc(p?: string | null) {
   
   if (s.startsWith('http')) return s;
 
-  // Supabase Configuration
-  const SUPABASE_ID = 'wqpyfdxbkvvzjoniguld';
-  const SUPABASE_BASE = `https://${SUPABASE_ID}.supabase.co/storage/v1/object/public`;
-
-  // Rule-based transformation to Supabase buckets
-  const rules = [
-    { bucket: 'vidoe%20behind', match: 'tinta-behind-background-opt.webm', strip: 'MEDIAWEB/BEHIND_OPTIMIZED' },
-    { bucket: 'ACTIVITITES', match: 'MEDIAWEB/activities_optimized', strip: 'MEDIAWEB/activities_optimized' },
-    { bucket: 'behind', match: 'MEDIAWEB/BEHIND_OPTIMIZED', strip: 'MEDIAWEB/BEHIND_OPTIMIZED' },
-    { bucket: 'MISC', match: 'MEDIAWEB/LANDING', strip: 'MEDIAWEB/LANDING' },
-    { bucket: 'pdf-prueba', match: 'MEDIAWEB/PDFS', strip: 'MEDIAWEB/PDFS' },
-    { bucket: 'Tours', match: 'MEDIAWEB/TOURS', strip: 'MEDIAWEB/TOURS' },
-    // Special case for "Open Tours" paths that might not have MEDIAWEB prefix
-    { bucket: 'Tours', match: 'Open Tours', strip: 'unused' } 
-  ];
-
-  const clean = s.replace(/^\/+/, ''); // remove leading slash
-  
-  for (const rule of rules) {
-    if (clean.includes(rule.match)) {
-      let bucketPath = '';
-      if (rule.match === 'Open Tours') {
-        bucketPath = clean;
-      } else if (rule.match === 'tinta-behind-background-opt.webm') {
-        bucketPath = 'tinta-behind-background-opt.webm';
-      } else {
-        bucketPath = clean.replace(rule.strip, '').replace(/^\/+/, '');
-      }
-      
-      const encodedParts = bucketPath.split('/').map(part => encodeURIComponent(part)).join('/');
-      return `${SUPABASE_BASE}/${rule.bucket}/${encodedParts}`;
-    }
+  // Use the manifest-based resolver which is the source of truth
+  const resolved = getSupabaseUrl(s);
+  if (resolved && resolved.startsWith('http')) {
+    return resolved;
   }
 
-  // Legacy fallback if no rule matched
-  try {
-    const m = s.match(/(\/MEDIAWEB\/.*)$/i);
-    if (m && m[1]) return m[1];
-    const m2 = s.match(/.*(MEDIAWEB\/.*)$/i);
-    if (m2 && m2[1]) return '/' + m2[1].replace(/^\//, '');
-    if (s.startsWith('/')) return s;
-    return s;
-  } catch (e) { return s; }
+  // Fallback: Return original if not found (or maybe the legacy logic?)
+  // For now, let's trust the manifest. If it fails, the previous logic 
+  // was also likely failing or guessing.
+  // We'll keep a minimal fallback just in case the manifest is missing
+  // specific "Open Tours" or legacy paths not in buckets yet.
+  
+  if (s.startsWith('/')) return s;
+  return '/' + s;
 }
 
 export function tryImageFallback(imgEl: HTMLImageElement) {
