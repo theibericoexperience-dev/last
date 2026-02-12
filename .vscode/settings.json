@@ -6,5 +6,23 @@
   // Disable automatic JSON schema downloads which can fail in restricted environments
   "json.schemaDownload.enable": false,
   // Keep JSON validation enabled but avoid fetching external schemas
-  "json.validate": true
+  "json.validate": true,
+
+  // Performance improvements - exclude heavy/binary files
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/build/**": true,
+    "**/*.sst": true,
+    "**/*.meta": true,
+    "**/*.map": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/build": true,
+    "**/*.sst": true,
+    "**/*.meta": true,
+    "**/*.map": true
+  }
 }

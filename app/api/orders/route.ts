@@ -266,6 +266,8 @@ export async function POST(request: Request) {
 
   const insertPayload = {
     user_id: userId,
+    // Dual-write user_id_uuid for RLS/Migration support
+    user_id_uuid: userId,
     type: finalType,
     tour_id: finalTourId || null,
     tour_title: finalTourTitle || null,

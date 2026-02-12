@@ -7,6 +7,8 @@ export type MapPoint = {
   name?: string;
   day?: number | null;
   coords: [number, number];
+  // Add support for order/type to filter in overview mode
+  order?: number; 
 };
 
 export type MapRoute = {
@@ -18,7 +20,8 @@ export type MapRoute = {
 
 type InlineMapProps = {
   className?: string;
-  hideExploreAround?: boolean;
+  // new prop for operation mode
+  mode?: 'overview' | 'detailed';
   /** Optional primary route to render as a GeoJSON layer */
   route?: MapRoute | null;
   /** Points to render as circle markers. Keep filtering/selection outside the map. */
@@ -35,6 +38,10 @@ type InlineMapProps = {
   maxZoom?: number;
   /** Whether to show labels for key cities */
   showLabels?: boolean;
+  initialDay?: number | null;
+  day?: number | null;
+  media?: any;
+  onBusClick?: () => void;
 };
 
 const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
@@ -73,9 +80,14 @@ const loadLeaflet = () =>
 export default function InlineMap(props: InlineMapProps) {
   const {
     className,
-    route,
     points = [],
-    activeDay = null,
+    route,
+    initialDay = 1,
+    day,
+    media,
+    onBusClick,
+    mode = 'detailed', // default detailed
+    activeDay,
     fit = "auto",
     fitPaddingLeft = 30,
     fitPaddingRight = 0,
@@ -83,6 +95,8 @@ export default function InlineMap(props: InlineMapProps) {
     maxZoom = 13,
     showLabels = false,
   } = props;
+
+  const currentDay = activeDay ?? day ?? initialDay ?? 1;
 
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -96,6 +110,7 @@ export default function InlineMap(props: InlineMapProps) {
   const uidCounterRef = useRef<number>(1);
   const didInitialFitRef = useRef(false);
   const lastDataHashRef = useRef<string | null>(null);
+  const [isMapReady, setIsMapReady] = React.useState(false);
 
   const applyActiveDay = (
     dayIndexOrDayNumber: number | null,
@@ -464,12 +479,19 @@ export default function InlineMap(props: InlineMapProps) {
         // Default to a more distant view showing most of the Iberian peninsula.
         // Clicking the itinerary or changing `fit`/`activeDay` will still trigger the
         // existing fit logic and zoom into the route/points.
+        const isOverview = mode === 'overview';
         mapRef.current = L.map(containerRef.current as HTMLElement, {
           zoomControl: false,
           attributionControl: false,
+          minZoom: isOverview ? 1 : undefined,
+          maxBounds: isOverview ? [[-90, -180], [90, 180]] : undefined,
+          maxBoundsViscosity: isOverview ? 1.0 : 0.0
         }).setView([39.5, -6.0], 5);
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(mapRef.current);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { 
+          maxZoom: 19, 
+          noWrap: isOverview 
+        }).addTo(mapRef.current);
 
         // Create ordered panes so we can control stacking: route < markers < labels
         try {
@@ -498,6 +520,8 @@ export default function InlineMap(props: InlineMapProps) {
           `;
           document.head.appendChild(s);
         }
+
+        setIsMapReady(true);
       } catch {
         // ignore
       }
@@ -775,7 +799,7 @@ export default function InlineMap(props: InlineMapProps) {
         // ignore
       }
     }
-  }, [dataHash, fit, fitPaddingLeft, fitPaddingRight, fitPaddingBottom, maxZoom, points, route, activeDay]);
+  }, [dataHash, isMapReady]);
 
   // When activeDay changes, highlight/recenter without re-drawing everything.
   useEffect(() => {
@@ -876,7 +900,7 @@ export default function InlineMap(props: InlineMapProps) {
       style={{ minHeight: 0, height: "100%", position: "relative" }}
     >
       {/* Bus marker (lightweight divIcon) renders on top of the Leaflet container */}
-      {mapRef.current && routeCoordsForBus.length > 1 && (
+      {mapRef.current && routeCoordsForBus.length > 1 && mode === 'detailed' && (
         <BusMarker map={mapRef.current} routeCoords={routeCoordsForBus} progress={busProgress} />
       )}
     </div>

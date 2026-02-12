@@ -1,7 +1,8 @@
 "use client";
 import Link from 'next/link';
+import { TransitionLink, useLoader } from './GlobalLoaderProvider';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import UserMenu from './UserMenu';
 
@@ -11,6 +12,8 @@ export default function Header({ transparent, onOpenRegisterAction }: { transpar
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
+  const { startLoading } = useLoader();
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,28 +62,28 @@ export default function Header({ transparent, onOpenRegisterAction }: { transpar
                     OPEN TOURS
                   </a>
                 ) : (
-                  <Link href="/destinations" className="text-white font-extrabold no-underline uppercase tracking-wider">
+                  <TransitionLink href="/destinations" className="text-white font-extrabold no-underline uppercase tracking-wider">
                     OPEN TOURS
-                  </Link>
+                  </TransitionLink>
                 )}
               </div>
 
               <div className="text-center">
                 { /* When header is transparent (landing) we want IBERO at 50px exactly */ }
-                <Link
+                <TransitionLink
                   href="/"
                   className="text-white font-normal no-underline uppercase text-4xl md:text-5xl tracking-tighter leading-none"
                   style={transparent ? { fontSize: '44px', lineHeight: 1 } : undefined}
                 >
                   IBERO
-                </Link>
+                </TransitionLink>
               </div>
 
               <div className="flex justify-center">
                 {/* Point to Next /behind route */}
-                <Link href="/behind" className="text-white font-extrabold no-underline uppercase tracking-wider">
+                <TransitionLink href="/behind" className="text-white font-extrabold no-underline uppercase tracking-wider">
                   BEHIND
-                </Link>
+                </TransitionLink>
               </div>
             </div>
           </nav>
@@ -96,7 +99,10 @@ export default function Header({ transparent, onOpenRegisterAction }: { transpar
       <div className="mini-user-icon" id="mini-user" style={{ display: 'none' }}>
         <button
           onClick={() => {
-            router.push('/panel');
+            startLoading();
+            startTransition(() => {
+              router.push('/panel');
+            });
           }}
           className="w-full h-full flex items-center justify-center group"
         >

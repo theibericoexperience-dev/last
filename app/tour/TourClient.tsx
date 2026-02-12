@@ -1,820 +1,1292 @@
+// TourClient.tsx: Restores the Glass Modal Shell + Injects 2x2 Dashboard Logic
+
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabaseClient } from "@/lib/db/supabaseClient";
-// removed: local data imports
 import InlineMap, { type MapPoint } from "../../components/InlineMap";
-import DaySidebar from "../../components/DaySidebar";
+import { format, differenceInDays, parseISO, addDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, subDays } from 'date-fns';
+import SmartSlideshow from "./components/SmartSlideshow";
+import { ChevronRightIcon, GlobeAltIcon, CalendarDaysIcon, MapIcon, HomeIcon, ChevronLeftIcon, ArrowLeftIcon, SunIcon, MoonIcon, ChevronDownIcon, ChevronUpIcon, PlayCircleIcon, CheckIcon, DocumentTextIcon, ShieldCheckIcon, PaperAirplaneIcon, PuzzlePieceIcon, ClockIcon, InformationCircleIcon } from "@heroicons/react/24/outline";
+import UserBubble from '@/components/UserBubble';
 import ReservationTab, { TourData } from "../../components/reservation/ReservationTab";
-import { EXTENSIONS } from '../../constants/extensions';
 import { publishLandingScrollTo, subscribeTourOpenReservation } from "../../lib/navigation/intents";
 import { safeWebPath, normalizeUrl, tryImageFallback } from "./utils/media";
 import mediaUrl from '@/lib/media/mediaUrl';
-import { getTourMedia, MediaItem } from "../../lib/domain/media/api";
-import DayByDayView from "../../components/DayByDayView";
-import RegisterForm from '@/components/auth/RegisterForm';
-import useReservationStore from '@/lib/reservations/store';
-import PrizeModal from '@/components/ui/PrizeModal';
-import Modal from '@/components/ui/Modal';
-import UserBubble from '@/components/UserBubble';
 
+// Types
 type ActiveTab = "itinerary" | "reservation";
-
-type MediaFile = { path: string; filename?: string; caption?: string | null };
-
-function extractDayNumberFromFilename(fp: string): number | null {
-  try {
-    const name = decodeURIComponent(fp.split("/").pop() || "");
-    const m = name.match(/(?:dia|day)\s*0*(\d+)/i) || name.match(/^0*(\d+)[_\-\s]/i);
-    if (m) return parseInt(m[1], 10);
-    return null;
-  } catch {
-    return null;
-  }
-}
+type ViewMode = 'SUMMARY' | 'ITINERARY' | 'EXTENSIONS';
+type RightPanelContent = 'MEDIA' | 'WEATHER' | 'PACKAGE' | 'FLIGHTS' | 'EXTENSIONS';
 
 function goBackToLanding(router: ReturnType<typeof useRouter>, tourYear?: number) {
   try {
-    const target = tourYear === 2027 ? "tour-2027" : "tour-2026";
-    try {
-      sessionStorage.setItem("landing:lastSection", target);
-    } catch {
-      // ignore
-    }
-    try {
-      publishLandingScrollTo(target);
-    } catch {
-      // ignore
-    }
-    router.replace("/");
-  } catch {
-    // ignore
-  }
+     publishLandingScrollTo('tour-2026');
+     router.push("/");
+  } catch { /* ignore */ }
 }
+
+// Icons
+const WeatherStatusIcon = () => (
+   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5">
+      {/* Sun behind */}
+      <circle cx="16" cy="8" r="3" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M16 3V1M21 8H23M19.5 4.5L21 3M19.5 11.5L21 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      
+      {/* Cloud overlapping */}
+      <path d="M5 16C3.34315 16 2 14.6569 2 13C2 11.3431 3.34315 10 5 10C5.127 10 5.251 10.009 5.372 10.026C5.836 7.747 7.846 6 10.25 6C13.011 6 15.25 8.239 15.25 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M5 16H13C14.6569 16 16 14.6569 16 13C16 12.33 15.79 11.72 15.44 11.21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      
+      {/* Rain drops */}
+      <path d="M8 19L7 21M13 19L12 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+   </svg>
+);
 
 export default function TourClient({ id, initialData }: { id?: string; initialData?: any }): JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    supabaseClient?.auth.getUser().then(({ data }) => setUser(data?.user));
-    const { data: { subscription } } = supabaseClient?.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    }) || { data: { subscription: null } };
-    return () => subscription?.unsubscribe();
-  }, []);
-
-  const [registerModalOpen, setRegisterModalOpen] = useState(false);
-  const [prizeOpen, setPrizeOpen] = useState(false);
-  const [regSubmitting, setRegSubmitting] = useState(false);
-  const [regError, setRegError] = useState<string | null>(null);
-  const [registeredSuccess, setRegisteredSuccess] = useState(false);
-  const [welcomeToastShown, setWelcomeToastShown] = useState(false);
-
-  // Mobile OAuth return: UX feedback (toast + scroll + highlight)
-  useEffect(() => {
-    if (welcomeToastShown) return;
-    
-    // Mobile OAuth return handling: persistence disabled, so skip pending-reservation recovery.
-    // If auth=success present we just show a small welcome toast.
-    const authSuccess = searchParams?.get('auth') === 'success';
-    if (!authSuccess) return;
-    setWelcomeToastShown(true);
-    // Remove ?auth=success from URL without reload
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('auth');
-      window.history.replaceState({}, '', url.toString());
-    } catch {}
-  }, [searchParams, welcomeToastShown]);
-
-  // close modal on Escape
-  useEffect(() => {
-    if (!registerModalOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setRegisterModalOpen(false);
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [registerModalOpen]);
-
-  // Handle register button click with session pre-check
-  const handleOpenRegister = () => {
-    // User not authenticated, open modal
-    // ensure we have an active draft so state is saved before auth
-    try {
-      if (tour?.id) {
-        useReservationStore.getState().setActiveTour(tour.id, tourTitle);
-      }
-    } catch (e) {}
-    setRegisterModalOpen(true);
-  };
-
-  const tour = initialData; // Main tour object
-  const tourTitle = tour?.title || "MADRID TO LISBOA";
-  
-  // Use relative bucket paths for Madrid->Lisbon; resolve with mediaUrl at render time
-  const stopsPath = tour?.stops_path || 'Open Tours/MADRID TO LISBOA/MAIN TOUR/stops'; // Fallback for safety
-  
-  // Direct Supabase URL logic
-  const heroSrc = tour?.card_image || 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/MAIN TOUR/hero.webp';
-
+  // --- STATE ---
   const [activeTab, setActiveTab] = useState<ActiveTab>("itinerary");
-  const [sectionOpen, setSectionOpen] = useState(true);
-  const [selectedDayNumber, setSelectedDayNumber] = useState<number>(1);
-  const [selectedMode, setSelectedMode] = useState<'vertical' | 'horizontal' | 'initial'>('initial');
-  const [subMode, setSubMode] = useState<'itinerary' | 'activities' | 'extensions' | 'daybyday' | null>(null);
-  const [mapView, setMapView] = useState<'panoramic' | 'day-focused'>('panoramic');
-  const [isFlipping, setIsFlipping] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('SUMMARY');
+  const [rightPanelContent, setRightPanelContent] = useState<RightPanelContent>('MEDIA');
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [selectedDay, setSelectedDay] = useState<number>(1);
+  const [isFlightsModalOpen, setIsFlightsModalOpen] = useState(false);
+  const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
+  const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
+  const [isOptionalsModalOpen, setIsOptionalsModalOpen] = useState(false);
+  const [itineraryMedia, setItineraryMedia] = useState<string[]>([]);
+  const [showLearnMore, setShowLearnMore] = useState(false); // Restored state for Ibero Package footer
 
-  // Helper Maps for efficient lookups
-  const daysMap = useMemo(() => {
-    const m = new Map<number, any>();
-    if (initialData?.days && Array.isArray(initialData.days)) {
-      initialData.days.forEach((d: any) => m.set(d.day_number, d));
-    }
-    return m;
-  }, [initialData]);
-
-  // Replaces buildStopsForDay
-  const getStopsForDay = (day: number): string[] => {
-    const d = daysMap.get(day);
-    if (!d || !d.stops_data) return [];
-    return d.stops_data.map((s: any) => s.name);
-  };
-
-  // Replaces buildMapPointsForDay
-  const getMapPointsForDay = (day: number): MapPoint[] => {
-    const d = daysMap.get(day);
-    if (!d || !d.stops_data) return [];
-    return d.stops_data.map((s: any) => ({
-      name: s.name,
-      day: day,
-      coords: [s.lat, s.lng] // Ensure these exist in DB
-    }));
-  };
-  
-  // Replaces dayByDayActivities lookup
-  const getActivitiesForDay = (day: number) => {
-    const d = daysMap.get(day);
-    if (!d || !d.activities_data) return null;
-    return {
-      day,
-      ...d.activities_data
-    };
-  }
-
-  const tourData: TourData = {
-    id: tour?.id,
-    title: tourTitle,
-    // nights used for surcharge calculations
-    nights: 11,
-    basePricePerTraveler: (tour?.["Tour Cost"] || 0) + (tour?.["Flights"] || 0),
-    includedRoomType: 'double',
-    inclusions: tour?.inclusions || [
-      "Flights (international & internal, included)",
-      "Accommodation in 4-5★ hotels",
-      "Full-time bilingual tour guide",
-      "Ground transportation",
-      "All meals & suppers",
-      "Guided visits, entrance fees, and experiences as per itinerary"
-    ],
-    insuranceOptions: tour?.insurance_options || {
-      health: "Health travel insurance",
-      cancellation: "Trip cancellation insurance"
-    },
-    disclaimer: "The itinerary shown reflects planned activities prior to reservations. Any component may be replaced due to unforeseen circumstances. Substitutions will always be of equal or higher value, at no extra cost. Responsibility lies with the travel agency."
-  };
-
-  // augment tourData with canonical extensions (use default pricePerDay)
-  if (tour?.related_tours) {
-     tourData.extensions = tour.related_tours.map((e: any) => ({
-       key: (e.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '_'),
-       name: e.title,
-       days: e.days,
-       pricePerDay: e.price ? Math.round(e.price / e.days) : 250
-     }));
-  } else if (tour?.extensions_data) {
-     // Fallback for transition
-     tourData.extensions = tour.extensions_data.map((e: any) => ({
-       key: (e.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '_'),
-       name: e.title,
-       days: e.days,
-       pricePerDay: e.price ? Math.round(e.price / e.days) : 250
-     }));
-  } else {
-    tourData.extensions = EXTENSIONS.map((e) => ({ key: (e.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '_'), name: e.title, days: e.days, pricePerDay: 250 }));
-  }
-
-  const handleModeSelect = (mode: string) => {
-    if (subMode === mode) {
-      setSubMode(null);
-    } else {
-      setSubMode(mode as any);
-    }
-    if (mode === 'itinerary') {
-      setSelectedMode('vertical');
-      setMapView('day-focused');
-    } else {
-      setSelectedMode('horizontal');
-      setMapView('day-focused'); // or keep panoramic? but according to plan, day-focused for itinerary
-    }
-  };
-
-  // ignore the first subMode change (initial mount) to avoid an automatic flip on load
-  const initialSubModeMount = useRef(true);
-  useEffect(() => {
-    if (initialSubModeMount.current) {
-      initialSubModeMount.current = false;
-      return;
-    }
-    if (subMode !== 'itinerary') {
-      setIsFlipping(true);
-      const t = setTimeout(() => setIsFlipping(false), 500);
-      return () => clearTimeout(t);
-    }
-  }, [subMode]);
-
-  // Listen for external requests to open the reservation tab (e.g., 'Reserve' CTA)
-  useEffect(() => {
-    const unsub = subscribeTourOpenReservation(() => {
-      setActiveTab('reservation');
-      setSectionOpen(true);
-    });
-    return unsub;
-  }, []);
-
-  // Delegated click handler: if any element with data-action="open-reservation" is clicked,
-  // open the reservation tab. As a fallback, also match visible buttons with text 'Reserve your spot'.
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      try {
-        const target = e.target as HTMLElement | null;
-        if (!target) return;
-        const el = target.closest('[data-action="open-reservation"]') as HTMLElement | null;
-        if (el) {
-          e.preventDefault();
-          setActiveTab('reservation');
-          setSectionOpen(true);
-          return;
-        }
-
-        // fallback: match by visible text content
-        const btn = target.closest('button, a') as HTMLElement | null;
-        if (btn) {
-          const txt = (btn.textContent || '').trim();
-          if (/^reserve\b/i.test(txt) || /reserve your spot/i.test(txt)) {
-            e.preventDefault();
-            setActiveTab('reservation');
-            setSectionOpen(true);
-            return;
-          }
-        }
-      } catch {
-        // ignore
-      }
-    };
-    document.addEventListener('click', onClick);
-    return () => document.removeEventListener('click', onClick);
-  }, []);
-
-  const dayStops = useMemo(() => {
-    const out: Record<number, string[]> = {};
-    for (let d = 1; d <= 14; d++) out[d] = getStopsForDay(d);
-    return out;
-  }, [initialData]);
-
-  const [dayFiles, setDayFiles] = useState<Record<number, MediaFile[]>>({});
-  const [mediaIndex, setMediaIndex] = useState(0);
-
-  useEffect(() => {
-    setMediaIndex(0);
-  }, [selectedDayNumber]);
-
-  const [tourGeoJson, setTourGeoJson] = useState<any>(null);
-  const [staticPoints, setStaticPoints] = useState<MapPoint[]>([]);
-
-  // Use GeoJSON from DB props instead of fetching file
-  useEffect(() => {
-    if (initialData?.routeGeoJson) {
-       // Ensure a stable color/name
-       const geojson = JSON.parse(JSON.stringify(initialData.routeGeoJson));
-        if (geojson?.features?.[0]) {
-          geojson.features[0].properties = {
-            ...(geojson.features[0].properties || {}),
-            name: geojson.features[0].properties?.name || "Madrid → Lisboa (driving)",
-            color: geojson.features[0].properties?.color || "#0077cc",
-          };
-        }
-        setTourGeoJson(geojson);
-    }
-  }, [initialData]);
-  
-  // NOTE: staticPoints fetching removed as requested "todo en supabase".
-  // If static key-cities for the map (not day points) are needed, they should be in the DB.
-  // For now, removing the fetch means `staticPoints` stays empty.
-  // The original code used /routes/madrid-lisbon-points.json.
-  // I should probably support this if needed, but let's stick to the prompt.
-
-
-  // Load the static key-city points from /public (generated via scripts/build-madrid-lisbon-static.js)
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-  const dev = process.env.NODE_ENV !== "production";
-        const res = await fetch(dev ? `/routes/madrid-lisbon-points.json?cb=${Date.now()}` : "/routes/madrid-lisbon-points.json", { cache: "no-store" });
-        if (!res.ok) throw new Error(`Failed to load points: ${res.status}`);
-        const arr = (await res.json()) as any[];
-        if (cancelled) return;
-        const pts = Array.isArray(arr)
-          ? (arr
-              .filter(Boolean)
-              .map((p) => ({
-                name: String(p.name || ""),
-                day: typeof p.day === "number" ? p.day : null,
-                coords:
-                  Array.isArray(p.coords) && p.coords.length >= 2
-                    ? [Number(p.coords[0]), Number(p.coords[1])]
-                    : ([0, 0] as [number, number]),
-              })) as MapPoint[])
-          : [];
-        setStaticPoints(pts);
-      } catch (e) {
-        console.error("Failed to load tour points:", e);
-        if (!cancelled) setStaticPoints([]);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const tourRoute = useMemo(
-    () =>
-      tourGeoJson
-        ? ({
-            id: "madrid-lisbon-route",
-            title: "Madrid → Lisboa (driving)",
-            geojson: tourGeoJson,
-            color: "#0077cc",
-          } as const)
-        : null,
-    [tourGeoJson],
-  );
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        // DEPRECATED: fetch directo legacy reemplazado por domain wrapper
-        // const res = await fetch("/api/media/list?path=" + encodeURIComponent(stopsPath));
-        // ...
-        const files: MediaItem[] = await getTourMedia(stopsPath);
-        const groups: Record<number, MediaFile[]> = {};
-        for (const f of files) {
-          const path = f.src || (typeof f === "string" ? f : "");
-          if (!path) continue;
-          const dn = extractDayNumberFromFilename(path);
-          if (!dn || dn < 1 || dn > 99) continue;
-          groups[dn] = groups[dn] || [];
-          groups[dn].push({
-            path,
-            caption: typeof f === "object" && f && "caption" in f ? ((f as any).caption ?? null) : null,
-          });
-        }
-        if (!cancelled) setDayFiles(groups);
-      } catch {
-        // ignore
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [stopsPath]);
-
-  const mediaListForDay = useMemo(() => {
-    const items = dayFiles[selectedDayNumber] || [];
-    const files = items
-      .map((x) => {
-        // If x.path is already an absolute URL (Supabase), use it directly
-        if (x.path && x.path.startsWith('http')) return x.path;
-        // Otherwise apply safeWebPath for local paths
-        return safeWebPath(x.path);
-      })
-      .filter((p) => /\.(jpg|jpeg|png|webp|avif|gif|mp4|mov|webm|heic|heif)$/i.test(p));
-    return files;
-  }, [dayFiles, selectedDayNumber]);
-
-  const currentMediaSrc = mediaListForDay.length
-    ? mediaListForDay[Math.min(mediaIndex, mediaListForDay.length - 1)]
-    : null;
-
-  const isImage = (src: string) => /\.(jpg|jpeg|png|webp|avif|gif|heic|heif)$/i.test(src);
-  const isVideo = (src: string) => /\.(mp4|mov|webm)$/i.test(src);
-
-  // Per-day points from itinerary file (uses data/coords/coordsByName.json) + static anchors
-  const mapPoints = useMemo(() => {
-    const dayPts = getMapPointsForDay(selectedDayNumber);
-    // merge without duplicates by name (prefer itinerary-specific labels)
-    const seen = new Set(dayPts.map((p) => String(p.name || "").toLowerCase()));
-    const merged = [...dayPts];
-    for (const p of staticPoints) {
-      const k = String(p.name || "").toLowerCase();
-      if (!k || seen.has(k)) continue;
-      merged.push(p);
-      seen.add(k);
-    }
-    return merged;
-  }, [selectedDayNumber, staticPoints]);
-
-  // Create the tour route that will always be visible
-  // const tourRoute = useMemo(() => ({
-  //   id: 'madrid-lisbon-route',
-  //   title: 'Madrid to Lisbon Tour Route',
-  //   geojson: createTourRoute(),
-  //   color: '#0077cc' // Blue color
-  // }), []);
-
-  // minimal modal sizing refs (kept simple; CSS already has responsive modal rules)
+  // Layout refs for modal
   const headerRef = useRef<HTMLDivElement | null>(null);
   const modalRef = useRef<HTMLDivElement | null>(null);
-  const [contentHeightPx, setContentHeightPx] = useState<number | null>(600); // Fixed height for consistent modal size
+  
+  // --- DATA PARSING ---
+  const { 
+    title, 
+    start_date, 
+    end_date, 
+    price_data, 
+    summary, // Using summary per request
+    description, // Fallback if needed, but summary is priority
+    stops_path,
+    days: tourDays = [], 
+  } = initialData || {};
 
-  return (
-    <div className="min-h-screen" style={{ background: "transparent" }}>
-      {/* HERO */}
-      <header className="w-full relative">
-        <section className="fixed top-0 left-0 right-0 w-full h-screen overflow-hidden" style={{ zIndex: 10 }}>
-          <div className="absolute inset-0">
-            <img
-              src={heroSrc.startsWith('http') ? heroSrc : (mediaUrl(heroSrc) ? normalizeUrl(mediaUrl(heroSrc) as string) : normalizeUrl(heroSrc))}
-              alt="hero"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                tryImageFallback(e.currentTarget as HTMLImageElement);
-              }}
-            />
-          </div>
-        </section>
-      </header>
+  const [mainTitle, subTitle] = useMemo(() => (title || "").split('\n'), [title]);
 
-      {/* spacer so modal starts low like before */}
-      <div aria-hidden style={{ height: "75vh" }} />
+  const daysCount = useMemo(() => {
+    if (!start_date || !end_date) return 0;
+    try { return differenceInDays(parseISO(end_date), parseISO(start_date)) + 1; } catch { return 0; }
+  }, [start_date, end_date]);
 
-      {/* subtle blur overlay when modal open */}
-      {sectionOpen && (
-        <div
-          className="fixed inset-0"
-          style={{
-            zIndex: 30,
-            pointerEvents: "none",
-            backdropFilter: "blur(6px)",
-            WebkitBackdropFilter: "blur(6px)",
-            backgroundColor: "rgba(255,255,255,0.02)",
-          }}
-        />
-      )}
+  // Fetch Itinerary Media from Supabase folder "stops"
+  useEffect(() => {
+    async function fetchItineraryMedia() {
+      // Use DB stops_path if available
+      const path = stops_path || "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops";
+      if (!path) return;
 
-      {/* MODAL */}
-      <main
-        className="w-full"
-        style={{
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "100%",
-          maxWidth: "100vw",
-          height: "99vh",
-          zIndex: 80,
-        }}
-      >
-        <div className="mx-auto ui-container responsive-modal" style={{ maxWidth: "1400px", padding: "0 1rem" }}>
-          <div
-            ref={modalRef}
-            className="bg-white/10 rounded-lg shadow-lg overflow-hidden ui-pad-sm ui-edge-offset modal-panel"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              maxHeight: "calc(100vh - 48px)",
-              borderRadius: 16,
-              margin: "24px auto",
-              backgroundColor: "rgba(255,255,255,0.35)",
-              backdropFilter: "blur(12px) saturate(120%)",
-              WebkitBackdropFilter: "blur(12px) saturate(120%)",
-              border: "1px solid rgba(0,0,0,0.06)",
-            }}
-          >
-            {/* header */}
-            <div
-              ref={headerRef}
-              className="w-full bg-white/10 text-black border-b border-gray-200"
-              style={{ backgroundColor: "rgba(255,255,255,0.25)", margin: "-12px -12px 0 -12px" }}
-            >
-              <div className="flex items-stretch">
-                <div className="w-1/2 flex items-center justify-center py-2 px-3" style={{ position: "relative" }}>
-                  <button
-                    aria-label="Back to landing"
-                    onClick={() => goBackToLanding(router, tour?.year)}
-                    className="absolute left-6 top-1/2 -translate-y-1/2 p-2 text-black bg-transparent"
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 12H6" />
-                      <path d="M12 5l-7 7 7 7" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="10" />
-                      <line x1="2" y1="12" x2="22" y2="12" />
-                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                    </svg>
-                  </button>
+      try {
+        const res = await fetch(`/api/media/list?path=${encodeURIComponent(path)}`);
+        if (res.ok) {
+          const json = await res.json();
+          const files = json.files || [];
+          // Sort alphabetically to ensure Day 1 uses first photo, Day 2 second, etc.
+          const sortedImgs = files
+             .filter((f: any) => /\.(jpg|jpeg|png|webp|avif)$/i.test(f.filename || f.path))
+             .sort((a: any, b: any) => (a.filename || "").localeCompare(b.filename || "", undefined, { numeric: true }))
+             .map((f: any) => ({
+                path: f.path,
+                day: parseInt((f.filename || "").match(/\d+/)?.[0] || "0")
+             }));
+          
+          // Map each day index to its corresponding image path
+          const mediaByDay: string[] = [];
+          sortedImgs.forEach((img: any) => {
+            if (img.day > 0) {
+              mediaByDay[img.day - 1] = img.path;
+            }
+          });
+          setItineraryMedia(mediaByDay);
+        }
+      } catch (err) {
+        console.error("Failed to fetch itinerary media", err);
+      }
+    }
+    fetchItineraryMedia();
+  }, [stops_path]);
 
-                  <div className="flex gap-2 w-full justify-center items-center">
-                    <button
-                      onClick={() => {
-                        setActiveTab("itinerary");
-                        setSectionOpen(true);
-                      }}
-                      aria-pressed={activeTab === "itinerary"}
-                      className={`px-3 py-1 rounded font-semibold ${activeTab === "itinerary" ? "bg-black text-white" : "bg-transparent text-black"}`}
-                    >
-                      Itinerary
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("reservation")}
-                      aria-pressed={activeTab === "reservation"}
-                      className={`px-3 py-1 rounded font-semibold ${activeTab === "reservation" ? "bg-black text-white" : "bg-transparent text-black"}`}
-                    >
-                      Reservation
-                    </button>
+  // Auto-advance Days effect (every 9 seconds)
+  // Reset timer whenever selectedDay changes manually or automatically
+  useEffect(() => {
+    if (viewMode !== 'ITINERARY') return;
+    const interval = setInterval(() => {
+      setSelectedDay(prev => (prev >= daysCount ? 1 : prev + 1));
+    }, 9000);
+    return () => clearInterval(interval);
+  }, [viewMode, daysCount, selectedDay]);
 
-                    {/* User button + right arrow: positioned just left of center, closer to Reservation */}
-                      <div className="absolute top-1/2 -translate-y-1/2 flex items-center" style={{ right: '32px', gap: '8px', zIndex: 20 }}>
-                      <UserBubble
-                        variant="modalHeader"
-                        // increased right nudge: move the user icon further to the right
-                        buttonClassName="inline-flex items-center justify-center p-2 text-black bg-transparent h-10 translate-x-4"
-                        onOpenRegisterAction={handleOpenRegister}
-                      />
-                      <button aria-hidden className="inline-flex items-center justify-center p-2 text-black bg-transparent h-10">
-                        {/* Right-pointing arrow (mirror of the left arrow) - match other header arrow size (20x20) */}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M6 12H18" />
-                          <path d="M12 6l6 6-6 6" />
-                        </svg>
-                      </button>
+  const dateRangeStr = useMemo(() => {
+    if (!start_date || !end_date) return "Dates TBD";
+    try {
+      const s = parseISO(start_date);
+      const e = parseISO(end_date);
+      if (s.getMonth() === e.getMonth() && s.getFullYear() === e.getFullYear()) {
+        return `${format(s, 'd')} to ${format(e, 'd MMMM yyyy')}`;
+      }
+      return `${format(s, 'd MMMM')} to ${format(e, 'd MMMM yyyy')}`;
+    } catch { return "Dates TBD"; }
+  }, [start_date, end_date]);
+
+  const priceStr = useMemo(() => {
+    // Calculate total price from "Flights" + "Tour Cost" columns
+    // Note: initialData keys coming from Postgres might preserve casing/spaces if not transformed.
+    // We try to access them robustly.
+    const flightCost = Number(initialData?.["Flights"] || 0);
+    const tourCost = Number(initialData?.["Tour Cost"] || 0);
+    const total = flightCost + tourCost;
+    
+    // Fallback to price_data if individual columns are missing but price_data exists
+    if (total > 0) return `€${total.toLocaleString()}`;
+    if (price_data?.amount) return `€${price_data.amount.toLocaleString()}`;
+    
+    return "TBD";
+  }, [initialData, price_data]);
+  
+  // Hero Image (Background)
+  const heroSrc = initialData?.card_image || 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/MAIN TOUR/hero.webp';
+
+  // Auth User Effect
+  useEffect(() => {
+    supabaseClient?.auth.getUser().then(({ data }) => setUser(data?.user));
+  }, []);
+
+  // Compute map points
+  const mapPoints = useMemo(() => {
+    return tourDays
+      .filter((d: any) => d.stops_data && d.stops_data.lat)
+      .map((d: any) => ({
+        coords: [d.stops_data.lat, d.stops_data.lng],
+        name: d.stops_data.stop_name || `Day ${d.day_number}`,
+        day: d.day_number,
+        order: d.day_number
+      }));
+  }, [tourDays]);
+  
+  // Media Logic: Back to random tour highlights per request
+  const currentDayMedia = useMemo(() => {
+    // We still keep the mapping for possible use, but it won't be from 'stops' folder anymore in the UI
+    const dayData = tourDays.find((d: any) => d.day_number === selectedDay);
+    if (dayData?.activities_data?.media) {
+       return dayData.activities_data.media.map((m: any) => ({
+         type: 'image',
+         src: m.url || m.src
+       }));
+    }
+    return [];
+  }, [tourDays, selectedDay]);
+
+  // Reservation Data Construction
+  const tourData: TourData = {
+    id: initialData?.id,
+    title: title || "MADRID TO LISBOA",
+    nights: 11,
+    basePricePerTraveler: (initialData?.["Tour Cost"] || 0) + (initialData?.["Flights"] || 0),
+    includedRoomType: 'double',
+    inclusions: initialData?.inclusions,
+    insuranceOptions: initialData?.insurance_options,
+    departureAirports: initialData?.departure_airports,
+    disclaimer: "The itinerary shown reflects planned activities prior to reservations."
+  };
+
+  // --- SCROLL NAVIGATION LOGIC ---
+  useEffect(() => {
+   const handleWheel = (e: any) => {
+      // If any right panel contains scrollable content (not the default MEDIA) or a modal is open,
+      // don't treat wheel as a command to switch the left view (Summary <-> Itinerary).
+      if (rightPanelContent !== 'MEDIA' || isFlightsModalOpen || isWeatherModalOpen || isPackageModalOpen || isOptionalsModalOpen) return;
+
+      // Horizontal Scroll -> Switch Main Tab (Details <-> Reservation)
+      // We use a threshold of 30 to detect a clear swipe intention
+      if (Math.abs(e.deltaX) > 30 && Math.abs(e.deltaY) < 20) {
+         if (e.deltaX > 0 && activeTab === 'itinerary') setActiveTab('reservation');
+         else if (e.deltaX < 0 && activeTab === 'reservation') setActiveTab('itinerary');
+      }
+
+      // Vertical Scroll -> Switch View Mode (Summary <-> Itinerary <-> Extensions)
+      // Only if we are in 'itinerary' (Details) activeTab, because Reservation has its own scroll
+      if (activeTab === 'itinerary' && Math.abs(e.deltaY) > 30 && Math.abs(e.deltaX) < 20) {
+          if (e.deltaY > 0) { // Scroll Down
+             if (viewMode === 'SUMMARY') setViewMode('ITINERARY');
+          } else { // Scroll Up
+             if (viewMode === 'ITINERARY') setViewMode('SUMMARY');
+          }
+      }
+   };
+
+    window.addEventListener('wheel', handleWheel); 
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [activeTab, viewMode, isFlightsModalOpen, isWeatherModalOpen, isPackageModalOpen, isOptionalsModalOpen]);
+
+  // --- HANDLERS ---
+  const handleBrochureClick = () => {
+    if (!user) {
+      alert("Please sign in to download the brochure.");
+      return;
+    }
+      const pdfUrl = initialData?.pdf_url || "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/pdf-prueba/Forgotten%20Iberia.pdf";
+      const proxyUrl = `/api/download-brochure?url=${encodeURIComponent(pdfUrl)}`;
+      // Try to fetch the PDF via internal proxy and trigger a download without opening a new tab
+      (async () => {
+         try {
+            setDownloadStatus('loading');
+            const res = await fetch(proxyUrl, { method: 'GET' });
+            if (!res.ok) throw new Error('Failed to fetch brochure via proxy');
+            const blob = await res.blob();
+
+            // Derive a filename from the proxy response header or from original URL
+            const contentDisposition = res.headers.get('content-disposition') || '';
+            let filename = '';
+            const match = /filename\*?=\s*(?:UTF-8'')?"?([^";]+)/i.exec(contentDisposition);
+            if (match && match[1]) filename = match[1];
+            if (!filename) {
+               const urlParts = (pdfUrl || '').split('/');
+               filename = urlParts[urlParts.length - 1] || 'brochure.pdf';
+               try { filename = decodeURIComponent(filename); } catch (e) { /* ignore */ }
+            }
+
+            const objectUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = objectUrl;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+               try { document.body.removeChild(a); } catch (e) {}
+               URL.revokeObjectURL(objectUrl);
+            }, 1500);
+
+            setDownloadStatus('success');
+            } catch (err) {
+               console.error('Brochure download via proxy failed', err);
+                     // Fallback: create a hidden iframe to the proxy URL to trigger a download
+                     try {
+                        console.log('Attempting iframe fallback to proxy URL', proxyUrl);
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = proxyUrl;
+                        document.body.appendChild(iframe);
+                        // Remove iframe after a short while
+                        setTimeout(() => { try { document.body.removeChild(iframe); } catch(e){} }, 5000);
+                        setDownloadStatus('idle');
+                        return;
+                     } catch (e) {
+                        console.error('Iframe fallback failed', e);
+                     }
+
+               // Last resort: open in new tab (user will be taken there) -- rarely used
+               try {
+                  window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+               } catch (e) {
+                  console.error('Final fallback open failed', e);
+               }
+               setDownloadStatus('idle');
+            }
+      })();
+  };
+
+  const handleItineraryClick = () => {
+    if (viewMode === 'ITINERARY') {
+      setViewMode('SUMMARY');
+    } else {
+      setViewMode('ITINERARY');
+      if (selectedDay === 0) setSelectedDay(1);
+    }
+  };
+
+  const handleExtensionsClick = () => {
+    setRightPanelContent(rightPanelContent === 'EXTENSIONS' ? 'MEDIA' : 'EXTENSIONS');
+  };
+  
+  // Helper to calculate date for a specific day number
+  const getDateForDay = (dayNum: number) => {
+    if (!start_date) return null;
+    try {
+      return addDays(parseISO(start_date), dayNum - 1);
+    } catch {
+      return null;
+    }
+  };
+
+  // --- RENDER HELPERS (QUADRANTS) ---
+
+  const renderSummaryPanel = () => {
+    return (
+       <div className="h-full bg-white/60 p-5 lg:p-6 rounded-xl flex flex-col backdrop-blur-sm border border-white/50 shadow-sm relative overflow-hidden">
+           {/* Header Section: Compact & Impactful */}
+           <div className="flex-shrink-0 mb-3 border-b border-gray-200/50 pb-3">
+              <div className="flex items-start justify-between gap-4">
+                  {/* LEFT: Title + Subtitle */}
+                  <div className="flex flex-col gap-1 max-w-[70%]">
+                      <h1 className="text-3xl md:text-3xl lg:text-4xl font-serif text-gray-900 leading-[0.9] -tracking-wide">
+                        {mainTitle}
+                      </h1>
+                       {subTitle && (
+                        <p className="text-sm md:text-base text-gray-500 font-serif italic leading-tight">
+                          {subTitle}
+                        </p>
+                      )}
+                  </div>
+                  
+                  {/* RIGHT: Weather & Package */}
+                  <div className="flex flex-col items-end gap-2 shrink-0">
+                       {/* Weather Button */}
+                       <button 
+                          onClick={() => setRightPanelContent(rightPanelContent === 'WEATHER' ? 'MEDIA' : 'WEATHER')}
+                          className={`px-2 py-1 flex items-center gap-1 rounded-full border transition-all shadow-sm ${rightPanelContent === 'WEATHER' ? 'bg-black text-white border-black' : 'bg-white/60 text-gray-600 border-gray-200 hover:bg-white hover:border-gray-400'}`}
+                          title="Weather Info"
+                       >
+                          <WeatherStatusIcon />
+                          <ChevronDownIcon className="w-3 h-3 stroke-2" />
+                       </button>
+                       {/* Ibero Package Dropdown */}
+                       <button 
+                          onClick={() => setRightPanelContent(rightPanelContent === 'PACKAGE' ? 'MEDIA' : 'PACKAGE')}
+                          className={`px-3 py-1 border rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-colors shadow-sm ${rightPanelContent === 'PACKAGE' ? 'bg-black text-white border-black' : 'bg-white/60 text-gray-700 border-gray-200 hover:bg-white hover:border-gray-400'}`}
+                       >
+                          <span>Ibero Package</span>
+                          <ChevronDownIcon className="w-3 h-3 stroke-2" />
+                       </button>
+                  </div>
+              </div>
+
+              {/* Tag Row */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-medium text-gray-900 mt-3 pt-1">
+                 <button 
+                    onClick={handleItineraryClick}
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-white/50 rounded-full border border-gray-100 hover:border-black/30 hover:bg-white transition-all group"
+                 >
+                    <CalendarDaysIcon className="w-3.5 h-3.5 text-gray-400 group-hover:text-black" />
+                    <span className="group-hover:text-black">{dateRangeStr}</span>
+                 </button>
+                 <button 
+                    onClick={handleItineraryClick}
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-white/50 rounded-full border border-gray-100 hover:border-black/30 hover:bg-white transition-all group"
+                 >
+                    <span className="font-bold group-hover:text-black">{daysCount} Days</span>
+                 </button>
+                 <button 
+                    onClick={() => setRightPanelContent(rightPanelContent === 'PACKAGE' ? 'MEDIA' : 'PACKAGE')}
+                    className="flex items-center gap-1.5 px-2.5 py-1 bg-white/50 rounded-full border border-gray-100 hover:border-black/30 hover:bg-white transition-all group"
+                 >
+                    <span className="group-hover:text-black">{priceStr} <span className="text-gray-400 font-normal">/ person</span></span>
+                 </button>
+                 <button 
+                  onClick={() => setRightPanelContent(rightPanelContent === 'FLIGHTS' ? 'MEDIA' : 'FLIGHTS')}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-colors ${rightPanelContent === 'FLIGHTS' ? 'bg-white text-black border border-black' : 'bg-black text-white hover:bg-gray-800'}`}
+                 >
+                   <GlobeAltIcon className="w-3 h-3" /> Includes Flights
+                 </button>
+              </div>
+           </div>
+
+           {/* Scrollable Summary */}
+           <div className="flex-grow overflow-y-auto pr-4 custom-scrollbar min-h-0 mb-2">
+           <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 sticky top-0 bg-white/0 backdrop-blur-none">Tour Overview</h3>
+           <div className="text-base md:text-lg text-gray-700 leading-relaxed font-serif whitespace-pre-line underline decoration-black/5 underline-offset-8">
+              {summary || description || "Join us on this incredible journey..."}
+           </div>
+         </div>
+       </div>
+    );
+  };
+
+  // Quadrant 1: Top Left (Info or Calendar)
+  const renderTopLeft = () => {
+    if (viewMode === 'ITINERARY') {
+      return (
+         <div className="h-full bg-white/40 p-4 rounded-xl flex flex-col relative overflow-hidden backdrop-blur-sm border border-white/50 shadow-sm transition-all duration-300">
+            {/* Calendar Grid - Smart Date Aware */}
+            <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+               
+               {/* Weekday Headers */}
+               <div className="grid grid-cols-7 mb-1 border-b border-gray-200/50 pb-1">
+                  {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d => (
+                    <div key={d} className="text-[8px] font-bold text-center text-gray-400 uppercase tracking-widest">
+                      {d[0]}
                     </div>
-                  </div>
-                </div>
+                  ))}
+               </div>
 
-                <div className="w-1/2 py-2 pl-6 pr-3 flex items-center justify-center relative">
-                  <div className="absolute left-0 top-0 bottom-0 flex items-stretch justify-center" style={{ width: "1px" }}>
-                    <div className="w-px bg-gray-200 h-full" />
-                  </div>
-                  {subMode === 'daybyday' ? (
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => setSelectedDayNumber(prev => Math.max(1, prev - 1))}
-                        disabled={selectedDayNumber === 1}
-                        className="text-black disabled:opacity-40"
-                        aria-label="Previous day"
-                      >
-                        ‹
-                      </button>
-                      <div style={{ background: "rgba(255,255,255,0.35)", padding: "4px 14px", borderRadius: 6 }}>
-                        <div className="font-normal uppercase tracking-wider text-sm md:text-base truncate" style={{ whiteSpace: "nowrap", maxWidth: "52ch" }}>
-                          DAY BY DAY
+               <div className="grid grid-cols-7 gap-1 pb-2">
+                {calendarGrid.map((cell: any, idx: number) => {
+                  const isSelected = cell.status === 'tour' && selectedDay === cell.dayNum;
+                  
+                  return (
+                    <button 
+                      key={idx}
+                      onClick={() => {
+                        if (cell.status === 'tour') setSelectedDay(cell.dayNum);
+                      }}
+                      disabled={cell.status !== 'tour'}
+                      className={`h-12 flex flex-col items-center justify-center rounded-lg transition-all relative
+                        ${cell.status === 'tour' 
+                          ? (isSelected 
+                              ? 'bg-black text-white border-black scale-105 shadow-md ring-1 ring-black/20 z-10' 
+                              : 'text-gray-900 border-gray-200 hover:border-black hover:bg-white/40' 
+                            )
+                          : (cell.status === 'empty'
+                              ? 'opacity-0 pointer-events-none'
+                              : 'bg-gray-100/50 text-gray-400 border border-dashed border-gray-200 cursor-not-allowed'
+                            )
+                        } border`}
+                    >
+                      {cell.status !== 'empty' && (
+                         <>
+                           <span className={`text-[9px] font-mono absolute top-1 left-1 ${isSelected ? 'opacity-80' : 'opacity-60'}`}>
+                              {format(cell.date, 'd')}
+                           </span>
+                           
+                           {/* Highlight EXTENSIONS inside the box as requested */}
+                           {(cell.status === 'pre' || cell.status === 'post') && (
+                              <span className="text-[6px] font-bold uppercase tracking-widest mt-3 leading-tight text-center px-0.5">
+                                 {cell.status === 'pre' ? 'PRE\nTOUR' : 'POST\nTOUR'}
+                              </span>
+                           )}
+                           
+                           {/* Tour Day Number only if needed, user said "deja solo el gris text-mono, texto negro no" */}
+                           {/* Intentionally omitted dayNum big text based on user request */}
+                         </>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+         </div>
+      );
+    }
+    return null;
+  };
+
+  // Quadrant 2: Bottom Left (Description or Day Detail)
+  const renderBottomLeft = () => {
+    if (viewMode === 'ITINERARY') {
+      const day = tourDays.find((d:any) => d.day_number === selectedDay);
+      const detailText = day?.day_description || day?.activities_data?.description || '';
+      const morningText = typeof day?.activities_data?.morning === 'string' 
+         ? day.activities_data.morning 
+         : day?.activities_data?.morning?.text || day?.activities_data?.morning?.title || '';
+      const afternoonText = typeof day?.activities_data?.afternoon === 'string' 
+         ? day.activities_data.afternoon 
+         : day?.activities_data?.afternoon?.text || day?.activities_data?.afternoon?.title || '';
+
+      return (
+        <div className="h-full bg-white/60 p-5 rounded-xl flex flex-col backdrop-blur-sm border border-white/50 relative shadow-sm group/card">
+           <div className="flex-grow overflow-y-auto mb-2 custom-scrollbar pr-2">
+              <div className="flex items-baseline gap-3 mb-4 border-b border-gray-200/50 pb-3 sticky top-0 bg-white/0 backdrop-blur-sm z-10 pr-2">
+                 <div className="min-w-0">
+                   <h3 className="text-xl font-bold text-gray-900 leading-tight truncate">
+                     {day?.day_title || day?.stops_data?.stop_name || `Day ${selectedDay}`}
+                   </h3>
+                   {day?.overnight_city && (
+                      <div className="text-xs text-gray-500 font-bold uppercase tracking-wider mt-1 flex items-center gap-1">
+                        <HomeIcon className="w-3 h-3" /> Overnight: {day.overnight_city}
+                      </div>
+                   )}
+                 </div>
+              </div>
+              
+              <div className="space-y-6">
+                 {detailText && (
+                    <p className="text-base text-gray-800 leading-relaxed whitespace-pre-line font-serif">
+                       {detailText}
+                    </p>
+                 )}
+                 
+                 {/* Morning/Afternoon segments - Promoted Size as requested */}
+                 {morningText && (
+                    <div className="mt-2">
+                       <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Morning</span>
+                       <p className="text-base text-gray-800 leading-relaxed font-serif">
+                          {morningText}
+                       </p>
+                    </div>
+                 )}
+                 {afternoonText && (
+                    <div className="mt-2">
+                       <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">Afternoon / Evening</span>
+                       <p className="text-base text-gray-800 leading-relaxed font-serif">
+                          {afternoonText}
+                       </p>
+                    </div>
+                 )}
+              </div>
+           </div>
+           
+           {/* Navigation Buttons */}
+           <div className="mt-auto pt-4 flex gap-2 border-t border-gray-100/50">
+               <button 
+                  onClick={() => setSelectedDay(Math.max(1, selectedDay - 1))} 
+                  disabled={selectedDay <= 1} 
+                  className="flex-1 py-3 bg-white border border-gray-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-50 disabled:opacity-50 transition-colors"
+               >
+                 Prev Day
+               </button>
+               <button 
+                   onClick={() => setSelectedDay(Math.min(daysCount, selectedDay + 1))} 
+                   disabled={selectedDay >= daysCount}
+                   className="flex-1 py-3 bg-black text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-800 disabled:opacity-50 transition-colors"
+               >
+                 Next Day
+               </button>
+           </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // --- CALENDAR GRID COMPUTATION ---
+  const calendarGrid = useMemo(() => {
+    if (!start_date || !end_date) return [];
+    
+    const start = parseISO(start_date);
+    const end = parseISO(end_date);
+    
+    // Parse extensions
+    let preDays = 0;
+    let postDays = 0;
+    let extensions: any[] = [];
+    try {
+       extensions = typeof initialData?.related_tours === 'string' 
+         ? JSON.parse(initialData.related_tours) 
+         : initialData?.related_tours || [];
+    } catch { extensions = []; }
+
+    extensions.forEach(ext => {
+        const when = (ext.when || '').toLowerCase();
+        if (when.includes('pre')) preDays += (ext.days || 0);
+        if (when.includes('post')) postDays += (ext.days || 0);
+    });
+
+    const effectiveStart = subDays(start, preDays);
+    const effectiveEnd = addDays(end, postDays);
+    
+    // Full weeks (Mon start)
+    const gridStart = startOfWeek(effectiveStart, { weekStartsOn: 1 });
+    const gridEnd = endOfWeek(effectiveEnd, { weekStartsOn: 1 });
+    
+    return eachDayOfInterval({ start: gridStart, end: gridEnd }).map(date => {
+       let status: 'tour' | 'pre' | 'post' | 'empty' = 'empty';
+       let dayNum = 0;
+
+       if (date >= start && date <= end) {
+          status = 'tour';
+          dayNum = differenceInDays(date, start) + 1;
+       } else if (date >= subDays(start, preDays) && date < start) {
+          status = 'pre';
+       } else if (date > end && date <= addDays(end, postDays)) {
+          status = 'post';
+       }
+       
+       return { date, status, dayNum };
+    });
+  }, [start_date, end_date, initialData]);
+
+  // --- OPTIONALS MODAL CONTENT (COPIED FROM RESERVATIONTAB) ---
+  const OptionalsContent = ({ tourData, onClose }: { tourData: TourData; onClose: () => void }) => {
+     const [selected, setSelected] = useState<Record<string, boolean>>({});
+
+     const extensionsList = useMemo(() => {
+        // Parse from related_tours if string or array
+        let exts = [];
+        try {
+           exts = typeof initialData?.related_tours === 'string' 
+             ? JSON.parse(initialData.related_tours) 
+             : initialData?.related_tours || [];
+        } catch { exts = []; }
+        
+        // formats them to match ReservationTab expected structure
+        return exts.map((ex: any) => ({
+             key: ex.id || ex.key,
+             name: ex.title || ex.name,
+             days: ex.days || 3,
+             pricePerDay: ex.price_per_day || 250
+        }));
+     }, []);
+
+     const addons = useMemo(() => [
+        { key: 'insHealth', label: tourData.insuranceOptions?.health || 'Health insurance', price: 100, perTraveler: true, info: 'Covers basic medical emergencies.' },
+        { key: 'insCancel', label: tourData.insuranceOptions?.cancellation || 'Cancellation insurance', price: 120, perTraveler: true, info: 'Covers trip cancellation per policy.' },
+     ], [tourData]);
+
+     const totalExtra = useMemo(() => {
+        return Object.keys(selected).reduce((acc, k) => {
+            if(!selected[k]) return acc;
+            if(k.startsWith('ext:')) {
+                const exKey = k.replace('ext:','');
+                const ex = extensionsList.find((e:any) => e.key === exKey);
+                return acc + (ex ? ex.pricePerDay * ex.days : 0);
+            }
+            const ad = addons.find(a => a.key === k);
+            return acc + (ad ? ad.price : 0);
+        }, 0);
+     }, [selected, extensionsList, addons]);
+
+     return (
+        <div className="flex flex-col h-full bg-white">
+             {/* BLACK HEADER */}
+             <div className="flex-shrink-0 p-6 bg-black flex items-center justify-between">
+                <div className="flex flex-col">
+                   <h2 className="text-2xl font-serif font-bold text-white tracking-widest uppercase">Optional Extensions</h2>
+                   <p className="text-xs text-white/50 uppercase tracking-tighter">Customize your trip with extensions and insurance</p>
+                </div>
+                
+                <div className="flex items-center gap-8">
+                   <div className="text-right">
+                      <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-1">Additional Total</span>
+                      <span className="text-3xl font-serif font-bold text-white">
+                          €{totalExtra.toLocaleString()}
+                      </span>
+                   </div>
+                   <button 
+                     onClick={onClose}
+                     className="p-2 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition-all"
+                   >
+                     <span className="sr-only">Close</span>
+                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                   </button>
+                </div>
+             </div>
+             
+             <div className="flex-1 overflow-hidden p-8">
+                  <div className="flex flex-col gap-8 h-full overflow-y-auto custom-scrollbar pr-2">
+                      {/* ROW 1: Extensions */}
+                      <div className="shrink-0">
+                          <h3 className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-black mb-4 sticky top-0 bg-white/80 backdrop-blur-md py-3 z-10 border-b border-black/5">
+                              <PuzzlePieceIcon className="w-5 h-5" />
+                              Extensions
+                          </h3>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {extensionsList.length === 0 && (
+                               <div className="col-span-full p-6 border border-dashed border-gray-300 rounded-lg text-center text-gray-400 text-sm italic">
+                                   No extensions available for this tour.
+                               </div>
+                            )}
+                            {extensionsList.map((ex: any) => (
+                               <label key={ex.key} className={`flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer hover:bg-white
+                                  ${selected['ext:'+ex.key] ? 'border-black bg-white shadow-md' : 'border-gray-200 bg-white/60 hover:border-gray-300'}`}>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={!!selected['ext:'+ex.key]} 
+                                    onChange={() => setSelected(s => ({...s, ['ext:'+ex.key]: !s['ext:'+ex.key]}))}
+                                    className="mt-1 w-5 h-5 text-black border-gray-300 rounded focus:ring-black shrink-0"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                     <div className="flex justify-between items-start">
+                                        <span className="font-bold text-gray-900 text-base leading-tight truncate pr-2">{ex.name}</span>
+                                        <span className="font-mono text-xs font-bold whitespace-nowrap bg-gray-100 px-2 py-1 rounded">€{(ex.pricePerDay * ex.days).toLocaleString()}</span>
+                                     </div>
+                                     <p className="text-xs text-gray-500 mt-2 font-medium">+{ex.days} days • €{ex.pricePerDay}/day</p>
+                                  </div>
+                               </label>
+                            ))}
+                          </div>
+                      </div>
+
+                      {/* ROW 2: Insurance */}
+                      <div className="shrink-0">
+                          <h3 className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-black mb-4 sticky top-0 bg-white/80 backdrop-blur-md py-3 z-10 border-b border-black/5">
+                              <ShieldCheckIcon className="w-5 h-5" />
+                              Insurance
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {addons.map((a) => (
+                              <label key={a.key} className={`flex items-start gap-3 p-4 rounded-xl border transition-all cursor-pointer hover:bg-white
+                                ${selected[a.key] ? 'border-black bg-white shadow-sm' : 'border-gray-200 bg-white/60 hover:border-gray-300'}`}>
+                                  <input 
+                                    type="checkbox" 
+                                    checked={!!selected[a.key]} 
+                                    onChange={() => setSelected(s => ({...s, [a.key]: !s[a.key]}))}
+                                    className="mt-0.5 w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                                  />
+                                <div className="flex-1">
+                                    <div className="flex justify-between">
+                                        <span className="font-bold text-sm text-gray-900">{a.label}</span>
+                                        <span className="text-xs font-bold">€{a.price}</span>
+                                    </div>
+                                    <p className="text-[11px] text-gray-500 mt-1 leading-snug">{a.info}</p>
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                      </div>
+                      
+                      {/* ROW 3: Flights */}
+                      <div className="shrink-0 pb-4">
+                        <h3 className="flex items-center gap-2 text-lg font-black uppercase tracking-widest text-black mb-4 py-2">
+                           <PaperAirplaneIcon className="w-5 h-5" />
+                           Flights
+                        </h3>
+                        <div className="bg-white/60 p-5 rounded-xl border border-gray-200">
+                           <p className="text-xs text-gray-600 mb-4 leading-relaxed">
+                              We include flights from select hubs. Check this box to request a custom connection quote from our team.
+                           </p>
+                           <label className="flex items-center gap-3 cursor-pointer">
+                              <input type="checkbox" className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black" />
+                              <span className="text-sm font-bold text-gray-900">Request custom flight quote</span>
+                           </label>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setSelectedDayNumber(prev => Math.min(14, prev + 1))}
-                        disabled={selectedDayNumber === 14}
-                        className="text-black disabled:opacity-40"
-                        aria-label="Next day"
-                      >
-                        ›
-                      </button>
-                    </div>
-                  ) : (
-                    <div style={{ background: "rgba(255,255,255,0.35)", padding: "4px 14px", borderRadius: 6 }}>
-                      <div className="font-normal uppercase tracking-wider text-sm md:text-base truncate" style={{ whiteSpace: "nowrap", maxWidth: "52ch" }}>
-                        {tourTitle}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+                  </div>
+             </div>
+        </div>
+     );
+  };
 
-            <div className="p-0 bg-white/10" style={{ flex: "1 1 auto", display: "flex", flexDirection: "column", overflow: "hidden", minHeight: 0, backgroundColor: "transparent" }}>
-              <div
-                className="h-full w-full modal-scroll"
-                style={{
-                  minHeight: 0,
-                  flex: 1,
-                  overflowY: "auto",
-                  WebkitOverflowScrolling: "touch",
-                  height: typeof contentHeightPx === "number" ? `${contentHeightPx}px` : "100%",
-                }}
-              >
-                {activeTab === "itinerary" && sectionOpen ? (
-                  <section className="snap-start snap-always min-h-0 flex flex-col" style={{ height: "600px", minHeight: 0, overflow: "hidden" }}>
-                    <div className="grid grid-cols-2 h-full min-h-0 w-full gap-3" style={{ height: "100%", minHeight: 0, perspective: '1000px' }}>
-                      {/* LEFT: days */}
-                      <div className="flex flex-col justify-center items-center min-h-0 h-full overflow-visible">
-                        <DaySidebar
-                          mode={selectedMode}
-                          dayStops={dayStops}
-                          selectedDayNumber={selectedDayNumber}
-                          onSelectDay={(d) => {
-                            if (typeof d === "number") setSelectedDayNumber(d);
-                          }}
-                          totalDays={14}
-                          onModeSelect={handleModeSelect}
-                          flippedAll={subMode === 'activities'}
-                          extensionsVisible={subMode === 'extensions'}
-                          currentSubMode={subMode}
+  return (
+    <div className="min-h-screen relative bg-black/5" style={{ background: "transparent" }}>
+      {/* 1. HERO BACKGROUND (Fixed) */}
+      <div className="fixed inset-0 z-0">
+         <img
+            src={heroSrc.startsWith('http') ? heroSrc : (mediaUrl(heroSrc) ? normalizeUrl(mediaUrl(heroSrc) as string) : normalizeUrl(heroSrc))}
+            alt="hero"
+            className="w-full h-full object-cover opacity-90"
+            onError={(e) => tryImageFallback(e.currentTarget as HTMLImageElement)}
+          />
+         <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px]" />
+      </div>
+      {/* Spacer for layout if needed */}
+      <div aria-hidden style={{ height: "1px" }} />
+
+      {/* 3. MODAL CONTAINER (Center Floating) */}
+      <main
+        className="fixed inset-0 z-[80] flex items-center justify-center p-0"
+        style={{ padding: "clamp(4px, 0.5vh, 8px)" }}
+      >
+        <div 
+          ref={modalRef}
+          className="w-full h-full relative flex flex-col overflow-hidden max-w-[1500px] mx-auto"
+          style={{
+            backgroundColor: "rgba(255,255,255,0.45)", 
+            backdropFilter: "blur(20px) saturate(140%)",
+            WebkitBackdropFilter: "blur(20px) saturate(140%)",
+            borderRadius: "24px",
+            border: "1px solid rgba(255,255,255,0.3)",
+            boxShadow: "0 40px 80px -20px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255,255,255,0.1)"
+          }}
+        >
+             {/* INTERNAL MODAL HEADER */}
+             <div className="w-full pt-4 px-4 lg:px-6 flex items-center justify-between relative z-10 shrink-0 pb-3">
+                 
+                 {/* Left Group: Back Arrow + Globe + User */}
+                 <div className="flex items-center gap-2">
+                     <button 
+                         onClick={() => goBackToLanding(router)}
+                         className="w-8 h-8 flex items-center justify-center bg-black/5 hover:bg-black/10 rounded-full text-gray-700 transition-colors backdrop-blur-sm"
+                         title="Back"
+                     >
+                        <ArrowLeftIcon className="w-4 h-4" />
+                     </button>
+
+                     <button 
+                        onClick={() => goBackToLanding(router)}
+                        className="flex items-center justify-center w-8 h-8 bg-black hover:bg-gray-800 text-white rounded-full shadow-lg transition-transform hover:scale-105"
+                        title="Go to 2026 section"
+                        aria-label="Go to 2026 section on landing"
+                     >
+                        <GlobeAltIcon className="w-4 h-4" />
+                     </button>
+                    
+                     <div className="origin-left ml-0.5">
+                        <UserBubble 
+                           variant="modalHeader" 
+                           buttonClassName="w-8 h-8 flex items-center justify-center hover:bg-black/5 rounded-full text-black transition-colors"
                         />
-                      </div>
+                     </div>
+                 </div>
 
-                      {/* RIGHT: media + map or day by day */}
-                      <div className="col-span-1 h-full" style={{ transform: isFlipping ? 'rotateY(180deg)' : 'rotateY(0deg)', transition: 'transform 0.5s ease-in-out' }}>
-                        {subMode === 'daybyday' ? (
-                          <DayByDayView
-                            day={selectedDayNumber}
-                            data={getActivitiesForDay(selectedDayNumber)}
-                            onPrevDay={() => setSelectedDayNumber(Math.max(1, selectedDayNumber - 1))}
-                            onNextDay={() => setSelectedDayNumber(Math.min(14, selectedDayNumber + 1))}
-                          />
-                        ) : (
-                          <div className="grid grid-rows-2 min-h-0 h-full gap-3">
-                            {/* media */}
-                            <div className="row-span-1 h-full min-h-0 w-full bg-white/10 rounded-lg flex items-stretch overflow-hidden">
-                              {!currentMediaSrc ? (
-                                <div className="flex items-center justify-center h-full text-gray-700 p-6">No media available for this day.</div>
-                              ) : (
-                                <div className="relative w-full h-full bg-black/5 rounded overflow-hidden flex items-center justify-center">
-                                  {isImage(currentMediaSrc) ? (
-                                    <img
-                                      src={currentMediaSrc}
-                                      alt={`Preview ${mediaIndex + 1}`}
-                                      className="block object-cover w-full h-full"
-                                      style={{ borderRadius: 8 }}
-                                      onError={(e) => tryImageFallback(e.currentTarget as HTMLImageElement)}
-                                    />
-                                  ) : isVideo(currentMediaSrc) ? (
-                                    <video src={currentMediaSrc} controls className="block object-cover w-full h-full" style={{ borderRadius: 8 }} />
-                                  ) : null}
+                 {/* Center Tabs Only */}
+                 <div className="absolute left-1/2 top-4 -translate-x-1/2 flex flex-col items-center gap-1 z-50">
+                    <div className="bg-black/80 p-0.5 rounded-full backdrop-blur-xl shadow-2xl flex border border-white/10">
+                     <button 
+                       onClick={() => setActiveTab('itinerary')}
+                       className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'itinerary' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                     >
+                       Details
+                     </button>
+                     <button 
+                       onClick={() => setActiveTab('reservation')}
+                       className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === 'reservation' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                     >
+                       Reservation
+                     </button>
+                  </div>
+                 </div>
 
-                                  <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex items-center gap-1 bg-black/70 px-2 py-1 rounded text-xs text-white shadow font-bold">
-                                    <button
-                                      aria-label="Previous media"
-                                      onClick={() => setMediaIndex((i) => Math.max(0, i - 1))}
-                                      disabled={mediaIndex === 0}
-                                      className="px-1 py-0.5 rounded disabled:opacity-40 font-bold"
-                                    >
-                                      ‹
-                                    </button>
-                                    <span className="mx-1 select-none font-bold">
-                                      {mediaListForDay.length ? mediaIndex + 1 : 0} / {mediaListForDay.length}
+                 {/* Right Spacer */}
+                 <div className="w-[100px] pointer-events-none" />
+             </div>
+
+             {/* MODAL CONTENT */}
+             <div className="flex-1 overflow-hidden px-4 lg:px-6 pb-2 lg:pb-3 relative pt-2">
+                {activeTab === "itinerary" ? (
+                   <div className="h-full w-full overflow-hidden">
+                      {/* --- THE 2x2 DASHBOARD GRID --- */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 h-full gap-4">
+                        
+                         {/* LEFT COLUMN: Consolidate Calendar + Details */}
+                         <div className="h-full min-h-0 relative flex flex-col pt-0">
+                            {/* Left Column Container */}
+                            <div className="flex-1 relative flex flex-col bg-white/60 backdrop-blur-sm border border-white/50 rounded-xl overflow-hidden shadow-sm h-full">
+                            <div className="flex-1 flex flex-col h-full overflow-hidden">
+                               {viewMode === 'ITINERARY' ? (
+                                   <div className="h-full flex flex-col">
+                                      {/* Content Area - No Scroll */}
+                                      <div className="p-6 relative flex-1 flex flex-col justify-center overflow-hidden">
+                                           {(() => {
+                                          const day = tourDays.find((d:any) => d.day_number === selectedDay);
+                                          const detailText = day?.day_description || day?.activities_data?.description || '';
+                                          const morningText = typeof day?.activities_data?.morning === 'string' 
+                                             ? day.activities_data.morning 
+                                             : day?.activities_data?.morning?.text || day?.activities_data?.morning?.title || '';
+                                          const afternoonText = typeof day?.activities_data?.afternoon === 'string' 
+                                             ? day.activities_data.afternoon 
+                                             : day?.activities_data?.afternoon?.text || day?.activities_data?.afternoon?.title || '';
+
+                                          return (
+                                            <div className="flex flex-col justify-center max-w-4xl mx-auto w-full h-full">
+                                                {/* DAY N Title Always Visible Above Everything */}
+                                                <div className="mb-4 shrink-0 text-center">
+                                                   <span className="text-3xl md:text-5xl font-serif font-bold text-gray-400 block mb-2">
+                                                      Day {selectedDay}
+                                                   </span>
+                                                   {/* 
+                                                      User requested removing the "black" title (H2) and keeping only the "gray" day indicator 
+                                                      but making it larger. 
+                                                      
+                                                      <h2 className="text-3xl md:text-3xl font-serif font-bold text-gray-900 leading-none mb-3">
+                                                         {day?.day_title || day?.stops_data?.stop_name}
+                                                      </h2>
+                                                   */}
+                                                   {detailText && (
+                                                      <p className="text-xl md:text-2xl text-gray-900 leading-relaxed font-serif text-center max-w-2xl mx-auto">
+                                                         {detailText}
+                                                      </p>
+                                                   )}
+                                                </div>
+                                                
+                                                {/* Morning & Afternoon - Separate Cards */}
+                                                <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
+                                                   {/* Morning Card */}
+                                                   <div className="flex-1 flex flex-col bg-white/40 backdrop-blur-md rounded-xl p-4 border border-white/50 shadow-sm transition-all hover:shadow-md min-h-0">
+                                                      <div className="flex items-center gap-2 mb-2 border-b border-gray-200/50 pb-2 shrink-0">
+                                                         <SunIcon className="w-5 h-5 text-orange-400" />
+                                                         <span className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">Morning</span>
+                                                      </div>
+                                                      <div className="text-lg text-gray-800 leading-relaxed font-serif overflow-hidden">
+                                                         {morningText ? (
+                                                            morningText.split('\n').map((line: string, i: number) => line.trim() ? (
+                                                               <p key={i} className="mb-2 last:mb-0 line-clamp-[8]">{line}</p>
+                                                            ) : null)
+                                                         ) : (
+                                                            <p className="text-gray-400 italic text-sm mt-2">Free time for leisure.</p>
+                                                         )}
+                                                      </div>
+                                                   </div>
+
+                                                   {/* Afternoon Card */}
+                                                   <div className="flex-1 flex flex-col bg-white/40 backdrop-blur-md rounded-xl p-4 border border-white/50 shadow-sm transition-all hover:shadow-md min-h-0">
+                                                      <div className="flex items-center gap-2 mb-2 border-b border-gray-200/50 pb-2 shrink-0">
+                                                         <MoonIcon className="w-5 h-5 text-indigo-400" />
+                                                         <span className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500">Afternoon</span>
+                                                      </div>
+                                                      <div className="text-lg text-gray-800 leading-relaxed font-serif overflow-hidden">
+                                                         {afternoonText ? (
+                                                            afternoonText.split('\n').map((line: string, i: number) => line.trim() ? (
+                                                               <p key={i} className="mb-2 last:mb-0 line-clamp-[8]">{line}</p>
+                                                            ) : null)
+                                                         ) : (
+                                                            <p className="text-gray-400 italic text-sm mt-2">Free time for leisure.</p>
+                                                         )}
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                            </div>
+                                          );
+                                      })()}
+                                      </div>
+                                      
+                                      {/* BOTTOM: Fixed Calendar Strip */}
+                                      <div className="mt-auto flex-shrink-0 bg-white/40 border-t border-gray-200/20 p-4 pb-2 z-20 rounded-b-xl">
+                                         <div className="flex items-center justify-between mb-2">
+                                            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                                              {(() => {
+                                                 if (!calendarGrid || calendarGrid.length === 0) return "Trip Calendar";
+                                                 const validDays = calendarGrid.filter((c: any) => c.status === 'tour');
+                                                 if (validDays.length === 0) return "Trip Calendar";
+                                                 
+                                                 const startMonth = format(validDays[0].date, 'MMMM').toUpperCase();
+                                                 const endMonth = format(validDays[validDays.length - 1].date, 'MMMM').toUpperCase();
+                                                 return startMonth === endMonth ? startMonth : `${startMonth} - ${endMonth}`;
+                                              })()}
+                                            </h3>
+                                         </div>
+                                         <div className="overflow-x-auto pb-2 custom-scrollbar -mx-4 px-4">
+                                            <div className="grid grid-cols-7 gap-1 min-w-[300px]">
+                                              {calendarGrid.map((cell: any, idx: number) => {
+                                                const isSelected = cell.status === 'tour' && selectedDay === cell.dayNum;
+                                                const isFirstOfMonth = idx === 0 || format(cell.date, 'd') === '1' || (cell.status === 'tour' && cell.dayNum === 1);
+                                                const monthLabel = format(cell.date, 'MMM').toUpperCase();
+
+                                                return (
+                                                  <button 
+                                                    key={idx}
+                                                    onClick={() => {
+                                                      if (cell.status === 'tour') setSelectedDay(cell.dayNum);
+                                                    }}
+                                                    disabled={cell.status !== 'tour'}
+                                                    className={`h-14 flex flex-col items-center justify-center rounded-lg transition-all relative overflow-hidden group
+                                                      ${cell.status === 'tour' 
+                                                        ? (isSelected 
+                                                            ? 'bg-black text-white border-black shadow-md ring-1 ring-black/20 z-10' 
+                                                            : 'bg-white/40 text-gray-900 border-gray-200 hover:border-black hover:bg-white'
+                                                          ) 
+                                                        : (cell.status === 'empty'
+                                                            ? 'opacity-0 pointer-events-none'
+                                                            : 'bg-gray-50 text-gray-300 border border-dashed border-gray-200 cursor-not-allowed'
+                                                          )
+                                                      } border`}
+                                                  >
+                                                    {cell.status !== 'empty' && (
+                                                       <div className="flex flex-col items-center justify-center pt-1">
+                                                         {isFirstOfMonth && (
+                                                            <span className={`text-[9px] font-bold uppercase tracking-tighter leading-none mb-0.5 ${isSelected ? 'text-white/80' : 'text-black'}`}>
+                                                               {monthLabel}
+                                                            </span>
+                                                         )}
+                                                         <span className={`text-xl md:text-2xl font-bold leading-none -tracking-widest ${isFirstOfMonth ? '' : ''}`}>
+                                                            {format(cell.date, 'd')}
+                                                         </span>
+                                                         {(cell.status === 'pre' || cell.status === 'post') && (
+                                                            <span className="text-[6px] font-bold uppercase tracking-widest mt-0.5 leading-tight text-center px-0.5 opacity-60">
+                                                               {cell.status === 'pre' ? 'PRE' : 'POST'}
+                                                            </span>
+                                                         )}
+                                                         {cell.status === 'tour' && !isFirstOfMonth && (
+                                                            <div className={`mt-0.5 w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-black/20 group-hover:bg-black'}`} />
+                                                         )}
+                                                       </div>
+                                                    )}
+                                                  </button>
+                                                );
+                                              })}
+                                            </div>
+                                         </div>
+                                      </div>
+
+                                   </div>
+                               ) : (
+                                   <div className="h-full min-h-0 pb-20">
+                                      {renderSummaryPanel()}
+                                   </div>
+                               )}
+                            </div>
+                            </div>
+
+                            {/* PERSISTENT BOTTOM NAVIGATION - Overlaid */}
+                            <div className="absolute bottom-2 left-2 right-2 z-50">
+                               <div className="grid grid-cols-4 gap-2 bg-white/20 backdrop-blur-xl p-1.5 rounded-2xl border border-white/30 shadow-2xl">
+                                 <button 
+                                    onClick={() => {
+                                        setViewMode('SUMMARY');
+                                        setRightPanelContent('MEDIA');
+                                    }} 
+                                    className={`py-2 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all
+                                       ${viewMode === 'SUMMARY' ? 'bg-black text-white shadow-lg' : 'bg-white/60 text-gray-400 hover:bg-white hover:text-black border border-white/50 shadow-sm'}
+                                    `}
+                                 >
+                                    <DocumentTextIcon className={`w-4 h-4 ${viewMode === 'SUMMARY' ? 'text-white' : 'text-gray-400'}`} />
+                                    <span className="text-[9px] font-bold uppercase tracking-widest">Summary</span>
+                                 </button>
+
+                                 <button 
+                                    onClick={() => {
+                                        setViewMode('ITINERARY');
+                                        setRightPanelContent('MEDIA');
+                                    }} 
+                                    className={`py-2 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all
+                                       ${viewMode === 'ITINERARY' ? 'bg-black text-white shadow-lg' : 'bg-white/60 text-gray-400 hover:bg-white hover:text-black border border-white/50 shadow-sm'}
+                                    `}
+                                 >
+                                    <CalendarDaysIcon className={`w-4 h-4 ${viewMode === 'ITINERARY' ? 'text-white' : 'text-gray-400'}`} />
+                                    <span className="text-[9px] font-bold uppercase tracking-widest">Itinerary</span>
+                                 </button>
+
+                                 <button 
+                                    onClick={() => setRightPanelContent(rightPanelContent === 'EXTENSIONS' ? 'MEDIA' : 'EXTENSIONS')}
+                                    className={`py-2 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all
+                                       ${rightPanelContent === 'EXTENSIONS' ? 'bg-black text-white shadow-lg' : 'bg-white/60 text-gray-400 hover:bg-white hover:text-black border border-white/50 shadow-sm'}
+                                    `}
+                                 >
+                                    <MapIcon className={`w-4 h-4 ${rightPanelContent === 'EXTENSIONS' ? 'text-white' : 'text-gray-400'}`} />
+                                    <span className="text-[9px] font-bold uppercase tracking-widest">Extensions</span>
+                                 </button>
+
+                                 <button 
+                                    onClick={handleBrochureClick} 
+                                    disabled={downloadStatus === 'loading' || downloadStatus === 'success'}
+                                    className="py-2 bg-white/60 backdrop-blur-md border border-white/50 rounded-xl flex flex-col items-center justify-center gap-0.5 hover:bg-white hover:shadow-md transition-all group shadow-sm"
+                                 >
+                                    {downloadStatus === 'loading' ? (
+                                       <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mb-0.5"></span>
+                                    ) : downloadStatus === 'success' ? (
+                                       <CheckIcon className="w-4 h-4 text-green-600 mb-0.5" />
+                                    ) : (
+                                       <span className="font-serif font-bold text-sm leading-none text-gray-400 group-hover:text-black transition-colors">PDF</span>
+                                    )}
+                                    <span className={`text-[9px] font-bold uppercase tracking-widest ${downloadStatus === 'success' ? 'text-green-600' : 'text-gray-400 group-hover:text-black'}`}>
+                                       {downloadStatus === 'loading' ? 'Loading' : downloadStatus === 'success' ? 'Downloaded' : 'Brochure'}
                                     </span>
-                                    <button
-                                      aria-label="Next media"
-                                      onClick={() => setMediaIndex((i) => Math.min(Math.max(0, mediaListForDay.length - 1), i + 1))}
-                                      disabled={mediaIndex >= Math.max(0, mediaListForDay.length - 1)}
-                                      className="px-1 py-0.5 rounded disabled:opacity-40 font-bold"
-                                    >
-                                      ›
-                                    </button>
+                                 </button>
+                               </div>
+                            </div>
+                         </div>
+
+                         {/* RIGHT COLUMN (Vertical Split: Media + Map) OR Full Panel */}
+                         <div className={`h-full min-h-0 transition-all duration-300 ${['PACKAGE', 'EXTENSIONS'].includes(rightPanelContent) ? 'flex flex-col' : 'grid grid-rows-2 gap-4'}`}>
+                            
+                            {/* 1. FULL COLUMN CONTENT (Package / Extensions) */}
+                            {['PACKAGE', 'EXTENSIONS'].includes(rightPanelContent) ? (
+                               <div className="w-full h-full bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden animate-in fade-in zoom-in duration-300 relative flex flex-col">
+                                  
+                                  <div className="flex-1 overflow-y-auto p-0 relative">
+                                     {rightPanelContent === 'PACKAGE' && (
+                                        <div className="flex flex-col h-full bg-white relative">
+                                           {/* TOP: Visual Image */}
+                                           <div className="w-full h-40 xl:h-48 relative overflow-hidden shrink-0">
+                                              <img 
+                                                src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/IberoPackage.webp" 
+                                                alt="Ibero Package" 
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                              />
+                                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                                              
+                                              <button 
+                                                 onClick={() => setRightPanelContent('MEDIA')}
+                                                 className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-sm transition-all z-10"
+                                              >
+                                                 <span className="sr-only">Close</span>
+                                                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                 </svg>
+                                              </button>
+
+                                              <h2 className="absolute bottom-4 left-6 text-2xl xl:text-3xl font-serif font-bold text-white shadow-sm">The Ibero Package</h2>
+                                           </div>
+
+                                           {/* BOTTOM: Content */}
+                                           <div className="flex-1 px-6 xl:px-8 pt-4 pb-4 flex flex-col relative overflow-hidden">
+                                              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                                                  <p className="text-gray-600 mb-6 text-sm xl:text-base leading-relaxed">
+                                                  Everything you need for a seamless journey, included in one transparent price.
+                                                  </p>
+                                                  
+                                                  <ul className="grid grid-cols-1 gap-3 mb-6">
+                                                  {[
+                                                      "International flights from US Hubs", 
+                                                      "Accommodation in 4-5★ hotels", 
+                                                      "Full-time bilingual tour guide", 
+                                                      "Ground transportation", 
+                                                      "Daily buffet breakfast"
+                                                  ].map((item, i) => (
+                                                      <li key={i} className="flex items-start gap-3 text-sm text-gray-800">
+                                                          <div className="bg-green-100 p-0.5 rounded-full mt-0.5 shrink-0">
+                                                          <CheckIcon className="w-3.5 h-3.5 text-green-600" />
+                                                          </div>
+                                                          <span className="leading-tight">{item}</span>
+                                                      </li>
+                                                  ))}
+                                                  </ul>
+
+                                                  <div className="flex justify-start">
+                                                      <button 
+                                                          onClick={() => setRightPanelContent('EXTENSIONS')}
+                                                          className="group flex items-center gap-2 text-xs font-bold text-gray-900 border border-black/10 px-4 py-2 rounded-full hover:bg-black hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm"
+                                                      >
+                                                          <span>Explore Optionals</span>
+                                                          <ChevronRightIcon className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                                                      </button>
+                                                  </div>
+                                              </div>
+
+                                              {/* Legal Footer - Restored */}
+                                              <div className="mt-auto pt-6 border-t border-gray-100 text-xs text-gray-500 font-sans w-full bg-white relative z-10 shrink-0">
+                                                 <div className="flex items-center justify-between gap-4 w-full">
+                                                     <div className="flex-1 min-w-0">
+                                                          <p className="font-bold text-black mb-2 text-xs uppercase tracking-wide truncate">
+                                                              Certified Travel Agency Details
+                                                          </p>
+                                                          <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs font-medium leading-tight">
+                                                              <span className="whitespace-nowrap">NAME: <strong className="text-black">IBERO</strong></span>
+                                                              <span className="whitespace-nowrap">CIEX: <strong className="text-black">06-00049-Om</strong></span>
+                                                              <span className="whitespace-nowrap">REG: <strong className="text-black">AV-00661</strong></span>
+                                                          </div>
+                                                     </div>
+                                                     <div className="text-right shrink-0 text-xs leading-tight flex flex-col items-end gap-1">
+                                                          <button 
+                                                              onClick={() => setShowLearnMore(!showLearnMore)}
+                                                              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-bold transition-colors text-[10px] uppercase tracking-wide mb-1"
+                                                          >
+                                                              <InformationCircleIcon className="w-3.5 h-3.5" />
+                                                              <span>Learn more about it</span>
+                                                          </button>
+                                                          
+                                                          {/* Popover */}
+                                                          {showLearnMore && (
+                                                              <div className="absolute right-0 bottom-full mb-2 w-72 bg-gray-900 text-white p-4 rounded-xl shadow-xl z-50 text-xs leading-relaxed animate-in fade-in slide-in-from-bottom-2 text-left">
+                                                              <h5 className="font-bold mb-2 text-white border-b border-white/20 pb-2">Why Certification Matters</h5>
+                                                              <p>
+                                                                  A certified travel agency offers exclusive perks, expert vetting, and a professional safety net if things go wrong. You save time, gain consumer protection, and trade "hoping for the best" for guaranteed peace of mind.
+                                                              </p>
+                                                              <button onClick={() => setShowLearnMore(false)} className="absolute top-2 right-2 text-white/50 hover:text-white">✕</button>
+                                                              </div>
+                                                          )}
+
+                                                          <div className="block whitespace-nowrap text-gray-400">tours@ibero.world</div>
+                                                          <div className="block font-bold text-black whitespace-nowrap">www.ibero.world</div>
+                                                     </div>
+                                                 </div>
+                                              </div>
+                                           </div>
+                                        </div>
+                                     )}
+
+                                     {rightPanelContent === 'EXTENSIONS' && (
+                                         <div className="h-full">
+                                            <OptionalsContent tourData={tourData} onClose={() => setRightPanelContent('MEDIA')} />
+                                         </div>
+                                     )}
                                   </div>
-                                </div>
-                              )
-                            }
-                            </div>
-                            {/* map */}
-                            <div className="row-span-1 h-full min-h-0 w-full bg-white/10 rounded-lg overflow-hidden">
-                              <InlineMap
-                                hideExploreAround={true}
-                                className="w-full h-full"
-                                route={tourRoute}
-                                points={mapPoints}
-                                activeDay={selectedDayNumber}
-                                // In day-focused mode we do not want the map to refit bounds
-                                // (that causes zoom jumps). Let InlineMap pan/adjust subtly.
-                                fit={mapView === 'panoramic' ? 'route' : 'none'}
-                                showLabels={mapView === 'panoramic'}
-                              />
-                            </div>
-                          </div>
-                        )}
+                               </div>
+                            ) : (
+                               /* 2. SPLIT VIEW (Standard or Weather/Flight Overlay) */
+                               <>
+                                  {/* Top Right: Media OR Weather/Flight Panel */}
+                                  <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200/50 bg-white relative group h-full">
+                                     {rightPanelContent === 'WEATHER' ? (
+                                        <div className="w-full h-full bg-white p-6 animate-in fade-in zoom-in duration-300 overflow-y-auto">
+                                           <div className="flex items-center justify-between mb-4">
+                                              <div className="flex items-center gap-3">
+                                                 <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                                                    <SunIcon className="w-6 h-6" />
+                                                 </div>
+                                                 <div>
+                                                    <h3 className="font-serif font-bold text-gray-900">Local Weather</h3>
+                                                    <p className="text-xs text-gray-500">Forecast overview</p>
+                                                 </div>
+                                              </div>
+                                              <button onClick={() => setRightPanelContent('MEDIA')} className="text-gray-400 hover:text-gray-600">
+                                                 <ChevronDownIcon className="w-4 h-4" />
+                                              </button>
+                                           </div>
+                                           <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line mb-6">
+                                              {initialData?.Weather || "Weather information coming soon."}
+                                           </p>
+                                        </div>
+                                     ) : rightPanelContent === 'FLIGHTS' ? (
+                                        <div className="w-full h-full bg-white p-6 animate-in fade-in zoom-in duration-300 overflow-y-auto">
+                                           <div className="flex items-center justify-between mb-4">
+                                              <div className="flex items-center gap-3">
+                                                 <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
+                                                    <PaperAirplaneIcon className="w-5 h-5 -rotate-45 ml-1" />
+                                                 </div>
+                                                 <div>
+                                                    <h3 className="font-serif font-bold text-gray-900">Flights Included</h3>
+                                                    <p className="text-xs text-gray-500">International round-trip</p>
+                                                 </div>
+                                              </div>
+                                              <button onClick={() => setRightPanelContent('MEDIA')} className="text-gray-400 hover:text-gray-600">
+                                                 <ChevronDownIcon className="w-4 h-4" />
+                                              </button>
+                                           </div>
+                                           <ul className="grid grid-cols-2 gap-2 mb-4">
+                                              {tourData.departureAirports?.map((airport) => (
+                                                <li key={airport} className="flex items-center justify-center text-xs font-bold text-gray-700 bg-gray-50 px-2 py-2 rounded border border-gray-100">
+                                                  {airport}
+                                                </li>
+                                              ))}
+                                           </ul>
+                                           <p className="text-xs text-gray-500 italic">
+                                              Flight details confirmed 30 days prior.
+                                           </p>
+                                        </div>
+                                     ) : (
+                                        /* Default Media Player */
+                                        <>
+                                           <SmartSlideshow 
+                                             basePath="Open Tours/MADRID TO LISBOA"
+                                             daySpecificMedia={viewMode === 'ITINERARY' && itineraryMedia[selectedDay - 1] 
+                                               ? [{ type: 'image', src: itineraryMedia[selectedDay - 1] }] 
+                                               : undefined}
+                                             disableZoom={viewMode === 'ITINERARY'}
+                                             className="w-full h-full object-cover"
+                                           />
+                                           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                                           <div className="absolute bottom-3 left-4">
+                                              <span className="text-xs font-bold text-white/90 bg-black/40 px-2 py-1 rounded border border-white/20 backdrop-blur-md">
+                                                {viewMode === 'ITINERARY' ? `Day ${selectedDay} Highlights` : 'Tour Highlights'}
+                                              </span>
+                                           </div>
+                                        </>
+                                     )}
+                                  </div>
+                                  
+                                  {/* Bottom Right: Map (Always visible in Split View) */}
+                                  <div className="rounded-xl overflow-hidden shadow-sm border border-gray-200/50 bg-white relative">
+                                      <InlineMap 
+                                         mode={viewMode === 'ITINERARY' ? 'detailed' : 'overview'}
+                                         points={mapPoints}
+                                         route={{
+                                           geojson: initialData?.routeGeoJson,
+                                           color: '#3b82f6'
+                                         }}
+                                         activeDay={viewMode === 'ITINERARY' ? selectedDay : null}
+                                         className="w-full h-full"
+                                         fit="auto"
+                                      />
+                                  </div>
+                               </>
+                            )}
+                         </div>
                       </div>
-                    </div>
-                  </section>
-                ) : activeTab === "reservation" ? (
-                  // Minimal change (Option A): make the reservation area horizontal so
-                  // ReservationTab has horizontal space for its left/right columns.
-                  <section className="h-full w-full min-h-0 flex flex-row gap-4" style={{ minHeight: 320 }}>
-                    <div className="flex-1 min-h-0 overflow-visible" id="reservation-form">
-                      <ReservationTab tourData={tourData} onOpenRegister={handleOpenRegister} />
-                    </div>
-                  </section>
-                ) : null}
-              </div>
-            </div>
-          </div>
+                   </div>
+                ) : (
+                   <div className="h-full w-full overflow-hidden">
+                      <div className="h-full w-full">
+                         <ReservationTab tourData={tourData} />
+                      </div>
+                   </div>
+                )}
+             </div>
+
+
+
+
+
+
+
+
         </div>
       </main>
-
-      {/* Register modal (opened from Reservation) */}
-      {registerModalOpen && (
-        <Modal open={registerModalOpen} onCloseAction={() => { setRegisterModalOpen(false); setRegisteredSuccess(false); setRegError(null); }} maxWidth="max-w-xl">
-          <div className="flex">
-            <div className="hidden lg:block flex-shrink-0" style={{ width: '40%', minWidth: 240 }}>
-              <div
-                className="h-full rounded-2xl overflow-hidden relative"
-                style={{
-                  height: '100%',
-                  backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.18)), url('https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/thumbnail.jpg')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              >
-                <div className="absolute left-0 right-0 top-[16.666%] flex justify-center">
-                  <button type="button" onClick={() => setPrizeOpen(true)} aria-label="Join the journey" className="inline-flex items-center justify-center rounded-full border border-white/30 px-3 py-1 text-xs tracking-[0.18em] uppercase text-white/90 bg-transparent hover:bg-white/10">JOIN THE JOURNEY</button>
-                </div>
-                <div className="absolute left-0 right-0 top-[83.333%] flex justify-center">
-                  <button type="button" onClick={() => setPrizeOpen(true)} aria-label="Win 500 dollars bonus" className="inline-flex items-center justify-center rounded-full border border-white/30 px-3 py-1 text-xs tracking-[0.18em] uppercase text-white/90 bg-transparent hover:bg-white/10">Win 500$ bonus</button>
-                </div>
-              </div>
-            </div>
-            <div className="flex-1 flex items-center justify-center px-4 py-6" style={{ minWidth: 0 }}>
-              <div className="w-full max-w-md">
-                {!registeredSuccess ? (
-                  <>
-                    <h2 className="text-xl font-semibold text-slate-900 mb-3">Create your IBERO account</h2>
-                    <RegisterForm autoFocus onSuccessAction={() => { setRegisteredSuccess(true); }} />
-                    <div className="mt-3 text-sm text-slate-600">Already have an account?
-                      <button type="button" onClick={() => { const next = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`; window.location.href = next; }} className="ml-2 font-semibold text-emerald-700 underline underline-offset-2">Log in</button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <h2 className="text-xl font-semibold text-slate-900 mb-3">You're almost there</h2>
-                    <p className="text-sm text-slate-700 mb-4">You will be redirected to your personal Dashboard, so you can finalize the reservations.</p>
-                    {regError && <div className="text-sm text-red-600 mb-2">{regError}</div>}
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          try {
-                            setRegError(null);
-                            setRegSubmitting(true);
-                            // attempt to submit reservation to server
-                            const order = await useReservationStore.getState().submitReservationToServer(user?.email || undefined);
-                            setRegSubmitting(false);
-                            setRegisterModalOpen(false);
-                            setRegisteredSuccess(false);
-                            // navigate to panel (dashboard)
-                            try { router.push('/panel'); } catch (e) { /* ignore */ }
-                          } catch (err: any) {
-                            setRegSubmitting(false);
-                            setRegError(err?.message || 'Failed to create reservation. Please try again.');
-                          }
-                        }}
-                        className="inline-flex items-center justify-center rounded bg-emerald-600 px-4 py-2 text-white font-semibold disabled:opacity-50"
-                        disabled={regSubmitting}
-                      >
-                        {regSubmitting ? 'Processing…' : 'Ok'}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRegisterModalOpen(false);
-                          setRegisteredSuccess(false);
-                          setRegError(null);
-                        }}
-                        className="inline-flex items-center justify-center rounded border px-4 py-2 text-sm"
-                        disabled={regSubmitting}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-  {/* Prize modal (opened from badges) */}
-  <PrizeModal open={prizeOpen} onCloseAction={() => setPrizeOpen(false)} />
     </div>
   );
 }
-

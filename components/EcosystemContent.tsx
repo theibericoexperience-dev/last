@@ -1,111 +1,261 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { getTourMedia } from '@/lib/domain/media/api';
-import { safeWebPath, tryImageFallback } from '@/app/tour/utils/media';
 import { getSupabaseUrl } from '@/lib/media-resolver';
+import { tryImageFallback } from '@/app/tour/utils/media';
+import InlineMap from './InlineMap';
 
-type MediaFile = { path: string; filename: string; caption?: string | null };
+const LOCATIONS: Record<string, [number, number]> = {
+  // EUROPE
+  "Portugal": [39.55, -7.83],
+  "Spain": [40.46, -3.74],
+  "France": [46.22, 2.21],
+  "Italy": [41.87, 12.56],
+  "Germany": [51.16, 10.45],
+  "Netherlands": [52.13, 5.29],
+  "Belgium": [50.5, 4.46],
+  "Luxembourg": [49.81, 6.12],
+  "Switzerland": [46.81, 8.22],
+  "Austria": [47.51, 14.55],
+  "Czech Republic": [49.81, 15.47],
+  "Slovakia": [48.66, 19.69],
+  "Hungary": [47.16, 19.50],
+  "Croatia": [45.10, 15.20],
+  "Montenegro": [42.70, 19.37],
+  "Romania": [45.94, 24.96],
+  "Latvia": [56.87, 24.60],
+  "Russia": [55.75, 37.61], // Moscow
+  "Scotland": [56.49, -4.20],
+  "England": [52.35, -1.17],
+  "Ireland": [53.41, -8.24],
+  "Finland": [61.92, 25.74],
+  
+  // AFRICA
+  "Morocco": [31.79, -7.09],
+  
+  // AMERICAS
+  "USA": [47.60, -122.33], // Seattle
+  "Canada": [56.13, -106.34],
+  
+  // ASIA
+  "China": [35.86, 104.19],
+  "India": [20.59, 78.96],
+  "Hainan": [19.20, 109.60],
+  "Pingyao": [37.20, 112.18],
+  "Shanghai": [31.23, 121.47],
+  "Harbin": [45.80, 126.53],
+  "Yunnan": [25.04, 102.71],
+  "Guilin": [25.26, 110.29],
+  "South Korea": [35.90, 127.76],
+};
+
+type Leader = {
+  id: string;
+  name: string;
+  role: string;
+  location: string;
+  image?: string;
+  shortRole?: string;
+}
+
+const LEADERS: Leader[] = [
+  {
+    id: 'ramiro',
+    name: 'Ramiro',
+    role: 'Founder, Global Product, Leader',
+    location: 'Extremadura, Spain',
+    image: '89df8474-1078-4a09-bbf8-a719c29b1b7c.webp'
+  },
+  {
+    id: 'belen',
+    name: 'Belen',
+    role: 'Tour Support, Dancer & Mathematician', 
+    location: 'Extremadura, Spain',
+  },
+  {
+    id: 'carlos',
+    name: 'Carlos',
+    role: 'Leader, Lapland & South-East Asia',
+    location: 'Extremadura, Spain',
+  },
+  {
+    id: 'nacho',
+    name: 'Nacho',
+    role: 'Leader, Sailor in Norway',
+    location: 'Andalucia, Spain',
+  }
+];
 
 export default function EcosystemContent({ mediaAutoplay = false }: { mediaAutoplay?: boolean } = {}) {
-  const [tab, setTab] = useState<'team' | 'collaborators' | 'you'>('collaborators');
-  const [teamSubTab, setTeamSubTab] = useState<'founder' | 'collaborators' | 'you'>('founder');
-  const [selectedPanel, setSelectedPanel] = useState<'bio' | 'passions' | 'traveled' | 'lived'>('bio');
+  const [tab, setTab] = useState<'team' | 'collaborators' | 'you'>('team');
+  const [selectedLeader, setSelectedLeader] = useState<Leader | null>(null);
+  const [selectedPanel, setSelectedPanel] = useState<'bio' | 'traveled' | 'lived'>('bio');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full flex flex-col">
 
-      <div className="flex items-center justify-center gap-4">
-        <button onClick={() => setTab('team')} className={`px-4 py-2 rounded ${tab === 'team' ? 'bg-transparent text-black' : 'bg-white text-black'}`}>Team</button>
-        <button onClick={() => setTab('collaborators')} className={`px-4 py-2 rounded ${tab === 'collaborators' ? 'bg-transparent text-black' : 'bg-white text-black'}`}>Collaborators</button>
-        <button onClick={() => setTab('you')} className={`px-4 py-2 rounded ${tab === 'you' ? 'bg-transparent text-black' : 'bg-white text-black'}`}>You</button>
+      <div className="flex-shrink-0 flex items-center justify-center gap-2">
+        <button onClick={() => setTab('team')} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${tab === 'team' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black hover:bg-black/5'}`}>Leaders</button> 
+        <button onClick={() => setTab('collaborators')} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${tab === 'collaborators' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black hover:bg-black/5'}`}>Collaborators</button>
+        <button onClick={() => setTab('you')} className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${tab === 'you' ? 'bg-black text-white shadow-md' : 'text-gray-400 hover:text-black hover:bg-black/5'}`}>You</button>
       </div>
 
-      <div className="mt-4">
+      <div className="flex-1 pr-2">
         {tab === 'team' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="flex flex-col items-center md:col-span-1">
-                <img src={getSupabaseUrl('89df8474-1078-4a09-bbf8-a719c29b1b7c.webp')} alt="Ramiro profile" className="w-48 h-48 md:w-56 md:h-56 object-cover rounded-full mb-3" />
-                <h4 className="font-semibold text-black">Ramiro</h4>
-                <div className="text-sm text-black/80">Founder & Product</div>
+            {!selectedLeader ? (
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-4">
+                  {LEADERS.map(leader => (
+                    <button 
+                      key={leader.id} 
+                      onClick={() => setSelectedLeader(leader)}
+                      className="group flex flex-col items-center text-center space-y-3 p-4 rounded-xl hover:bg-black/5 transition-all"
+                    >
+               <div className="w-24 h-24 rounded-2xl shadow-sm border border-white overflow-hidden group-hover:scale-105 transition-transform bg-white/5">
+                <img 
+                  src={leader.image ? getSupabaseUrl(leader.image) : `https://ui-avatars.com/api/?name=${leader.name}&background=random`} 
+                  alt={leader.name}
+                  className="w-full h-full object-cover"
+                />
+               </div>
+                       <div>
+                          <div className="font-serif font-bold text-lg text-gray-900 group-hover:text-black">{leader.name}</div>
+                          <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mt-1 mb-1">{leader.role}</div>
+                          <div className="text-xs text-gray-400 italic">{leader.location}</div>
+                       </div>
+                    </button>
+                  ))}
+               </div>
+            ) : (
+            <div className="flex flex-row gap-16 items-start animate-in fade-in slide-in-from-bottom-4 duration-500 h-[600px]">
+              {/* Profile Column */}
+              <div className="flex flex-col items-start w-64 flex-shrink-0 pt-4 relative pl-8">
+                <button 
+                  onClick={() => setSelectedLeader(null)}
+                  className="absolute -top-2 left-8 text-gray-900 hover:text-black flex items-center justify-center mb-4 transition-transform hover:-translate-x-1"
+                  title="Back to list"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+                  </svg>
+                </button>
+                
+                <img 
+                  src={selectedLeader.image ? getSupabaseUrl(selectedLeader.image) : `https://ui-avatars.com/api/?name=${selectedLeader.name}&background=random`} 
+                  alt={selectedLeader.name} 
+                  className="w-24 h-24 object-cover rounded-2xl mb-6 shadow-sm border border-white mt-10" 
+                />
+                <h4 className="text-2xl font-serif font-bold text-gray-900 w-full text-left">{selectedLeader.name}</h4>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 w-full text-left">{selectedLeader.role}</div>
+                <div className="text-xs text-gray-400 italic mb-10 w-full text-left">{selectedLeader.location}</div>
+                
+                <div className="flex flex-col gap-2 w-full">
+                  <button onClick={() => setSelectedPanel('bio')} className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${selectedPanel === 'bio' ? 'bg-black text-white shadow-md' : 'bg-white/50 text-gray-600 hover:bg-white'}`}>Biography</button>
+                  <button onClick={() => setSelectedPanel('traveled')} className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${selectedPanel === 'traveled' ? 'bg-black text-white shadow-md' : 'bg-white/50 text-gray-600 hover:bg-white'}`}>Traveled</button>
+                  <button onClick={() => setSelectedPanel('lived')} className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${selectedPanel === 'lived' ? 'bg-black text-white shadow-md' : 'bg-white/50 text-gray-600 hover:bg-white'}`}>Lived</button>
+                </div>
               </div>
 
-              <div className="md:col-span-2 space-y-4">
-                <div className="flex gap-3 mb-3">
-                  <button onClick={() => setSelectedPanel('bio')} className={`px-3 py-1 rounded ${selectedPanel === 'bio' ? 'bg-gray-900 text-white font-semibold' : 'bg-white text-black'}`}>Biography</button>
-                  <button onClick={() => setSelectedPanel('passions')} className={`px-3 py-1 rounded ${selectedPanel === 'passions' ? 'bg-gray-900 text-white font-semibold' : 'bg-white text-black'}`}>Passions</button>
-                  <button onClick={() => setSelectedPanel('traveled')} className={`px-3 py-1 rounded ${selectedPanel === 'traveled' ? 'bg-gray-900 text-white font-semibold' : 'bg-white text-black'}`}>Traveled</button>
-                  <button onClick={() => setSelectedPanel('lived')} className={`px-3 py-1 rounded ${selectedPanel === 'lived' ? 'bg-gray-900 text-white font-semibold' : 'bg-white text-black'}`}>Lived</button>
-                </div>
-
-                <div className="bg-white p-4 rounded border min-h-[220px]">
-                  {/* Biography or selected panel content */}
+              {/* Content Column */}
+              <div className="flex-1 pr-4 h-full overflow-y-auto custom-scrollbar">
+                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-white/50 shadow-sm min-h-full">
+                  
                   {selectedPanel === 'bio' && (
-                    <div className="text-black leading-relaxed">
-                      Ramiro was Born in Badajoz, the most populated town in the regioon of Extremadura, Spain. Located only 5 minutes away from Portugal, he grew up in Badajoz until the age of 16. He already ahd explored some European Countries with his family & friends. He gpt the chance to study in summer in a Scottish High School with other international students and that's when he decided he wanted to earn more about the world. He was accepted in a Chinese HIgh School thanks to the AFS organization, and had the opportunity to live with a Chinese famliy and attend schol for a year.
-
-                      <br /><br />
-                      After the exchange year in Harbin, China, Ramiro finished the remaining 2 years of Spanish High School and enrolled in the LEINN International Bachelors Degree. He was able to lead different initiatives with other entrepeneurs like him. The degree took part in Shanghai (3 months), Bilbao (1 year), Seattle (5 months due to Covid), Seoul (1 year) and Madrid (1 year).
-
-                      <br /><br />
-                      For his final degree project, Ramiro launched what is today Ibero, a travel agency aiming to showcase the true gems of Extremadura & Alentejo. Thanks to the warm support received by Ibero's first 200+ customers served during these years, Ibero now is launching other itineraries with the same passion and care as it has been handled in Spain & Portugal
-                    </div>
-                  )}
-
-                  {selectedPanel === 'passions' && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-black">
-                      <div className="p-2 border rounded text-center">Cooking</div>
-                      <div className="p-2 border rounded text-center">Exploring</div>
-                      <div className="p-2 border rounded text-center">Nature</div>
-                      <div className="p-2 border rounded text-center">Photography</div>
+                    <div className="space-y-6 animate-in fade-in duration-300 max-w-prose">
+                        {selectedLeader.id === 'ramiro' ? (
+                        <div className="text-gray-800 leading-relaxed font-serif text-lg">
+                          <p className="mb-4">
+                            Ramiro was born in Badajoz, the most populated town in the region of Extremadura, Spain. Located only 5 minutes away from Portugal, he grew up exploring the borderlands until the age of 16. After exploring various European countries with family & friends, a summer exchange in Scotland sparked his desire to learn more about the world. He was later accepted into a Chinese High School via the AFS organization, living with a host family in Harbin for a year.
+                          </p>
+                          <p className="mb-4">
+                            After China, he completed his studies and enrolled in the LEINN International Bachelors Degree, leading entrepreneurial initiatives in Shanghai, Bilbao, Seattle, Seoul, and Madrid.
+                          </p>
+                          <p>
+                            For his final project, Ramiro launched what is today Ibero, a travel agency aiming to showcase the true gems of Extremadura & Alentejo. Thanks to the support of Ibero's first 200+ customers, the agency now launches expanded itineraries with the same passion and care.
+                          </p>
+                        </div>
+                        ) : (
+                          <div className="text-gray-500 italic text-center py-10">
+                            Biography for {selectedLeader.name} coming soon...
+                          </div>
+                        )}
+                        
+                        {/* Merged Passions Section */}
+                        {selectedLeader.id === 'ramiro' && (
+                        <div className="pt-6 border-t border-gray-200/50">
+                           <h5 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Passions</h5>
+                           <div className="flex flex-wrap gap-2 text-sm">
+                              {['Cooking', 'Exploring', 'Nature', 'Photography', 'History', 'Logistics'].map(p => (
+                                 <span key={p} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-700 shadow-sm">{p}</span>
+                              ))}
+                           </div>
+                        </div>
+                        )}
                     </div>
                   )}
 
                   {selectedPanel === 'traveled' && (
-                    <div className="text-black leading-relaxed">
-                      <ul className="list-disc list-inside">
-                        <li>Portugal</li>
-                        <li>France</li>
-                        <li>Morocco</li>
-                        <li>Italy</li>
-                        <li>Slovakia</li>
-                        <li>Croatia</li>
-                        <li>Montenegro</li>
-                        <li>Czech Republic</li>
-                        <li>Austria</li>
-                        <li>Romania</li>
-                        <li>Germany</li>
-                        <li>Netherlands</li>
-                        <li>Belgium</li>
-                        <li>Luxembourg</li>
-                        <li>Latvia</li>
-                        <li>Russia</li>
-                        <li>Scotland</li>
-                        <li>England</li>
-                        <li>Ireland</li>
-                        <li>Canada</li>
-                        <li>Hungary</li>
-                      </ul>
+                    <div className="space-y-6 animate-in fade-in duration-300">
+                       <div className="h-96 w-full rounded-xl overflow-hidden border border-gray-200">
+                         <InlineMap 
+                            mode="overview"
+                            points={[
+                            "Portugal", "France", "Morocco", "Italy", "Slovakia", "Croatia", "Montenegro", 
+                            "Czech Republic", "Austria", "Romania", "Germany", "Netherlands", "Belgium", 
+                            "Luxembourg", "Latvia", "Russia", "Scotland", "England", "Ireland", "Canada", "Hungary",
+                            "India", "USA", "Hainan", "Pingyao", "Shanghai", "Harbin", "Yunnan", "Guilin"
+                            ].map(c => ({ coords: LOCATIONS[c], name: c })).filter(p => p.coords)}
+                            showLabels={false}
+                            fit="points"
+                         />
+                       </div>
+                       
+                       <div className="flex flex-wrap gap-x-6 gap-y-2">
+                          {[
+                            "Portugal", "France", "Morocco", "Italy", "Slovakia", "Croatia", "Montenegro", 
+                            "Czech Republic", "Austria", "Romania", "Germany", "Netherlands", "Belgium", 
+                            "Luxembourg", "Latvia", "Russia", "Scotland", "England", "Ireland", "Canada", "Hungary",
+                            "India", "China", "USA"
+                          ].sort().map(country => (
+                             <span key={country} className="text-sm font-serif text-gray-800 pb-1 border-b border-transparent hover:border-emerald-500 transition-colors cursor-default">
+                                {country}
+                             </span>
+                          ))}
+                       </div>
                     </div>
                   )}
 
                   {selectedPanel === 'lived' && (
-                    <div className="text-black leading-relaxed">
-                      <ul className="list-disc list-inside">
-                        <li>Switzerland</li>
-                        <li>Finland</li>
-                        <li>China</li>
-                        <li>South Korea</li>
-                        <li>USA</li>
-                      </ul>
+                    <div className="space-y-6 animate-in fade-in duration-300">
+                       <div className="h-96 w-full rounded-xl overflow-hidden border border-gray-200">
+                         <InlineMap 
+                            mode="overview"
+                            points={[
+                             "Switzerland", "Finland", "China", "South Korea", "USA"
+                            ].map(c => ({ coords: LOCATIONS[c], name: c })).filter(p => p.coords)}
+                            showLabels={false}
+                            fit="points"
+                         />
+                       </div>
+                       
+                       <div className="flex flex-wrap gap-x-6 gap-y-2">
+                          {[
+                             "Switzerland", "Finland", "China", "South Korea", "USA"
+                          ].sort().map(country => (
+                             <span key={country} className="text-sm font-serif text-gray-800 pb-1 border-b border-transparent hover:border-blue-600 transition-colors cursor-default">
+                                {country}
+                             </span>
+                          ))}
+                       </div>
                     </div>
                   )}
                 </div>
               </div>
             </div>
+            )}
           </div>
         )}
+
 
         {tab === 'collaborators' && (
           <div className="space-y-4">
@@ -242,36 +392,27 @@ const ORDERED_COLLABORATORS = [
     } catch (e) {}
   }, [disabledPrev, disabledNext]);
 
-  if (!files || files.length === 0) return <div className="text-black/60">No collaborators found.</div>;
-
+  // Always render the displayItems (we use the manifest fallback paths when files are missing)
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-3">
-        <button onClick={(e) => { e.stopPropagation(); if (!disabledPrev) prev(); }} disabled={disabledPrev} className={`p-2 bg-white border rounded ${disabledPrev ? 'opacity-40 cursor-not-allowed' : ''}`} aria-disabled={disabledPrev}>‹</button>
-        <div className="flex-1 grid grid-cols-2 gap-6">
-          {displayItems.slice(index, index + 2).map((f) => {
-            return (
-              <div key={f.filename} className="bg-white p-4 rounded shadow-sm">
-                  <div className="flex items-start gap-4">
-                    <img
-                      src={f.path}
-                      onError={handleImgError}
-                      alt={f.person}
-                      className="w-48 h-48 md:w-56 md:h-56 object-cover rounded-xl flex-shrink-0"
-                    />
-                  <div>
-                    <div className="font-semibold text-black">{f.person}</div>
-                    <div className="text-sm text-black/70 mt-1">{f.text}</div>
-                  </div>
-                </div>
+    <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {displayItems.map((f) => (
+          <div key={f.filename} className="bg-white p-4 rounded shadow-sm">
+            <div className="flex items-start gap-4">
+              <img
+                src={f.path}
+                onError={handleImgError}
+                alt={f.person}
+                className="w-48 h-48 md:w-56 md:h-56 object-cover rounded-xl flex-shrink-0"
+              />
+              <div>
+                <div className="font-semibold text-black">{f.person}</div>
+                <div className="text-sm text-black/70 mt-1">{f.text}</div>
               </div>
-            );
-          })}
-        </div>
-        <button onClick={(e) => { e.stopPropagation(); if (!disabledNext) next(); }} disabled={disabledNext} className={`p-2 bg-white border rounded ${disabledNext ? 'opacity-40 cursor-not-allowed' : ''}`} aria-disabled={disabledNext}>›</button>
+            </div>
+          </div>
+        ))}
       </div>
-
-      {/* NOTE: 'YOU' gallery intentionally omitted here so 'behind' shows only collaborators */}
     </div>
   );
 }
@@ -280,14 +421,14 @@ function YouGallery() {
   const files = useMediaList('YOU');
   if (!files || files.length === 0) return <div className="text-black/60">No "YOU" gallery found.</div>;
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {files.map((f) => (
-        <div key={f.path} className="bg-white rounded overflow-hidden">
-          <img src={getSupabaseUrl(f.path)} alt={f.filename} className="w-full h-40 object-cover" />
-        </div>
-      ))}
+    <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {files.map((f) => (
+          <div key={f.path} className="bg-white rounded overflow-hidden">
+            <img src={getSupabaseUrl(f.path)} alt={f.filename} className="w-full h-40 object-cover" />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
-
-// PlacesSection removed per user request

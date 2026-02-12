@@ -1,9 +1,10 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useState, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AuthLayout from '@/components/auth/AuthLayout';
 import { supabaseClient } from '@/lib/db/supabaseClient';
+import { useLoader } from '@/components/GlobalLoaderProvider';
 
 function buildLink(base: string, callbackUrl?: string | null) {
   if (!callbackUrl) return base;
@@ -19,6 +20,8 @@ export default function LoginInner() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { startLoading } = useLoader();
+  const [isPending, startTransition] = useTransition();
 
   const registerHref = useMemo(() => buildLink('/auth/register', callbackUrl), [callbackUrl]);
 
@@ -63,7 +66,10 @@ export default function LoginInner() {
       }
 
       // Redirect after successful login
-      window.location.href = callbackUrl;
+      startLoading();
+      startTransition(() => {
+        router.push(callbackUrl);
+      });
     } catch (err) {
       console.error(err);
       setError('Unexpected error while signing in. Please try again.');

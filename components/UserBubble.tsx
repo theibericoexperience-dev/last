@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { supabaseClient } from '@/lib/db/supabaseClient';
 import { usePathname, useRouter } from 'next/navigation';
+import { useLoader } from '@/components/GlobalLoaderProvider';
 
 /**
  * UserBubble - styled similarly to MY PANEL on landing (oval, header-aligned) and compact/fixed on other pages.
@@ -23,6 +24,8 @@ export default function UserBubble({
 }) {
   const pathname = usePathname?.() ?? '/';
   const router = useRouter();
+  const { startLoading } = useLoader();
+  const [isPending, startTransition] = useTransition();
   const [logged, setLogged] = useState<boolean | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
@@ -74,13 +77,19 @@ export default function UserBubble({
     // If not logged, navigate to login/register flow (maintain current behaviour)
     const { data: { session } = {} as any } = await supabaseClient.auth.getSession();
     if (session?.user) {
-      router.push('/panel');
+      startLoading();
+      startTransition(() => {
+        router.push('/panel');
+      });
     } else {
       // If a parent provided a register handler, prefer that (e.g. landing page opens a modal)
       if (typeof onOpenRegisterAction === 'function') {
         onOpenRegisterAction();
       } else {
-        router.push('/auth/login');
+        startLoading();
+        startTransition(() => {
+          router.push('/auth/login');
+        });
       }
     }
   };

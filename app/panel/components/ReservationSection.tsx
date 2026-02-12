@@ -28,14 +28,23 @@ interface Order {
 
 interface ReservationSectionProps {
   orders: Order[];
-  loading: boolean;
+  loading?: boolean;
+  focusedOrderId?: string;
   onViewDetails?: (orderId: string) => void;
   onEditTravelers?: (orderId: string) => void;
   onEditPayments?: (orderId: string) => void;
-  focusedOrderId?: string | undefined;
+  onVideoReady?: () => void;
 }
 
-export default function ReservationSection({ orders, loading, onViewDetails, onEditTravelers, onEditPayments, focusedOrderId }: ReservationSectionProps) {
+export default function ReservationSection({ 
+    orders, 
+    loading, 
+    focusedOrderId, 
+    onViewDetails, 
+    onEditTravelers, 
+    onEditPayments,
+    onVideoReady 
+  }: ReservationSectionProps) {
   const router = useRouter();
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
   const lastFocusedId = React.useRef<string | undefined>(undefined);
@@ -121,7 +130,11 @@ export default function ReservationSection({ orders, loading, onViewDetails, onE
         <h2 className="text-xl font-semibold text-slate-900">You haven't made any reservations</h2>
         <div className="group relative min-h-[220px] w-full overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-md bg-transparent">
        <div className="absolute inset-0 z-0">
-         <VideoSequence contained className="h-full w-full object-cover transition-opacity duration-700" />
+         <VideoSequence 
+           contained 
+           className="h-full w-full object-cover transition-opacity duration-700" 
+           onLoad={onVideoReady} 
+         />
        </div>
           <div className="relative z-10 flex min-h-[220px] items-end justify-center p-6 text-center">
             <Link

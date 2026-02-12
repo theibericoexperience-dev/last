@@ -37,10 +37,17 @@ export async function processStripeEvent(event: any) {
       let query = supabaseServer.from('orders').update({ status: 'paid' });
       
       if (orderId) {
-        // Convertir a número usando parseInt como se solicitó
-        const numericOrderId = parseInt(orderId, 10);
-        console.log(`>>> BUSCANDO POR ID NUMÉRICO: ${numericOrderId}`);
-        query = query.eq('id', numericOrderId);
+        // Updated to support String UUIDs or Legacy Integer IDs
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(orderId));
+        console.log(`>>> BUSCANDO POR ID (UUID/INT): ${orderId}`);
+        
+        if (isUuid) {
+           // Look in both id (if migrated) or id_new (future)
+           query = query.or(`id.eq.${orderId},id_new.eq.${orderId}`);
+        } else {
+           // Fallback for legacy
+           query = query.eq('id', String(orderId));
+        }
       } else {
         query = query.eq('stripe_session_id', session.id);
       }

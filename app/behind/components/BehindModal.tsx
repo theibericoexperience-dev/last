@@ -46,22 +46,60 @@ export function BehindModal({
         if ((e.target as Element)?.closest?.('[data-no-close]')) return;
         setShowBehindModal(false);
       }}
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6 pointer-events-auto"
+      className="fixed inset-0 z-[80] flex items-center justify-center p-3 lg:p-5 pointer-events-auto bg-white/70 backdrop-blur-md transition-all duration-300"
+      style={{ padding: "clamp(0.75rem, 3.5vh, 2.25rem)" }}
     >
-        {/* Main Modal Container */}
-        <div data-behind-modal onClick={(e) => e.stopPropagation()} className="bg-white w-full max-w-6xl max-h-[90vh] rounded-lg shadow-2xl relative flex overflow-hidden">
-            {/* Close Button */}
-            <button
-                onClick={() => setShowBehindModal(false)}
-                className="absolute right-4 top-4 text-black rounded-full w-10 h-10 flex items-center justify-center hover:bg-black/5 z-20"
-                aria-label="Cerrar"
-                data-no-close
-            >
-                ✕
-            </button>
+        {/* Main Modal Container Styles copied from TourClient */}
+        <div 
+          data-behind-modal 
+          onClick={(e) => e.stopPropagation()} 
+          className="w-full h-full relative flex flex-col overflow-hidden max-w-[1500px] mx-auto"
+          style={{
+            backgroundColor: "rgba(255,255,255,0.45)",
+            backdropFilter: "blur(20px) saturate(140%)",
+            WebkitBackdropFilter: "blur(20px) saturate(140%)",
+            borderRadius: "24px",
+            border: "1px solid rgba(255,255,255,0.3)",
+            boxShadow: "0 40px 80px -20px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255,255,255,0.1)"
+          }}
+        >
+             {/* Header */}
+             <div className="w-full pt-4 px-4 lg:px-6 flex items-center justify-between relative z-10 shrink-0 pb-3">
+                 <div className="w-[100px]" /> {/* Spacer */}
+
+                 {/* Center Tabs */}
+                 <div className="flex flex-col items-center gap-1 z-50 absolute left-1/2 top-4 -translate-x-1/2">
+                    <div className="bg-black/80 p-0.5 rounded-full backdrop-blur-xl shadow-2xl flex border border-white/10">
+                     <button 
+                       onClick={() => setBehindView('history')}
+                       className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${isHistory ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                     >
+                       History
+                     </button>
+                     <button 
+                       onClick={() => setBehindView('ecosystem')}
+                       className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${isEcosystem ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                     >
+                       Behind
+                     </button>
+                    </div>
+                 </div>
+
+                 {/* Close Button Group */}
+                 <div className="flex justify-end w-[100px]">
+                    <button
+                        onClick={() => setShowBehindModal(false)}
+                        className="w-8 h-8 flex items-center justify-center bg-black/5 hover:bg-black/10 rounded-full text-gray-700 transition-colors backdrop-blur-sm"
+                        aria-label="Cerrar"
+                        data-no-close
+                    >
+                        ✕
+                    </button>
+                 </div>
+             </div>
 
             {/* Content */}
-            <div className="w-full h-full p-6 pt-12 relative flex-1 overflow-auto">
+            <div className={`w-full h-full relative flex-1 overflow-hidden ${isHistory ? 'bg-transparent' : 'bg-white/60 backdrop-blur-sm m-4 rounded-xl border border-white/50'}`}>
                  {isHistory ? (
                     <HistoryContent
                         ref={historyRef}
@@ -79,12 +117,13 @@ export function BehindModal({
                         }}
                     />
                  ) : (
-                    <EcosystemContent mediaAutoplay={Boolean(modalConfig.mediaAutoplay)} />
+                    <div className="w-full h-full overflow-hidden rounded-xl">
+                       <EcosystemContent mediaAutoplay={Boolean(modalConfig.mediaAutoplay)} />
+                    </div>
                  )}
             </div>
             
-            {/* Centered Chevrons Overlay (Layout improvement over JS calculation) */}
-            {/* We place chevrons in a layer *above* the content but constrained to the modal width */}
+            {/* Centered Chevrons Overlay (Only for History) */}
             {isHistory && (
                 <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-4 z-10">
                     <button
@@ -92,51 +131,22 @@ export function BehindModal({
                         aria-label="prev-inline"
                         onClick={(e) => { e.stopPropagation(); historyRef.current?.prev(); }}
                         disabled={disabledPrevGlobal}
-                        className={`pointer-events-auto w-12 h-12 bg-black/10 hover:bg-black/20 text-black text-4xl flex items-center justify-center rounded-full transition ${disabledPrevGlobal ? 'opacity-0 pointer-events-none' : ''}`}
+                        className={`pointer-events-auto w-12 h-12 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/30 text-black text-4xl flex items-center justify-center rounded-full transition shadow-lg ${disabledPrevGlobal ? 'opacity-0 pointer-events-none' : ''}`}
                     >
                         ‹
                     </button>
                     <button
                         data-no-close
                         aria-label="next-inline"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            const currentYear = historyRef.current?.getYear?.();
-                            const isNextDisabled = historyRef.current?.isNextDisabled?.();
-                            if (currentYear === 2025 && isNextDisabled) {
-                                setBehindView('ecosystem');
-                                setModalConfig((m: any) => ({ ...m, view: 'ecosystem' }));
-                            } else {
-                                historyRef.current?.next();
-                            }
-                        }}
-                        className={`pointer-events-auto w-12 h-12 bg-black/10 hover:bg-black/20 text-black text-4xl flex items-center justify-center rounded-full transition`}
+                        onClick={(e) => { e.stopPropagation(); historyRef.current?.next(); }}
+                        disabled={disabledNextGlobal}
+                        className={`pointer-events-auto w-12 h-12 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/30 text-black text-4xl flex items-center justify-center rounded-full transition shadow-lg ${disabledNextGlobal ? 'opacity-0 pointer-events-none' : ''}`}
                     >
                         ›
                     </button>
                 </div>
             )}
         </div>
-
-        {/* Floating Tabs (Outside/Above Modal) */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[10000] pointer-events-auto">
-            <div className="flex gap-2 justify-center">
-              <button
-                data-no-close
-                onClick={() => { setBehindView('history'); setModalConfig((m: any) => ({ ...m, view: 'history' })); }}
-                aria-pressed={isHistory}
-                className={`px-3 py-2 rounded-md text-sm font-semibold border ${isHistory ? 'border-gray-900 bg-gray-900 text-white' : 'border-white/30 text-white bg-transparent hover:bg-white/5'}`}>
-                History
-              </button>
-              <button
-                data-no-close
-                onClick={() => { setBehindView('ecosystem'); setModalConfig((m: any) => ({ ...m, view: 'ecosystem' })); }}
-                aria-pressed={isEcosystem}
-                className={`px-3 py-2 rounded-md text-sm font-semibold border ${isEcosystem ? 'border-gray-900 bg-gray-900 text-white' : 'border-white/30 text-white bg-transparent hover:bg-white/5'}`}>
-                Ecosystem
-              </button>
-            </div>
-          </div>
     </div>
   );
 }

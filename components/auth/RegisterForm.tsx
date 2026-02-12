@@ -1,12 +1,15 @@
 "use client";
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { supabaseClient } from '@/lib/db/supabaseClient';
+import { useLoader } from '@/components/GlobalLoaderProvider';
 
 export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccessAction?: () => void; autoFocus?: boolean }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { startLoading } = useLoader();
+  const [isPending, startTransition] = useTransition();
   const callbackUrl = searchParams?.get('callbackUrl') || '/panel?tab=orders';
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState('');
@@ -78,7 +81,10 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
       if (typeof onSuccessAction === 'function') {
         onSuccessAction();
       } else {
-        window.location.href = callbackUrl;
+        startLoading();
+        startTransition(() => {
+          router.push(callbackUrl);
+        });
       }
     } catch (err) {
       console.error('[RegisterForm] handleEmailRegister error:', err);

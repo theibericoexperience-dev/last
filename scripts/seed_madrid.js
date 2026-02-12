@@ -19,7 +19,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // 1. Tour Data (from toursOverview.ts)
 const tourData = {
   id: 'madrid-2026',
-  title: 'MADRID TO LISBOA',
+  title: 'MADRID TO LISBOA\nForgotten Iberia',
   summary: `Explore the unkown areas of Southwest Iberia and get a glimpse of the 2 Capitals.
 Visit Roman, Arab and Medieval Christian heritage.
 Learn about the Dehesa Landscape and its unique millenial farming culture.
@@ -31,6 +31,18 @@ This area tends to have mild temperatures in Winter & Early Spring`,
   // Pricing & Extras
   price_tour: 3500,
   price_flights: 0, 
+  departure_airports: [
+    "New York (JFK)",
+    "Newark (EWR)",
+    "Miami (MIA)",
+    "Chicago (ORD)",
+    "Los Angeles (LAX)",
+    "Boston (BOS)",
+    "Toronto (YYZ)",
+    "Montreal (YUL)",
+    "Seattle (SEA)",
+    "San Francisco (SFO)"
+  ],
   inclusions: [
     "Flights (international & internal, included)",
     "Accommodation in 4-5★ hotels",

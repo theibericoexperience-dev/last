@@ -222,62 +222,53 @@ export default forwardRef<
   const hitoDisabledNext = hitoIndex >= Math.max(0, hitos.length - 1);
 
   return (
-  <div className="w-full h-[80vh] max-h-[80vh] overflow-hidden flex flex-row">
+  <div className="w-full h-full flex flex-row items-start">
 
-      {/* Página izquierda: texto */}
-  <div className="flex-1 flex flex-col p-6 bg-white h-full overflow-hidden justify-start">
-    <div className="text-black font-extrabold text-6xl mb-4">{year === 2021 ? '2021-22' : year}</div>
-        {data && data.bullets && data.bullets.map((b, i) => (
-          <div key={i} className="p-3"><p className="text-black leading-relaxed">{b}</p></div>
-        ))}
-      </div>
-
-      {/* Página derecha: media/hitos */}
-  <div className="flex-1 flex flex-col justify-center py-8 px-8 bg-white h-full overflow-hidden">
-    <div className="flex-1 flex flex-col justify-center items-center gap-4">
-          <div 
-        className="relative w-full overflow-hidden rounded-lg shadow-xl bg-black"
-        style={{ aspectRatio: '21/9', maxHeight: '30vh' }} // Formato cinemático aún más reducido
-      >
-            {media && media.type === 'image' ? (
-              <img src={media.src} alt={`Year ${year}`} className="w-full h-full object-cover" />
-            ) : media ? (
-              <video ref={videoRef} src={media.src} className="w-full h-full object-cover" muted playsInline autoPlay loop />
-            ) : null}
-          </div>
-
-          {hitos.length > 0 && (
-            <div className="bg-white p-3 rounded-md w-[480px] mx-auto flex-none overflow-hidden">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={hitoPrev}
-                  disabled={hitoDisabledPrev}
-                  aria-label="Previous hito"
-                  className={`px-2 py-1 rounded-md text-sm font-semibold border ${hitoDisabledPrev ? 'opacity-40 pointer-events-none' : 'border-gray-200 hover:bg-gray-50'}`}>
-                  ‹
-                </button>
-
-                <div className="flex-1 text-center text-base md:text-lg text-gray-800 px-2">
-                  <div className="font-medium text-lg leading-tight">{hitos[hitoIndex]}</div>
-                </div>
-
-                <div className="flex flex-col items-end">
-                  <div className="text-xs text-gray-500">{`${hitoIndex + 1} / ${hitos.length}`}</div>
-                  <button
-                    onClick={hitoNext}
-                    disabled={hitoDisabledNext}
-                    aria-label="Next hito"
-                    className={`mt-1 px-2 py-1 rounded-md text-sm font-semibold border ${hitoDisabledNext ? 'opacity-40 pointer-events-none' : 'border-gray-200 hover:bg-gray-50'}`}>
-                    ›
-                  </button>
-                </div>
-              </div>
+      {/* Página izquierda: texto - Fondo transparente */}
+      <div className="flex-1 flex flex-col pt-4 px-6 lg:pt-6 lg:px-12 h-full overflow-hidden relative z-10">
+        <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-white/50 shadow-sm text-left max-w-prose">
+            <div className="text-black font-extrabold text-7xl mb-6">{year === 2021 ? '2021-22' : year}</div>
+            <div className="space-y-4">
+                {data && data.bullets && data.bullets.map((b, i) => (
+                <p key={i} className="text-lg md:text-xl text-gray-800 leading-relaxed font-serif">{b}</p>
+                ))}
             </div>
-          )}
         </div>
       </div>
 
-      {/* internal chevrons removed - use external portal chevrons in page */}
+      {/* Página derecha: media + lista de hitos (sin carrusel) */}
+      <div className="flex-1 flex flex-col py-6 px-6 lg:px-12 h-full overflow-hidden relative z-10">
+         <div className="h-full flex flex-col gap-6">
+             {/* Media container moved up */}
+             <div 
+                className="relative w-full overflow-hidden rounded-xl shadow-2xl bg-black shrink-0 border border-white/20"
+                style={{ aspectRatio: '16/9', maxHeight: '40vh' }}
+            >
+                    {media && media.type === 'image' ? (
+                    <img src={media.src} alt={`Year ${year}`} className="w-full h-full object-cover" />
+                    ) : media ? (
+                    <video ref={videoRef} src={media.src} className="w-full h-full object-cover" muted playsInline autoPlay loop />
+                    ) : null}
+            </div>
+
+            {/* List of Hitos - Scrollable if needed */}
+            {hitos.length > 0 && (
+                <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 bg-white/40 backdrop-blur-md rounded-xl p-6 border border-white/50 shadow-sm">
+                    <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4 sticky top-0 bg-white/0 backdrop-blur-sm">Milestones</h4>
+                    <ul className="space-y-3">
+                        {hitos.map((hito, idx) => (
+                            <li key={idx} className="flex items-start gap-3 text-base text-gray-800 font-medium leading-snug p-2 rounded-lg hover:bg-white/50 transition-colors">
+                                <span className="text-xs font-bold text-gray-400 mt-1 min-w-[20px]">{idx + 1}.</span>
+                                <span>{hito}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+         </div>
+      </div>
+
+      {/* Internal chevrons removed - managed by parent Modal */}
     </div>
   );
   });

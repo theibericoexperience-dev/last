@@ -25,12 +25,20 @@ export async function PATCH(
   }
 
   // Verify order belongs to user
-  const { data: order, error: orderError } = await supabaseServer
+  let query = supabaseServer
     .from('orders')
     .select('id, travelers_count')
-    .eq('id', parseInt(orderId, 10))
-    .eq('user_id', userId)
-    .single();
+    .eq('user_id', userId);
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(orderId));
+  if (isUuid) {
+    query = query.or(`id.eq.${orderId},id_new.eq.${orderId}`);
+  } else {
+    // Fallback for legacy integer IDs
+    query = query.eq('id', String(orderId));
+  }
+
+  const { data: order, error: orderError } = await query.single();
 
   if (orderError || !order) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
@@ -55,7 +63,7 @@ export async function PATCH(
       travelers: validatedTravelers,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', parseInt(orderId, 10))
+    .eq('id', order.id) // Use the resolved ID from previous step
     .select()
     .single();
 
@@ -83,7 +91,7 @@ export async function GET(
   const { data: order, error } = await supabaseServer
     .from('orders')
     .select('id, travelers, travelers_count')
-    .eq('id', parseInt(orderId, 10))
+    .or(`id.eq.${orderId},id_new.eq.${orderId}`) // Support both UUID and Int
     .eq('user_id', userId)
     .single();
 

@@ -2,6 +2,7 @@ import PanelClient from './PanelClient';
 import PanelHydrateClient from './PanelHydrateClient';
 import { headers } from 'next/headers';
 import { supabaseServer } from '@/lib/db/supabaseServer';
+import { TransitionLink } from '@/components/GlobalLoaderProvider';
 export const dynamic = 'force-dynamic';
 
 export default async function PanelPage() {
@@ -48,7 +49,7 @@ export default async function PanelPage() {
           <div className="max-w-md w-full text-center">
             <h1 className="text-2xl font-bold text-slate-900 mb-4">Welcome to IBERO</h1>
             <p className="text-slate-600 mb-8">Create your account to manage reservations, view payments, and access your personalized dashboard.</p>
-            <a href="/auth/login" className="w-full inline-flex justify-center bg-slate-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-slate-800 transition-colors">Sign in or Create Account</a>
+            <TransitionLink href="/auth/login" className="w-full inline-flex justify-center bg-slate-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-slate-800 transition-colors">Sign in or Create Account</TransitionLink>
           </div>
         </div>
         {/* Client-side hydrator: if the browser has a Supabase session (user just logged in),

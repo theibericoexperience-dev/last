@@ -23,8 +23,8 @@ export interface UseLandingSectionsController {
   onSectionClick: (e: MouseEvent) => void;
 }
 
-// Las 3 secciones de la landing (en orden)
-const SECTION_IDS = ['hero-section', 'tour-2026', 'tour-2027'];
+// Las 4 secciones de la landing (en orden)
+const SECTION_IDS = ['hero-section', 'tour-2026', 'tour-2027', 'join-club'];
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
@@ -83,14 +83,18 @@ export function useLandingSectionsController(): UseLandingSectionsController {
 
   const activeSectionId = SECTION_IDS[currentIndex];
 
-  // Recalcular offsets reales (top dentro del scroller) de SOLO las 3 secciones vlidas.
+  // Recalcular offsets reales (top dentro del scroller) de SOLO las 3 secciones válidas.
   const recomputeOffsets = useCallback(() => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
 
     offsetsRef.current = SECTION_IDS.map((id) => {
       const el = scroller.querySelector(`#${id}`) as HTMLElement | null;
-      return el ? el.offsetTop : Number.POSITIVE_INFINITY;
+      if (!el) return Number.POSITIVE_INFINITY;
+      
+      // Calculate properly independent of offsetParent nesting
+      // (Fixes issue where nested sections inside relative containers return 0 offsetTop)
+      return el.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop;
     });
   }, []);
 
@@ -118,13 +122,23 @@ export function useLandingSectionsController(): UseLandingSectionsController {
     const idx = SECTION_IDS.indexOf(id);
     if (isScrolling.current) return;
 
+    // Force offset recompute to ensure accuracy before scrolling
+    recomputeOffsets();
+
     const scroller = scrollerRef.current;
     if (!scroller) return;
 
-    // Usar scrollTop fijo basado en índice: 0, 100vh, 200vh
-    // Esto evita depender de que los elementos #tour-2026 etc. existan al momento del goTo.
-    const vh = window.innerHeight || 1000; // fallback si no hay window
-    const targetTop = idx * vh;
+    // Use PRECISE element offset if available, otherwise fallback to vh calculation
+    // This fixes the bug where "2027" is detected while visually on "2026" due to height mismatches.
+    const offsets = offsetsRef.current;
+    let targetTop = 0;
+    
+    if (offsets[idx] !== undefined && Number.isFinite(offsets[idx])) {
+       targetTop = offsets[idx];
+    } else {
+       const vh = window.innerHeight || 1000;
+       targetTop = idx * vh;
+    }
 
     // Controlled RAF animation to ensure there is no free/native scrolling
     const startScroll = scroller.scrollTop;
@@ -189,7 +203,7 @@ export function useLandingSectionsController(): UseLandingSectionsController {
     const scroller = scrollerRef.current;
     const vh = window.innerHeight || 1000;
     const currentScrollTop = scroller ? scroller.scrollTop : 0;
-    const currentIdx = Math.round(currentScrollTop / vh); // 0, 1, 2
+    const currentIdx = getClosestIndexFromScrollTop(currentScrollTop);
 
     if (delta > 0) {
       if (currentIdx >= SECTION_IDS.length - 1) return;
@@ -201,7 +215,7 @@ export function useLandingSectionsController(): UseLandingSectionsController {
       if (currentIdx <= 0) return;
       goTo(SECTION_IDS[currentIdx - 1]);
     }
-  }, [goTo]);
+  }, [goTo, getClosestIndexFromScrollTop]);
 
   
 
@@ -248,16 +262,33 @@ export function useLandingSectionsController(): UseLandingSectionsController {
     recomputeOffsets();
     update();
 
-    // Si cambian fuentes/imgenes y empujan el layout, recalculamos.
-    const onResize = () => {
+    // Use ResizeObserver for robust offset updates (better than just window resize)
+    const observer = new ResizeObserver(() => {
       recomputeOffsets();
       update();
-    };
-    window.addEventListener('resize', onResize);
+    });
+    
+    if (scroller) observer.observe(scroller);
+    
+    // Also observe the specific sections if they exist, to detect height changes
+    SECTION_IDS.forEach(id => {
+       const el = document.getElementById(id);
+       if (el) observer.observe(el);
+    });
+
+    // Fallback: periodic check for the first few seconds to ensure lazy loaded content is caught
+    const interval = setInterval(() => {
+       recomputeOffsets();
+       update();
+    }, 1000);
+    // Clear interval after 5 seconds
+    const timeout = setTimeout(() => clearInterval(interval), 5000);
 
     return () => {
       scroller.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
+      observer.disconnect();
+      clearInterval(interval);
+      clearTimeout(timeout);
     };
   }, [getClosestIndexFromScrollTop, recomputeOffsets]);
 
@@ -266,31 +297,35 @@ export function useLandingSectionsController(): UseLandingSectionsController {
   //   goTo('hero-section');
   // }, [goTo]);
 
-  // Suscribirse a intents externos de scroll y restaurar sesión si no hay deep link
+  // Suscribirse a intents externos de scroll
   useEffect(() => {
     const unsubscribe = subscribeLandingScrollTo(({ id }) => {
       if (id && isSectionId(id)) goTo(id);
     });
+    return () => unsubscribe();
+  }, [goTo]);
 
-    // Restaurar última sección desde sessionStorage SOLO si no hay parámetro de URL
-    // Si venimos con ?section=tour-2026, eso tiene prioridad absoluta.
+  // Restaurar última sección desde sessionStorage SOLO AL MONTAR
+  // Usamos una ref para asegurar que esto ocurra exactamente una vez y no en cada render/cambio de índice
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+
     try {
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search);
+        // Si hay parámetro ?section=..., ignoramos sessionStorage
         if (!params.has('section')) {
            const saved = sessionStorage.getItem('landing:lastSection');
            if (saved && isSectionId(saved)) {
-             // Solo ir si es diferente a donde estamos
-             if (SECTION_IDS.indexOf(saved) !== currentIndex) {
-               goTo(saved);
-             }
+              // Navegar al destino guardado una única vez
+              goTo(saved);
            }
         }
       }
     } catch (e) {}
-
-    return () => unsubscribe();
-  }, [goTo, currentIndex]);
+  }, [goTo]);
 
   return {
     activeSectionId,

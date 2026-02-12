@@ -14,9 +14,13 @@ export async function GET(req: NextRequest) {
     // ========================================
     // SUPABASE MEDIA (Manifest-based)
     // ========================================
-    const newManifestPath = path.join(process.cwd(), 'build', 'supabase-storage-manifest.json');
-    if (fs.existsSync(newManifestPath)) {
-      const storageManifest = JSON.parse(fs.readFileSync(newManifestPath, 'utf8'));
+    let manifestPathToUse = path.join(process.cwd(), 'data', 'supabase-storage-manifest.json');
+    if (!fs.existsSync(manifestPathToUse)) {
+       manifestPathToUse = path.join(process.cwd(), 'build', 'supabase-storage-manifest.json');
+    }
+
+    if (fs.existsSync(manifestPathToUse)) {
+      const storageManifest = JSON.parse(fs.readFileSync(manifestPathToUse, 'utf8'));
       
       // We look across all buckets for paths containing the 'path' param
       let foundFiles: any[] = [];

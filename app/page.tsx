@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '../components/Header';
+import LeftSectionNav from '../components/LeftSectionNav';
 import { useLandingSectionsController } from './landing/controllers/useLandingSectionsController';
 import VideoSequence from '../components/VideoSequence';
 import { usePageEntryAnimation } from './providers/PageTransitionProvider';
@@ -11,10 +12,17 @@ import TourGrid from '../components/TourGrid';
 import HeroScrollArrow from '../components/HeroScrollArrow';
 import RegisterForm from '@/components/auth/RegisterForm';
 import Modal from '@/components/ui/Modal';
+import IberoPackageModal from '@/components/IberoPackageModal';
+import { UserIcon } from '@heroicons/react/24/outline'; // Adjust import based on usage
+import { useLoader } from '@/components/GlobalLoaderProvider';
 
 function Page() {
   const router = useRouter();
+  const { startLoading } = useLoader();
+  const [isPending, startTransition] = useTransition();
   const [registerModalOpen, setRegisterModalOpen] = React.useState(false);
+  const [packageModalOpen, setPackageModalOpen] = React.useState(false);
+
   const {
     activeSectionId,
     goTo,
@@ -27,20 +35,26 @@ function Page() {
 
   // Estados derivados: solo hay 3 vistas posibles: hero, 2026, 2027
   const isTourSection = activeSectionId === 'tour-2026' || activeSectionId === 'tour-2027';
+  const isJoinSection = activeSectionId === 'join-club';
 
-  // Ocultar header y botones si estamos en card views (Tour 2026/2027)
-  // para dar sensación de inmersión total.
-  const showHeader = controllerShowHeader && !isTourSection;
-  const showHeroButtons = controllerShowHeroButtons && !isTourSection;
+  // Mostrar header standard en el Hero (cuando NO estamos en tour ni join club).
+  // Forzamos visibilidad si es null/undefined para evitar flash.
+  const isHero = !isTourSection && !isJoinSection;
+  const showHeader = (controllerShowHeader || isHero) && !isTourSection && !isJoinSection;
+  const showHeroButtons = controllerShowHeroButtons && !isTourSection && !isJoinSection;
 
   // Video: solo se reproduce cuando NO se está viendo 2026/2027
-  const isVideoPaused = isTourSection;
+  // NOTA: Para "join-club", queremos que el video siga visible/reproducirendose de fondo.
+  const isVideoPaused = isTourSection; 
 
   usePageEntryAnimation(scrollerRef, 'landing');
 
   const handleOpenPanel = React.useCallback(() => {
-    router.push('/panel');
-  }, [router]);
+    startLoading();
+    startTransition(() => {
+      router.push('/panel');
+    });
+  }, [router, startLoading]);
 
   const handleOpenRegister = React.useCallback(() => {
     setRegisterModalOpen(true);
@@ -62,6 +76,12 @@ function Page() {
     };
     scroller.addEventListener('click', handleClickCapture, true);
 
+    // Detectar intersección para la sección Join Club
+    // simple intersection observer para actualizar activeSectionId si el controller no lo hace
+    // (Controller es complejo, asumo que manejamos la visibilidad básica aquí o modificamos el controller.
+    //  Por seguridad, usamos un navbar visual basado en 'isTourSection' del controller, 
+    //  pero agergaremos lógica simple para 'join-club' si el controller no lo detecta.)
+    
     // Touch support: snap tras gesto táctil
     let touchY = null;
     const handleTouchStart = (e: TouchEvent) => {
@@ -93,7 +113,12 @@ function Page() {
     <>
       {/* Fixed background video always present under the landing content */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }} aria-hidden>
-        <VideoSequence className="w-full h-full object-cover" isPaused={isVideoPaused} />
+        <VideoSequence 
+          className="w-full h-full object-cover" 
+          isPaused={isVideoPaused} 
+          contained={true} 
+          poster="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/thumbnail.jpg"
+        />
       </div>
       <div
         className={`landing-header-transition${showHeader ? ' landing-header-visible' : ''}`}
@@ -108,6 +133,13 @@ function Page() {
       >
         <Header transparent onOpenRegisterAction={handleOpenRegister} />
       </div>
+
+      {(isTourSection || isJoinSection) && (
+        <LeftSectionNav 
+          activeSectionId={activeSectionId} 
+          goToAction={goTo} 
+        />
+      )}
       <main
   ref={scrollerRef}
         className="relative min-h-screen landing-main"
@@ -232,9 +264,60 @@ function Page() {
               body.tour-visible .mini-user-icon { display: block !important; }
             `}</style>
           </section>
-        {/* TOUR SECTIONS - TourGrid renderiza internamente tour-2026 y tour-2027 */}
-        <TourGrid />
-        {/* InteractiveMap is mounted persistently in layout via MapProvider; control via context */}
+  {/* TOUR SECTIONS - TourGrid renderiza internamente tour-2026 y tour-2027 */}
+  <TourGrid goToAction={goTo} />
+        
+        {/* SECTION: JOIN THE IBERO CLUB */}
+        <section
+            id="join-club"
+            className="w-full h-screen relative flex items-center justify-center snap-start text-white"
+            style={{
+              scrollSnapAlign: 'start',
+              scrollSnapStop: 'always',
+              // Use backdrop filter or gradient, but let fixed video show through
+              backgroundColor: 'rgba(0,0,0,0.6)', 
+            }}
+          >
+             {/* Gradient overlay for text readability */}
+             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+
+             {/* Content Modal/Card */}
+             <div className="max-w-4xl w-full mx-6 p-10 md:p-14 rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 z-10 flex flex-col items-center gap-8 shadow-2xl relative animate-in fade-in zoom-in duration-500">
+                <h2 className="text-4xl md:text-6xl font-serif font-bold leading-tight text-center">
+                   Join The Ibero Club <br/>
+                   <span className="text-xl md:text-2xl font-sans font-light italic text-gray-300 block mt-4 tracking-wide">
+                     Your All-In Solution For Authentic Group & Personal Travel
+                   </span>
+                </h2>
+                <p className="text-gray-300 max-w-2xl text-lg leading-relaxed font-serif text-center">
+                   Let us design with all the ingredients that when combined, create lifetime experiences while discovering the world & meeting fellow travelers.
+                </p>
+                
+                <div className="flex flex-col md:flex-row gap-4 mt-4 w-full justify-center">
+                   <Button 
+                     size="lg" 
+                     className="bg-white text-black hover:bg-gray-200 px-8 py-4 text-sm font-bold uppercase tracking-widest rounded-full"
+                     onClick={handleOpenRegister}
+                   >
+                     Create an Account & Win $500 Credit
+                   </Button>
+                   <Button 
+                     size="lg" 
+                     className="border border-white/30 text-white hover:bg-white/10 px-8 py-4 text-sm font-bold uppercase tracking-widest rounded-full backdrop-blur-md"
+                     onClick={() => router.push('/behind')}
+                   >
+                     Who's Behind Ibero?
+                   </Button>
+                </div>
+                
+                <button 
+                  onClick={() => setPackageModalOpen(true)}
+                  className="mt-4 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors border-b border-white/20 hover:border-white pb-0.5"
+                >
+                   Discover about the Ibero Package
+                </button>
+             </div>
+        </section>
       </main>
       <style>{`
         .landing-header-transition {
@@ -260,7 +343,7 @@ function Page() {
           pointer-events: auto;
           transform: translateY(0);
         }
-        #hero-overlay { z-index: 9999; transition: background 500ms ease, opacity 500ms ease; }
+  #hero-overlay { z-index: 99; transition: background 500ms ease, opacity 500ms ease; }
         #hero-overlay[data-covered="true"] {
           background: #000;
           opacity: 1;
@@ -278,6 +361,12 @@ function Page() {
           </div>
         </Modal>
       )}
+      
+      <IberoPackageModal 
+        open={packageModalOpen} 
+        onClose={() => setPackageModalOpen(false)} 
+        showOptionals={false}
+      />
     </>
   );
 }

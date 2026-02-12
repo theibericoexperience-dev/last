@@ -5,9 +5,11 @@ interface VideoSequenceProps {
   className?: string;
   isPaused?: boolean;
   contained?: boolean;
+  poster?: string;
+  onLoad?: () => void;
 }
 
-export default function VideoSequence({ className = "", isPaused = false, contained = false }: VideoSequenceProps) {
+export default function VideoSequence({ className = "", isPaused = false, contained = false, poster, onLoad }: VideoSequenceProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [needsUserGesture, setNeedsUserGesture] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -63,18 +65,18 @@ export default function VideoSequence({ className = "", isPaused = false, contai
 
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      <video
-        ref={videoRef}
-        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        src={videoSrc}
-        playsInline
-        autoPlay
-        muted
-        loop
-        preload="auto"
-      />
-      {/* Fondo negro solo visible si el video no está cargado */}
-      {!isLoaded && (
+      {/* Poster Image (visible while loading) */}
+      {!isLoaded && poster && (
+         <img 
+            src={poster} 
+            alt="background preview" 
+            className="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-1000"
+            style={{ opacity: isLoaded ? 0 : 1 }}
+         />
+      )}
+
+      {/* Fallback Black Background (only if no poster or while loading poster) */}
+      {!isLoaded && !poster && (
         <div
           style={{
             position: contained ? 'absolute' : 'fixed',
@@ -90,33 +92,33 @@ export default function VideoSequence({ className = "", isPaused = false, contai
           }}
         />
       )}
-      <video
-        ref={videoRef}
-        src={videoSrc}
-        style={{
-          position: contained ? 'absolute' : 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: contained ? '100%' : '100vh',
-          objectFit: 'cover',
-          // Keep zIndex high so the video is visible; page content and overlays
-          // are positioned over it by design. Using a negative z-index caused
-          // the video to be hidden behind the root in some browsers.
-          zIndex: contained ? 0 : 20,
-        }}
-        muted
-        autoPlay
-        playsInline
-        // Avoid preloading the full 295MB file on navigation; do not preload to
-        // prevent large network requests from interfering with app chunk loads.
-        preload="none"
-        loop
-        poster="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/thumbnail.jpg"
-        onCanPlay={() => { setIsLoaded(true); setFailed(false); }}
-        onLoadedData={() => { setIsLoaded(true); setFailed(false); }}
-        onError={() => { setIsLoaded(false); setFailed(true); }}
-      />
+
+      {videoSrc && (
+        <video
+          ref={videoRef}
+          src={videoSrc}
+          className={`transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+          style={{
+            position: contained ? 'absolute' : 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: contained ? '100%' : '100vh',
+            objectFit: 'cover',
+            zIndex: contained ? 0 : 20,
+          }}
+          muted
+          autoPlay
+          playsInline
+          preload="auto"
+          loop
+          // Native poster is not needed if we handle it manually, but good as backup
+          poster={poster}
+          onCanPlay={() => { setIsLoaded(true); setFailed(false); if (onLoad) onLoad(); }}
+          onLoadedData={() => { setIsLoaded(true); setFailed(false); if (onLoad) onLoad(); }}
+          onError={() => { setIsLoaded(false); setFailed(true); if (onLoad) onLoad(); }}
+        />
+      )}
 
       {needsUserGesture && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/30">

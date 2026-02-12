@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import TravelLoader from '@/components/TravelLoader';
 import PanelSidebar from './components/PanelSidebar';
 import ReservationSection from './components/ReservationSection';
 import PaymentsSection from './components/PaymentsSection';
@@ -14,11 +15,16 @@ import WhatsAppSection from './components/WhatsAppSection';
 import { usePanelData } from './hooks/usePanelData';
 import { usePanelState } from './hooks/usePanelState';
 import type { PanelSection } from './types';
+import { TransitionLink } from '@/components/GlobalLoaderProvider';
 
 function PanelContent() {
   const router = useRouter();
   const { orders, tickets, bonuses, calls, bonusBalance, referralCode, loading, refetch } = usePanelData();
   const { activeSection, focusedOrderId, setSection, focusOrder } = usePanelState();
+  const [videoReady, setVideoReady] = useState(false);
+
+  // Show loader if fetching data OR if we have no orders (landing video mode) and video isn't ready
+  const showLoader = loading || (orders.length === 0 && !videoReady);
 
   const sectionRef = useRef(activeSection);
   useEffect(() => {
@@ -160,12 +166,12 @@ function PanelContent() {
         <div className="mx-auto max-w-4xl relative">
           {/* Fixed "Back to landing" floating button for cleaner UI */}
           <div className="sticky top-8 z-50 flex justify-end pointer-events-none">
-            <a href="/" aria-label="Back to landing" className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-white transition-all">
+            <TransitionLink href="/" aria-label="Back to landing" className="pointer-events-auto inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-white transition-all">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
                 <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor" />
               </svg>
               <span>Back to site</span>
-            </a>
+            </TransitionLink>
           </div>
 
           <div className="flex flex-col">
@@ -178,6 +184,7 @@ function PanelContent() {
                 onEditTravelers={(orderId) => { setSection('travelers'); focusOrder(orderId); }}
                 onEditPayments={(orderId) => { setSection('payments'); focusOrder(orderId); }}
                 focusedOrderId={focusedOrderId}
+                onVideoReady={() => setVideoReady(true)}
               />
             </section>
 
@@ -232,6 +239,12 @@ function PanelContent() {
           <div className="h-[20vh]" />
         </div>
       </main>
+      
+      {showLoader && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999 }}>
+          <TravelLoader />
+        </div>
+      )}
     </div>
   );
 }

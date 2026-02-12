@@ -43,7 +43,7 @@ function formatStartDate(s?: string) {
   return `${mname} ${year}`;
 }
 
-export default function TourGrid({ isModal = false, onCardClickAction }: { isModal?: boolean, onCardClickAction?: () => void } = {}) {
+export default function TourGrid({ isModal = false, onCardClickAction, goToAction }: { isModal?: boolean, onCardClickAction?: () => void, goToAction?: (id: string) => void } = {}) {
   const onCardClickHandler = onCardClickAction;
   const [activeYear, setActiveYear] = React.useState<2026 | 2027 | null>(null);
 
@@ -55,7 +55,7 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
   // Renderizado del modal
   function renderModal() {
     return (
-      <>
+      <div className="flex flex-col">
         {/* 2026 */}
         <div id="tour-2026" className="flex flex-col items-center justify-center w-full" style={{height:'100vh', minHeight:'100vh', width:'100vw', maxWidth:'none', marginBottom: 0, paddingTop: 0}}>
           <div className="relative flex flex-col items-center justify-center w-full h-full" style={{overflow: 'visible', padding: 0, minHeight: '400px', height: '100vh', maxWidth:'1200px', margin:'0 auto'}}>
@@ -149,7 +149,7 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
             Custom Tours
           </a>
         </div>
-      </>
+      </div>
     );
   }
 

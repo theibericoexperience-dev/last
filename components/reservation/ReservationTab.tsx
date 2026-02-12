@@ -18,8 +18,10 @@ export interface TourData {
   inclusions: string[];
   insuranceOptions: { health: string; cancellation: string };
   disclaimer: string;
+  Weather?: string;
   // optional canonical extensions supplied by the tour page (days + optional pricePerDay)
   extensions?: Array<{ key: string; name: string; days: number; pricePerDay?: number }>;
+  departureAirports?: string[];
 }
 
 export interface ReservationFormData {
@@ -30,6 +32,8 @@ export interface ReservationFormData {
   countryCode: string;
   travelers: number;
   roomType?: 'double' | 'single' | 'suite';
+  departureAirport: string;
+  customDepartureAirport?: string;
   comments?: string;
 }
 
@@ -397,16 +401,27 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
 
   return (
     /* Container for reservation form - no scroll on desktop, two fixed columns */
-  <div className="w-full px-4 py-4">
+  <div className="w-full h-full px-0 py-0 pb-4">
       <style>{`@keyframes ibero-pulse { 0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.0);} 50% { box-shadow: 0 0 20px 6px rgba(250, 204, 21, 0.12);} 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.0);} }`}</style>
+      <style>{`
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+        }
+      `}</style>
 
    {/* Main layout: CSS Grid with FIXED two columns - NEVER stacks */}
   <div
     style={{
       display: 'grid',
-  gridTemplateColumns: '1fr 1fr',
-      gap: '1.5rem',
-      minWidth: '700px', /* Prevents stacking by enforcing minimum width */
+      gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+      gap: '1rem',
+      height: '100%',
     }}
   >
             {/* Left column: Pricing summary, comments, submit */}
@@ -502,6 +517,60 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
                           <div>${estimatedCashback.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
                         </div>
                       </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">
+                           Choose your desired airport for departure:
+                        </label>
+                        <select 
+                           {...register('departureAirport', { required: true })}
+                           className={`w-full bg-gray-50 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all
+                              ${errors.departureAirport ? 'border-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.1)]' : 'border-gray-200 hover:border-gray-300'}
+                           `}
+                        >
+                           <option value="">Select an airport...</option>
+                           {tourData.departureAirports && tourData.departureAirports.length > 0 ? (
+                              tourData.departureAirports.map((ap) => (
+                                <option key={ap} value={ap}>{ap}</option>
+                              )) 
+                           ) : (
+                               <>
+                                <option value="JFK">New York (JFK)</option>
+                                <option value="EWR">Newark (EWR)</option>
+                                <option value="MIA">Miami (MIA)</option>
+                                <option value="ORD">Chicago (ORD)</option>
+                                <option value="LAX">Los Angeles (LAX)</option>
+                                <option value="BOS">Boston (BOS)</option>
+                                <option value="YYZ">Toronto (YYZ)</option>
+                               </>
+                           )}
+                           <option value="OTHER">Other (Request custom)</option>
+                        </select>
+                        
+                        {watch('departureAirport') === 'OTHER' && (
+                           <div className="mt-2 animate-in fade-in slide-in-from-top-1">
+                              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1 block">
+                                 Specify your preferred airport:
+                              </label>
+                              <input 
+                                 type="text"
+                                 {...register('customDepartureAirport', { required: watch('departureAirport') === 'OTHER' })}
+                                 placeholder="e.g. Heathrow (LHR)"
+                                 className={`w-full bg-white border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all
+                                    ${errors.customDepartureAirport ? 'border-red-500' : 'border-gray-200'}
+                                 `}
+                              />
+                           </div>
+                        )}
+
+                        <p className="text-[10px] text-gray-500 mt-2 italic leading-tight">
+                            Can&apos;t find your airport? Select &quot;Other&quot; to request a custom connection.
+                        </p>
+
+                        {errors.departureAirport && (
+                           <p className="text-[10px] text-red-500 mt-1 font-medium italic">Departure airport is required</p>
+                        )}
                     </div>
                   </div>
                 </div>
