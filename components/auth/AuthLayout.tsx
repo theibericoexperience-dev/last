@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { getSupabaseUrl } from '@/lib/media-resolver';
+import { TransitionLink } from '@/components/GlobalLoaderProvider';
 
 export type AuthLayoutProps = {
   title: string;
@@ -97,9 +98,9 @@ export default function AuthLayout({
               <div className="mt-8 text-center text-sm text-slate-500">
                 {helperText}{' '}
                 {helperAction && (
-                  <Link href={helperAction.href} className="font-semibold text-slate-900 underline-offset-4 hover:underline">
+                  <TransitionLink href={helperAction.href} className="font-semibold text-slate-900 underline-offset-4 hover:underline">
                     {helperAction.label}
-                  </Link>
+                  </TransitionLink>
                 )}
               </div>
             )}

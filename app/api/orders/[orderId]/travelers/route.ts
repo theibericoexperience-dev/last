@@ -4,7 +4,7 @@ import { getAuthUserFromRequest } from '@/lib/auth/getAuthUserFromRequest';
 
 type RouteParams = { params: Promise<{ orderId: string }> };
 
-// PATCH /api/orders/[orderId]/travelers - Update travelers for an order
+// PATCH /api/orders/[orderId]/travelers - Update a traveler for an order
 export async function PATCH(
   req: Request,
   { params }: RouteParams
@@ -12,58 +12,77 @@ export async function PATCH(
   const { orderId } = await params;
   const authUser = await getAuthUserFromRequest(req);
   if (!authUser || !authUser.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
   if (!supabaseServer) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
   }
 
   const userId = authUser.id;
   const body = await req.json().catch(() => ({}));
-  const { travelers } = body;
+  const { traveler, slotId } = body;
 
-  if (!Array.isArray(travelers)) {
-    return NextResponse.json({ error: 'Travelers must be an array' }, { status: 400 });
+  if (!traveler) {
+    return NextResponse.json({ error: 'Missing traveler data' }, { status: 400 });
   }
 
-  // Verify order belongs to user
-  const { data: order, error: orderError } = await supabaseServer
+  // 1. Verify accessibility/ownership of the order
+  let query = supabaseServer
     .from('orders')
-    .select('id, travelers_count')
-    .eq('id', parseInt(orderId, 10))
-    .eq('user_id', userId)
-    .single();
+    .select('id, user_id')
+    .eq('user_id', userId);
+
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(orderId));
+  if (isUuid) {
+    query = query.or(`id.eq.${orderId},id_new.eq.${orderId}`);
+  } else {
+    query = query.eq('id', String(orderId));
+  }
+
+  const { data: order, error: orderError } = await query.single();
 
   if (orderError || !order) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   }
 
-  // Validate travelers data
-  const validatedTravelers = travelers.map((t: any, index: number) => ({
-    id: t.id || `traveler-${index + 1}`,
-    fullName: t.fullName?.trim() || '',
-    passportNumber: t.passportNumber?.trim() || '',
-    nationality: t.nationality?.trim() || '',
-    birthDate: t.birthDate || null,
-    dietaryNeeds: t.dietaryNeeds?.trim() || null,
-    emergencyContact: t.emergencyContact?.trim() || null,
-    notes: t.notes?.trim() || null,
-  }));
+  // 2. Prepare passenger data
+  const passengerData = {
+    user_id: userId,
+    order_id: order.id,
+    first_name: traveler.firstName?.trim() || null,
+    last_name: traveler.lastName?.trim() || null,
+    dob: traveler.dateOfBirth || null,
+    gender: (traveler.gender === 'unspecified' || !traveler.gender) ? null : traveler.gender,
+    nationality: traveler.nationality || null,
+    document_type: traveler.documentType || 'Passport',
+    document_number: traveler.documentNumber || null,
+    document_country: traveler.documentCountry || traveler.issuingCountry || null,
+    document_expires: traveler.documentExpires || null,
+    updated_at: new Date().toISOString(),
+  };
 
-  // Update order with travelers
-  const { data: updated, error } = await supabaseServer
-    .from('orders')
-    .update({
-      travelers: validatedTravelers,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', parseInt(orderId, 10))
+  // 3. Upsert into passengers table
+  let upsertPayload: any = { ...passengerData };
+  
+  const isIdUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str || '');
+  
+  if (traveler.id && isIdUUID(traveler.id)) {
+      upsertPayload.id = traveler.id;
+  } else if (slotId && isIdUUID(slotId)) {
+      upsertPayload.id = slotId;
+  }
+
+  const { data: savedPassenger, error: saveError } = await supabaseServer
+    .from('passengers')
+    .upsert(upsertPayload)
     .select()
     .single();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (saveError) {
+    console.error("Error saving passenger:", saveError);
+    return NextResponse.json({ error: saveError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ order: updated });
+  return NextResponse.json({ success: true, traveler: savedPassenger });
 }
 
 // GET /api/orders/[orderId]/travelers - Get travelers for an order
@@ -74,25 +93,89 @@ export async function GET(
   const { orderId } = await params;
   const authUser = await getAuthUserFromRequest(req);
   if (!authUser || !authUser.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  
   if (!supabaseServer) {
     return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
   }
 
   const userId = authUser.id;
 
-  const { data: order, error } = await supabaseServer
+  // 1. Resolve order UUID and verify ownership
+  let query = supabaseServer
     .from('orders')
-    .select('id, travelers, travelers_count')
-    .eq('id', parseInt(orderId, 10))
-    .eq('user_id', userId)
-    .single();
+    .select('id, travelers_count')
+    .eq('user_id', userId);
+    
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(orderId));
+  if (isUuid) {
+    query = query.or(`id.eq.${orderId},id_new.eq.${orderId}`);
+  } else {
+    query = query.eq('id', String(orderId));
+  }
 
-  if (error || !order) {
+  const { data: order, error: orderError } = await query.single();
+
+  if (orderError || !order) {
     return NextResponse.json({ error: 'Order not found' }, { status: 404 });
   }
 
-  return NextResponse.json({
-    travelers: order.travelers || [],
-    count: order.travelers_count || 0,
+  // 2. Fetch passengers from the table
+  const { data: passengers, error: passengersError } = await supabaseServer
+    .from('passengers')
+    .select('*')
+    .eq('order_id', order.id)
+    .order('created_at', { ascending: true }); 
+
+  if (passengersError) {
+    return NextResponse.json({ error: passengersError.message }, { status: 500 });
+  }
+
+  // 3. Map back to frontend format
+  const mappedTravelers = (passengers || []).map(p => ({
+     id: p.id,
+     firstName: p.first_name || '',
+     lastName: p.last_name || '',
+     dateOfBirth: p.dob || '',
+     gender: p.gender || 'unspecified',
+     nationality: p.nationality || '',
+     documentType: p.document_type || 'Passport',
+     documentNumber: p.document_number || '',
+     documentCountry: p.document_country || '',
+     documentExpires: p.document_expires || '',
+     fullName: `${p.first_name || ''} ${p.last_name || ''}`.trim()
+  }));
+
+  // If no passengers found, try to pre-fill the first slot with the user's profile info
+  if (mappedTravelers.length === 0) {
+      const { data: profile } = await supabaseServer
+        .from('user_profiles')
+        .select('first_name, last_name, email, phone, metadata')
+        .eq('user_id', userId)
+        .single();
+      
+      if (profile) {
+          // Check metadata for additional fields if available
+          const meta = profile.metadata || {};
+          
+          mappedTravelers.push({
+              id: `virtual-${Date.now()}`, // Temporary ID to indicate it's not saved yet but pre-filled
+              firstName: profile.first_name || '',
+              lastName: profile.last_name || '',
+              // Try to map dateOfBirth and gender if present in metadata
+              dateOfBirth: meta.dateOfBirth || '',
+              gender: meta.gender || 'unspecified',
+              nationality: meta.nationality || '',
+              documentType: 'Passport',
+              documentNumber: '',
+              documentCountry: '',
+              documentExpires: '',
+              fullName: `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+          });
+      }
+  }
+
+  return NextResponse.json({ 
+      travelers: mappedTravelers,
+      count: Math.max(mappedTravelers.length, order.travelers_count || 0)
   });
 }

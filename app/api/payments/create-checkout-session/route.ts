@@ -44,17 +44,28 @@ export async function POST(request: Request) {
   }
 
   const userId = authUser.id as string;
-  const numericOrderId = parseInt(orderId, 10);
+  // const numericOrderId = parseInt(orderId, 10); // REMOVED: Support UUID
 
   // 2. Fetch Order
   let order;
   try {
-    const { data, error } = await supabaseServer
+    let query = supabaseServer
       .from('orders')
       .select('*')
-      .eq('id', numericOrderId)
-      .eq('user_id', userId)
-      .single();
+      .eq('user_id', userId);
+
+    // Dynamic check: if orderId is UUID, use id_new/id; else use id/int
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(orderId));
+    
+    if (isUuid) {
+      // Try finding by id_new (future) or id (if migrated)
+      query = query.or(`id.eq.${orderId},id_new.eq.${orderId}`);
+    } else {
+      // Fallback for legacy integer IDs
+      query = query.eq('id', String(orderId));
+    }
+
+    const { data, error } = await query.single();
 
     if (error || !data) {
       console.error('>>> ERROR DB ORDER:', error?.message || 'Order not found');
@@ -131,7 +142,7 @@ export async function POST(request: Request) {
     const { error: updateError } = await supabaseServer
       .from('orders')
       .update({ stripe_session_id: sessionStripe.id })
-      .eq('id', numericOrderId);
+      .eq('id', order.id);
 
     if (updateError) {
       console.error('>>> ERROR DB UPDATE:', updateError.message);

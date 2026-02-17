@@ -93,6 +93,96 @@
   animation: fade-in 1s ease-out forwards;
 }
 
+/* Mobile-Perfect overrides
+   - Force horizontal rows/grids to stack vertically on narrow screens
+   - Reduce large typography for mobile readability
+   - Reduce lateral padding/margins to 1rem edges
+   - Ensure touch targets are at least 44x44px
+   These are intentionally opinionated global overrides for screens < 768px.
+*/
+@media (max-width: 767.98px) {
+  /* Stack any element using the common helper class or tailwind-style class names */
+  .flex-row { flex-direction: column !important; }
+
+  /* Make multi-column grids single column */
+  .grid-cols-2,
+  .grid-cols-3,
+  .grid-cols-4,
+  .grid-cols-5,
+  .grid-cols-6 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* Reduce horizontal container padding to 1rem (16px) */
+  .px-6, .px-8, .lg\:px-8, .ui-container, .ui-edge-offset {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+
+  /* Typography: scale down very large text so it's legible on small screens */
+  .text-6xl, h1, .hero-title { font-size: 1.5rem !important; line-height: 1.15 !important; }
+  .text-5xl { font-size: 1.25rem !important; }
+  .text-4xl { font-size: 1.125rem !important; }
+  .text-3xl { font-size: 1rem !important; }
+  .text-2xl { font-size: 0.9375rem !important; }
+  p, .text-base { font-size: 0.95rem !important; }
+
+  /* Reduce gaps and spacing to preserve real-estate */
+  .gap-12, .gap-10, .gap-8 { gap: 0.75rem !important; }
+  .space-y-6 { gap: 0.5rem !important; }
+  .mx-auto { margin-left: 1rem !important; margin-right: 1rem !important; }
+
+  /* Touch targets: ensure minimum tappable area */
+  button, a, input[type="button"], input[type="submit"], .btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+  }
+
+  /* Make images and media scale to container width on narrow screens */
+  img, video, .object-cover { max-width: 100% !important; height: auto !important; }
+
+  /* Reduce oversized fixed card dimensions used in TourGrid and other components */
+  /* Matches inline style lookups like width: 260; keep them responsive */
+  .relative[style*="width: 260"], .relative[style*="minWidth: 220"] {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+  }
+
+  /* Positioning tweaks: move right-aligned absolute elements closer to center */
+  .absolute.right-6 { right: 1rem !important; }
+  .absolute.right-0 { right: 1rem !important; }
+
+  /* Shorter header on mobile */
+  header.fixed { height: 56px !important; padding: 0.25rem 1rem !important; }
+
+  /* Utility class developers can add to force stacking on mobile when needed */
+  .stack-on-mobile { display: flex; flex-direction: column !important; }
+}
+
+/* Component-specific helpers used by Header and TourGrid */
+@media (min-width: 768px) {
+  .desktop-ibero-large { font-size: 44px !important; line-height: 1 !important; }
+}
+
+/* Make the giant year text scale down on mobile for TourGrid */
+.giant-year {
+  font-size: clamp(6rem, 18vw, 18rem);
+  line-height: 1;
+}
+@media (max-width: 767.98px) {
+  .giant-year { font-size: clamp(3.5rem, 10vw, 6rem) !important; opacity: 0.08; }
+}
+
 /* Hero scroll arrow styles */
 @keyframes arrow-rotate {
   0% { transform: translateY(0) rotate(0deg); }

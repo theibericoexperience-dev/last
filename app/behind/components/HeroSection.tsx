@@ -51,6 +51,20 @@ export function HeroSection({
           />
         </div>
 
+        {/* Left info box - visible on medium+ screens and only after intro phase */}
+        {phase !== 'intro' && (
+          <div className="absolute left-8 top-[70%] transform -translate-y-1/2 z-50 hidden md:block">
+            <div className="max-w-xl bg-black/60 backdrop-blur-sm p-6 rounded-lg border border-white/10 text-white">
+              <p className="text-base md:text-lg leading-relaxed">
+                Ibero is born as a concept in Seoul, Korea, during Ramiro's last year of his Bachelor's Degree in the Summer of 2021, with the idea of promoting the regions of Extremadura & Alentejo as true gems for the people looking for unspoiled locations that haven't been affected by massive tourism.
+              </p>
+              <p className="mt-4 text-base md:text-lg leading-relaxed">
+                5 years later, Ibero is expanding to other locations in the planet with the same purpose, give travelers authentic options with the same ingredient: True love for Travel.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Buttons */}
         <div style={{ position: 'absolute', top: '14vh', left: '50%', transform: 'translate(-50%, 0)' }} className={`z-50 transition-opacity ${phase === 'intro' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <div className="flex gap-4 justify-center">

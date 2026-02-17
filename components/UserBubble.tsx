@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { supabaseClient } from '@/lib/db/supabaseClient';
 import { usePathname, useRouter } from 'next/navigation';
+import { useLoader } from '@/components/GlobalLoaderProvider';
 
 /**
  * UserBubble - styled similarly to MY PANEL on landing (oval, header-aligned) and compact/fixed on other pages.
@@ -23,6 +24,8 @@ export default function UserBubble({
 }) {
   const pathname = usePathname?.() ?? '/';
   const router = useRouter();
+  const { startLoading } = useLoader();
+  const [isPending, startTransition] = useTransition();
   const [logged, setLogged] = useState<boolean | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
@@ -74,13 +77,19 @@ export default function UserBubble({
     // If not logged, navigate to login/register flow (maintain current behaviour)
     const { data: { session } = {} as any } = await supabaseClient.auth.getSession();
     if (session?.user) {
-      router.push('/panel');
+      startLoading();
+      startTransition(() => {
+        router.push('/panel');
+      });
     } else {
       // If a parent provided a register handler, prefer that (e.g. landing page opens a modal)
       if (typeof onOpenRegisterAction === 'function') {
         onOpenRegisterAction();
       } else {
-        router.push('/auth/login');
+        startLoading();
+        startTransition(() => {
+          router.push('/auth/login');
+        });
       }
     }
   };
@@ -106,7 +115,7 @@ export default function UserBubble({
           type="button"
           aria-label="Open your panel"
           onClick={handleClick}
-          className={(buttonClassName ?? 'p-2 text-black bg-transparent inline-flex items-center justify-center') + (checking ? ' opacity-70' : ' opacity-100')}
+          className={(buttonClassName ?? 'p-3 text-black bg-transparent inline-flex items-center justify-center') + (checking ? ' opacity-70' : ' opacity-100')}
         >
           <span className="sr-only">Open your panel</span>
           <span className="flex items-center justify-center text-current">{Icon}</span>
@@ -123,7 +132,7 @@ export default function UserBubble({
           type="button"
           aria-label="Open your panel"
           onClick={handleClick}
-          className={buttonClassName ?? "group inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 p-2 text-[14px] font-semibold uppercase tracking-tight text-white backdrop-blur transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"}
+          className={buttonClassName ?? "group inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 p-3 text-[14px] font-semibold uppercase tracking-tight text-white backdrop-blur transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"}
         >
           <span className="sr-only">Open your panel</span>
           <span className="flex items-center justify-center text-white">{Icon}</span>
@@ -138,7 +147,7 @@ export default function UserBubble({
       <button
         aria-label="Open your panel"
         onClick={handleClick}
-        className={buttonClassName ?? 'pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-transparent text-white transition hover:bg-white/5 focus:outline-none'}
+        className={buttonClassName ?? 'pointer-events-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-transparent text-white transition hover:bg-white/5 focus:outline-none'}
       >
         <span className="sr-only">Open your panel</span>
         <span className="block text-current">{Icon}</span>

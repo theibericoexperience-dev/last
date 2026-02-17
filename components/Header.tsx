@@ -1,9 +1,11 @@
 "use client";
 import Link from 'next/link';
+import { TransitionLink, useLoader } from './GlobalLoaderProvider';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import UserMenu from './UserMenu';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 export default function Header({ transparent, onOpenRegisterAction }: { transparent?: boolean; onOpenRegisterAction?: () => void } = {}) {
   const pathname = usePathname();
@@ -11,6 +13,8 @@ export default function Header({ transparent, onOpenRegisterAction }: { transpar
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const router = useRouter();
+  const { startLoading } = useLoader();
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,9 +44,32 @@ export default function Header({ transparent, onOpenRegisterAction }: { transpar
   return (
     <header className={`fixed ${topClass} left-0 right-0 z-50 transition-all duration-500 ease-in-out h-14 ${transparent ? 'bg-transparent backdrop-blur-none border-0' : 'bg-transparent backdrop-blur-sm'}`}>
       <div className="w-full px-6 lg:px-8 h-full relative">
-        <div className="h-full flex items-center">
-          {/* Full-width nav: three equal columns that span the full width */}
-          <nav className="w-full">
+        <div className="h-full flex items-center justify-between lg:justify-center">
+          
+          {/* Mobile Menu Button - Visible on mobile, hidden on lg */}
+          <div className="flex lg:hidden">
+            <button
+              type="button"
+              className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <span className="sr-only">Open main menu</span>
+              <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+            </button>
+          </div>
+
+          {/* Mobile Logo - Visible on mobile, centered absolutely */}
+          <div className="lg:hidden absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+             <TransitionLink 
+               href="/" 
+               className="text-white font-normal no-underline uppercase text-3xl tracking-tighter leading-none"
+             >
+                 IBERO
+             </TransitionLink>
+          </div>
+
+          {/* Desktop Nav: three equal columns that span the full width */}
+          <nav className="hidden lg:block w-full">
             <div className="grid grid-cols-3 items-center w-full">
               <div className="flex justify-center">
                 {pathname === '/' ? (
@@ -59,28 +86,27 @@ export default function Header({ transparent, onOpenRegisterAction }: { transpar
                     OPEN TOURS
                   </a>
                 ) : (
-                  <Link href="/destinations" className="text-white font-extrabold no-underline uppercase tracking-wider">
+                  <TransitionLink href="/destinations" className="text-white font-extrabold no-underline uppercase tracking-wider">
                     OPEN TOURS
-                  </Link>
+                  </TransitionLink>
                 )}
               </div>
 
               <div className="text-center">
                 { /* When header is transparent (landing) we want IBERO at 50px exactly */ }
-                <Link
+                <TransitionLink
                   href="/"
-                  className="text-white font-normal no-underline uppercase text-4xl md:text-5xl tracking-tighter leading-none"
-                  style={transparent ? { fontSize: '44px', lineHeight: 1 } : undefined}
+                  className={`text-white font-normal no-underline uppercase text-4xl md:text-5xl tracking-tighter leading-none ${transparent ? 'desktop-ibero-large' : ''}`}
                 >
                   IBERO
-                </Link>
+                </TransitionLink>
               </div>
 
               <div className="flex justify-center">
                 {/* Point to Next /behind route */}
-                <Link href="/behind" className="text-white font-extrabold no-underline uppercase tracking-wider">
+                <TransitionLink href="/behind" className="text-white font-extrabold no-underline uppercase tracking-wider">
                   BEHIND
-                </Link>
+                </TransitionLink>
               </div>
             </div>
           </nav>
@@ -91,12 +117,58 @@ export default function Header({ transparent, onOpenRegisterAction }: { transpar
           </div>
         </div>
       </div>
+      
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] bg-black bg-opacity-90 backdrop-blur-xl lg:hidden">
+          <div className="flex flex-col h-full p-6">
+            <div className="flex items-center justify-between mb-8">
+              <TransitionLink
+                href="/"
+                className="text-white font-normal no-underline uppercase text-3xl tracking-tighter leading-none"
+                onClick={closeAllMenus}
+              >
+                IBERO
+              </TransitionLink>
+              <button
+                type="button"
+                className="-m-2.5 rounded-md p-2.5 text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="sr-only">Close menu</span>
+                <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-6 text-center">
+              <TransitionLink 
+                href="/destinations" 
+                className="text-white text-xl font-extrabold uppercase tracking-wider py-2"
+                onClick={closeAllMenus}
+              >
+                OPEN TOURS
+              </TransitionLink>
+              
+              <TransitionLink 
+                href="/behind" 
+                className="text-white text-xl font-extrabold uppercase tracking-wider py-2"
+                onClick={closeAllMenus}
+              >
+                BEHIND
+              </TransitionLink>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mini user icon for tour-visible state */}
       <div className="mini-user-icon" id="mini-user" style={{ display: 'none' }}>
         <button
           onClick={() => {
-            router.push('/panel');
+            startLoading();
+            startTransition(() => {
+              router.push('/panel');
+            });
           }}
           className="w-full h-full flex items-center justify-center group"
         >

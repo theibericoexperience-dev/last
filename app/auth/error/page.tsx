@@ -1,5 +1,7 @@
 import AuthLayout from '@/components/auth/AuthLayout';
 
+export const dynamic = 'force-dynamic';
+
 export default function ErrorPage({ searchParams }: { searchParams?: Record<string,string> }) {
   const error = (searchParams && searchParams.error) || 'OAuthSignin';
   const human = {

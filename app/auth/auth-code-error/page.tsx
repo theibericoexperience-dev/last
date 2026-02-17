@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { Suspense } from 'react';
 
-export default function AuthCodeError() {
+function AuthCodeErrorContent() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
       <h1 className="text-4xl font-bold mb-4">Error de Autenticación</h1>
@@ -24,5 +25,13 @@ export default function AuthCodeError() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function AuthCodeError() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthCodeErrorContent />
+    </Suspense>
   );
 }

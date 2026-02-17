@@ -59,8 +59,70 @@ export async function GET(request: Request) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
   if (ordersError) return NextResponse.json({ error: ordersError.message }, { status: 500 });
-
+  
   const orders = ordersData || [];
+
+  // 1. Fetch passengers for these orders to populate "travelers"
+  if (orders.length > 0) {
+    const orderIds = orders.map((o: any) => o.id);
+    const { data: passengers } = await supabaseAdmin
+      .from('passengers')
+      .select('*')
+      .in('order_id', orderIds);
+      
+    const passengerMap: Record<string, any[]> = {};
+    (passengers || []).forEach((p: any) => {
+        if (!passengerMap[p.order_id]) passengerMap[p.order_id] = [];
+        passengerMap[p.order_id].push({
+            id: p.id,
+            firstName: p.first_name,
+            lastName: p.last_name,
+            fullName: `${p.first_name || ''} ${p.last_name || ''}`.trim(),
+            dateOfBirth: p.dob,
+            gender: p.gender,
+            nationality: p.nationality,
+            documentType: p.document_type,
+            documentNumber: p.document_number,
+            documentCountry: p.document_country,
+            documentExpires: p.document_expires
+        });
+    });
+
+    // Attach to orders. If passengers exist in new table, use them. 
+    // Optimization: If no passengers found for an order, lookup user profile to pre-fill primary
+    // But we need to do this efficiently (batch lookup user profiles).
+    // Luckily all orders belong to the same user 'userId' (from auth context).
+    
+    // Fetch profile once
+    let userProfile: any = null;
+    const { data: profileData } = await supabaseAdmin
+       .from('user_profiles')
+       .select('*')
+       .eq('user_id', userId)
+       .single();
+    userProfile = profileData;
+
+    orders.forEach((o: any) => {
+        if (passengerMap[o.id] && passengerMap[o.id].length > 0) {
+            o.travelers = passengerMap[o.id];
+        } else {
+             // If empty, inject virtual primary traveler using profile data
+             if (userProfile) {
+                 const meta = userProfile.metadata || {};
+                 o.travelers = [{
+                     id: `virtual-profile-${o.id}`, // Client will treat it as unsaved
+                     firstName: userProfile.first_name || '',
+                     lastName: userProfile.last_name || '',
+                     fullName: `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim(),
+                     dateOfBirth: meta.dateOfBirth || '',
+                     gender: meta.gender || 'unspecified',
+                     nationality: meta.nationality || '',
+                     email: userProfile.email // Useful for contact info
+                 }];
+             }
+        }
+    });
+  }
 
   // Collect referenced tour ids (filter falsy / null)
   const tourIds = Array.from(new Set(orders.map((o: any) => o.tour_id).filter(Boolean)));
@@ -266,6 +328,8 @@ export async function POST(request: Request) {
 
   const insertPayload = {
     user_id: userId,
+    // Dual-write user_id_uuid for RLS/Migration support
+    user_id_uuid: userId,
     type: finalType,
     tour_id: finalTourId || null,
     tour_title: finalTourTitle || null,

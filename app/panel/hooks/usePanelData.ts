@@ -12,6 +12,7 @@ export interface PanelData {
   bonusBalance: number;
   referralCode: string;
   calls: any[];
+  personalTours: any[];
   paymentsPendingCount: number;
   travelersPendingCount: number;
   loading: boolean;
@@ -26,6 +27,7 @@ export function usePanelData(): PanelData {
   const [bonusBalance, setBonusBalance] = useState(0);
   const [referralCode, setReferralCode] = useState('');
   const [calls, setCalls] = useState<any[]>([]);
+  const [personalTours, setPersonalTours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,11 +36,12 @@ export function usePanelData(): PanelData {
     setError(null);
 
     try {
-      const [ordersRes, ticketsRes, bonusesRes, callsRes] = await Promise.all([
+      const [ordersRes, ticketsRes, bonusesRes, callsRes, personalRes] = await Promise.all([
         apiFetch('/api/orders', { method: 'GET' }).then(r => r.json()).catch(() => ({ orders: [] })),
         apiFetch('/api/support/tickets', { method: 'GET' }).then(r => r.json()).catch(() => ({ tickets: [] })),
         apiFetch('/api/bonuses', { method: 'GET' }).then(r => r.json()).catch(() => ({ balance: 0, bonuses: [], referralCode: '' })),
         apiFetch('/api/calls', { method: 'GET' }).then(r => r.json()).catch(() => ({ calls: [] })),
+        apiFetch('/api/user/personal-tours', { method: 'GET' }).then(r => r.json()).catch(() => ({ tours: [] })),
       ]);
 
       setOrders(ordersRes.orders || []);
@@ -47,6 +50,8 @@ export function usePanelData(): PanelData {
       setBonusBalance(bonusesRes.balance || 0);
       setReferralCode(bonusesRes.referralCode || '');
       setCalls(callsRes.calls || []);
+      setPersonalTours(personalRes.tours || []);
+
       // Compute simple pending-task counts used by the sidebar badges.
       try {
         const fetched = (ordersRes.orders || []) as any[];
@@ -134,6 +139,7 @@ export function usePanelData(): PanelData {
     bonusBalance,
     referralCode,
     calls,
+    personalTours,
     loading,
     error,
     // Compute and return the pending counts on-demand so the hook remains

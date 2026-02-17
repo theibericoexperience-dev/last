@@ -5,6 +5,7 @@ import CookieConsent from './components/CookieConsent';
 import SentryInitClient from './components/SentryInitClient';
 import { NotificationProvider } from '../components/NotificationProvider';
 import UserBubble from '../components/UserBubble';
+import { GlobalLoaderProvider } from '@/components/GlobalLoaderProvider';
 
   const title = 'Ibero Tours — Authentic travels across Spain & Portugal';
   const description = 'Authentic small-group travels focused on local food, culture and nature across Spain and Portugal.';
@@ -63,15 +64,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }) }} />
       </head>
       <body>
-        {/* Global top/bottom separators: thin black bands across the viewport */}
-        {/* Rounded rectangle frame: four joined thin lines with rounded corners */}
-        {/* decorative frame removed to avoid covering the hero video */}
-        {/* layout header and body content (skip link and debug server marker removed) */}
-        <NotificationProvider>
-          {children}
-          <UserBubble />
-        </NotificationProvider>
-        <CookieConsent />
+        <GlobalLoaderProvider>
+          {/* Global top/bottom separators: thin black bands across the viewport */}
+          {/* Rounded rectangle frame: four joined thin lines with rounded corners */}
+          {/* decorative frame removed to avoid covering the hero video */}
+          {/* layout header and body content (skip link and debug server marker removed) */}
+          <NotificationProvider>
+            {children}
+            <UserBubble />
+          </NotificationProvider>
+          <CookieConsent />
+        </GlobalLoaderProvider>
         <script dangerouslySetInnerHTML={{ __html: `(function(){
           function loadGA(){
             var id = window.__NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ''}';

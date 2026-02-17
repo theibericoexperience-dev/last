@@ -22,10 +22,10 @@ export function IntroSection({ phase, setPhase, inkRef, showBehindModal }: Intro
         muted
         playsInline
         loop
-        preload="auto" 
+        preload="auto"
       >
-        <source src={getSupabaseUrl('tinta-behind-background-opt.webm')} type="video/webm" />
-        <source src={getSupabaseUrl('tinta-behind-background-opt.mp4')} type="video/mp4" />
+  {/* Replaced by explicit fast.last.webm per request */}
+  <source src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/video%20behind%20last/tinta-behind-background-2x.webm" type="video/webm" />
       </video>
 
       <div className={`absolute inset-0 ${showBehindModal ? 'z-10' : 'z-50'} pointer-events-none`}>

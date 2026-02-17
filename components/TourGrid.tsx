@@ -43,7 +43,7 @@ function formatStartDate(s?: string) {
   return `${mname} ${year}`;
 }
 
-export default function TourGrid({ isModal = false, onCardClickAction }: { isModal?: boolean, onCardClickAction?: () => void } = {}) {
+export default function TourGrid({ isModal = false, onCardClickAction, goToAction }: { isModal?: boolean, onCardClickAction?: () => void, goToAction?: (id: string) => void } = {}) {
   const onCardClickHandler = onCardClickAction;
   const [activeYear, setActiveYear] = React.useState<2026 | 2027 | null>(null);
 
@@ -55,42 +55,14 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
   // Renderizado del modal
   function renderModal() {
     return (
-      <>
+      <div className="flex flex-col">
         {/* 2026 */}
         <div id="tour-2026" className="flex flex-col items-center justify-center w-full" style={{height:'100vh', minHeight:'100vh', width:'100vw', maxWidth:'none', marginBottom: 0, paddingTop: 0}}>
           <div className="relative flex flex-col items-center justify-center w-full h-full" style={{overflow: 'visible', padding: 0, minHeight: '400px', height: '100vh', maxWidth:'1200px', margin:'0 auto'}}>
-            <span
-              aria-hidden
-              className="pointer-events-none select-none absolute left-1/2 font-extrabold z-0"
-              style={{
-                top: '60%',
-                transform: 'translate(-50%, -50%)',
-                position: 'absolute',
-                display: 'block',
-                width: 'auto',
-                textAlign: 'center',
-                fontSize: 'clamp(12rem, 30vw, 36rem)',
-                lineHeight: 1,
-                letterSpacing: '-0.04em',
-                color: '#000',
-                WebkitTextFillColor: '#000',
-                WebkitTextStroke: '1px #9CA3AF',
-                userSelect: 'none',
-                willChange: 'transform, opacity',
-                backfaceVisibility: 'hidden',
-                WebkitFontSmoothing: 'antialiased',
-                overflow: 'visible',
-                minWidth: 0,
-                left: '50%',
-                pointerEvents: 'none',
-                zIndex: 0
-              }}
-            >
-              2026
-            </span>
-            <div className="relative w-full z-10 flex flex-col gap-8 items-center justify-center" style={{minHeight:'400px', justifyContent:'center', position:'relative'}}>
+            <span aria-hidden className="pointer-events-none select-none absolute left-1/2 font-extrabold z-0 giant-year" style={{ top: '60%', transform: 'translate(-50%, -50%)', left: '50%', pointerEvents: 'none', zIndex: 0 }}>2026</span>
+            <div className="relative w-full z-10 flex flex-col gap-4 md:gap-8 items-center justify-center" style={{minHeight:'400px', justifyContent:'center', position:'relative'}}>
               {Array.from({length: Math.ceil(tours2026.length / 3)}).map((_, rowIdx) => (
-                <div key={rowIdx} className="flex flex-row justify-center gap-10 w-full">
+                <div key={rowIdx} className="flex flex-col md:flex-row justify-center gap-4 md:gap-10 w-full items-center">
                   {tours2026.slice(rowIdx * 3, rowIdx * 3 + 3).map((t) => renderCard(t, { forceSingleLine: true }))}
                 </div>
               ))}
@@ -100,38 +72,10 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
         {/* 2027 */}
         <div id="tour-2027" className="flex flex-col items-center justify-center w-full" style={{height:'100vh', minHeight:'100vh', width:'100vw', maxWidth:'none', marginBottom: 0, paddingTop: 0}}>
           <div className="relative flex flex-col items-center justify-center w-full h-full" style={{overflow: 'visible', padding: 0, minHeight: '400px', height: '100vh', maxWidth:'1200px', margin:'0 auto'}}>
-            <span
-              aria-hidden
-              className="pointer-events-none select-none absolute left-1/2 font-extrabold z-0"
-              style={{
-                top: '60%',
-                transform: 'translate(-50%, -50%)',
-                position: 'absolute',
-                display: 'block',
-                width: 'auto',
-                textAlign: 'center',
-                fontSize: 'clamp(12rem, 30vw, 36rem)',
-                lineHeight: 1,
-                letterSpacing: '-0.04em',
-                color: '#000',
-                WebkitTextFillColor: '#000',
-                WebkitTextStroke: '1px #9CA3AF',
-                userSelect: 'none',
-                willChange: 'transform, opacity',
-                backfaceVisibility: 'hidden',
-                WebkitFontSmoothing: 'antialiased',
-                overflow: 'visible',
-                minWidth: 0,
-                left: '50%',
-                pointerEvents: 'none',
-                zIndex: 0
-              }}
-            >
-              2027
-            </span>
-            <div className="relative w-full z-10 flex flex-col gap-8 items-center justify-center" style={{minHeight:'400px', justifyContent:'center', position:'relative'}}>
+              <span aria-hidden className="pointer-events-none select-none absolute left-1/2 font-extrabold z-0 giant-year" style={{ left: '50%', transform: 'translate(-50%, -50%)' }}>{2027}</span>
+            <div className="relative w-full z-10 flex flex-col gap-4 md:gap-8 items-center justify-center" style={{minHeight:'400px', justifyContent:'center', position:'relative'}}>
               {Array.from({length: Math.ceil(tours2027.length / 3)}).map((_, rowIdx) => (
-                <div key={rowIdx} className="flex flex-row justify-center gap-10 w-full">
+                <div key={rowIdx} className="flex flex-col md:flex-row justify-center gap-4 md:gap-10 w-full items-center">
                   {tours2027.slice(rowIdx * 3, rowIdx * 3 + 3).map((t) => renderCard(t, { forceSingleLine: true }))}
                 </div>
               ))}
@@ -149,7 +93,7 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
             Custom Tours
           </a>
         </div>
-      </>
+      </div>
     );
   }
 
@@ -219,15 +163,7 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
             if (onCardClickHandler) onCardClickHandler();
           }}
         >
-          <div className="relative rounded-2xl bg-white/5 border border-white/10 transition-transform duration-300 transform-gpu group-hover:-translate-y-2"
-            style={{
-              overflow: 'visible',
-              aspectRatio: '1/1',
-              width: 260,
-              height: 260,
-              minWidth: 220,
-              minHeight: 220
-            }}>
+            <div className="relative rounded-2xl bg-white/5 border border-white/10 transition-transform duration-300 transform-gpu group-hover:-translate-y-2 aspect-square w-full md:w-[260px] max-w-[260px] min-w-0">
             <Image
               src={getMediacardForTour(t) as string}
               alt={t.title}
@@ -238,42 +174,7 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
             />
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-black/20 via-black/10 to-black/60" />
             <div className="absolute left-4 bottom-4 right-4 text-white">
-              <h4
-                className={
-                  forceSingle
-                    ? 'font-semibold leading-tight w-full'
-                    : 'font-semibold leading-tight w-full'
-                }
-                style={forceSingle
-                  ? {
-                      whiteSpace: 'nowrap',
-                      overflow: 'visible',
-                      textOverflow: 'clip',
-                      lineHeight: 1.1,
-                      wordBreak: 'normal',
-                      letterSpacing: getShortTitle(t.title) === 'AUSTRALIA & NEW ZEALAND' ? '-0.01em' : undefined,
-                      width: '100%',
-                      minWidth: 0,
-                      maxWidth: '100%',
-                      display: 'block',
-                      marginBottom: '0.1em',
-                      fontSize: '0.65rem',
-                    }
-                  : {
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      lineHeight: 1.1,
-                      wordBreak: 'normal',
-                      letterSpacing: getShortTitle(t.title) === 'AUSTRALIA & NEW ZEALAND' ? '-0.01em' : undefined,
-                      width: '100%',
-                      minWidth: 0,
-                      maxWidth: '100%',
-                      display: 'block',
-                      marginBottom: '0.1em',
-                    }
-                }
-              >
+              <h4 className="font-semibold leading-tight w-full text-sm md:text-[0.65rem] truncate">
                 {getShortTitle(t.title)}
               </h4>
               {t.startDate && (
@@ -420,7 +321,7 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
               </span>
               {/* visually-hidden year label for accessibility */}
               <h3 className="sr-only">{year}</h3>
-              <div className="flex flex-row flex-wrap justify-center gap-12 relative z-10" style={{overflow: 'visible'}}>
+              <div className="flex flex-col md:flex-row md:flex-wrap items-center justify-center gap-4 md:gap-12 relative z-10" style={{overflow: 'visible'}}>
                 {yearTours.length ? (
                   yearTours.map((t) => (
                     <Link
@@ -436,15 +337,7 @@ export default function TourGrid({ isModal = false, onCardClickAction }: { isMod
                         if (onCardClickHandler) onCardClickHandler();
                       }}
                     >
-                      <div className="relative rounded-2xl bg-white/5 border border-white/10 transition-transform duration-300 transform-gpu group-hover:-translate-y-2"
-                        style={{
-                          overflow: 'visible',
-                          aspectRatio: '1/1',
-                          width: 260,
-                          height: 260,
-                          minWidth: 220,
-                          minHeight: 220
-                        }}>
+                      <div className="relative rounded-2xl bg-white/5 border border-white/10 transition-transform duration-300 transform-gpu group-hover:-translate-y-2 aspect-square w-full md:w-[260px] max-w-[260px] min-w-0">
                         <Image
                           src={getMediacardForTour(t)}
                           alt={t.title}
