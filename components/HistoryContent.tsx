@@ -227,16 +227,42 @@ export default forwardRef<
       {/* Página izquierda: texto - Fondo transparente */}
       <div className="flex-1 flex flex-col pt-4 px-6 lg:pt-6 lg:px-12 h-full overflow-hidden relative z-10">
         <div className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-white/50 shadow-sm text-left max-w-prose">
-            <div className="text-black font-extrabold text-7xl mb-6">{year === 2021 ? '2021-22' : year}</div>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-black font-extrabold text-6xl md:text-7xl">{year === 2021 ? '2021-22' : year}</div>
+              <div className="flex items-center gap-3">
+                {/* Previous button - navigate years */}
+                <button
+                  aria-label="previous-year"
+                  onClick={() => prev()}
+                  className={`px-3 py-1 rounded-md text-sm font-semibold bg-white/10 text-black backdrop-blur-sm border border-white/10 ${disabledPrev ? 'opacity-40 pointer-events-none' : 'hover:bg-white/20'}`}
+                  disabled={disabledPrev}
+                >
+                  Previous
+                </button>
+                {/* Next button - navigate years */}
+                <button
+                  aria-label="next-year"
+                  onClick={() => next()}
+                  className={`px-3 py-1 rounded-md text-sm font-semibold bg-white/10 text-black backdrop-blur-sm border border-white/10 ${disabledNext ? 'opacity-40 pointer-events-none' : 'hover:bg-white/20'}`}
+                  disabled={disabledNext}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
             <div className="space-y-4">
                 {data && data.bullets && data.bullets.map((b, i) => (
-                <p key={i} className="text-lg md:text-xl text-gray-800 leading-relaxed font-serif">{b}</p>
+                <div key={i} className="space-y-2">
+                  {String(b).split(/(?<=\.)\s+/).map((sentence, si) => (
+                    <p key={si} className="text-lg md:text-xl text-gray-800 leading-relaxed font-serif">{sentence.trim()}</p>
+                  ))}
+                </div>
                 ))}
             </div>
         </div>
       </div>
 
-      {/* Página derecha: media + lista de hitos (sin carrusel) */}
+      {/* Página derecha: media + lista de hitos (2-column layout) */}
       <div className="flex-1 flex flex-col py-6 px-6 lg:px-12 h-full overflow-hidden relative z-10">
          <div className="h-full flex flex-col gap-6">
              {/* Media container moved up */}
@@ -245,17 +271,22 @@ export default forwardRef<
                 style={{ aspectRatio: '16/9', maxHeight: '40vh' }}
             >
                     {media && media.type === 'image' ? (
-                    <img src={media.src} alt={`Year ${year}`} className="w-full h-full object-cover" />
+                    <img
+                      src={media.src}
+                      alt={`Year ${year}`}
+                      className="w-full h-full object-cover"
+                      style={year === 2025 ? { filter: 'brightness(1.20) contrast(0.95) saturate(1.05)' } : undefined}
+                    />
                     ) : media ? (
                     <video ref={videoRef} src={media.src} className="w-full h-full object-cover" muted playsInline autoPlay loop />
                     ) : null}
             </div>
 
-            {/* List of Hitos - Scrollable if needed */}
+            {/* List of Hitos - two-column grid, scrollable if needed */}
             {hitos.length > 0 && (
                 <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 bg-white/40 backdrop-blur-md rounded-xl p-6 border border-white/50 shadow-sm">
                     <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-4 sticky top-0 bg-white/0 backdrop-blur-sm">Milestones</h4>
-                    <ul className="space-y-3">
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {hitos.map((hito, idx) => (
                             <li key={idx} className="flex items-start gap-3 text-base text-gray-800 font-medium leading-snug p-2 rounded-lg hover:bg-white/50 transition-colors">
                                 <span className="text-xs font-bold text-gray-400 mt-1 min-w-[20px]">{idx + 1}.</span>

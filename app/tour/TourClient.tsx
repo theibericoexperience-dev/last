@@ -58,7 +58,7 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
   const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
   const [isPackageModalOpen, setIsPackageModalOpen] = useState(false);
   const [isOptionalsModalOpen, setIsOptionalsModalOpen] = useState(false);
-  const [itineraryMedia, setItineraryMedia] = useState<string[]>([]);
+   const [itineraryMedia, setItineraryMedia] = useState<any[]>([]);
   const [showLearnMore, setShowLearnMore] = useState(false); // Restored state for Ibero Package footer
 
   // Layout refs for modal
@@ -84,53 +84,48 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
     try { return differenceInDays(parseISO(end_date), parseISO(start_date)) + 1; } catch { return 0; }
   }, [start_date, end_date]);
 
-  // Fetch Itinerary Media from Supabase folder "stops"
-  useEffect(() => {
-    async function fetchItineraryMedia() {
-      // Use DB stops_path if available
-      const path = stops_path || "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops";
-      if (!path) return;
-
-      try {
-        const res = await fetch(`/api/media/list?path=${encodeURIComponent(path)}`);
-        if (res.ok) {
-          const json = await res.json();
-          const files = json.files || [];
-          // Sort alphabetically to ensure Day 1 uses first photo, Day 2 second, etc.
-          const sortedImgs = files
-             .filter((f: any) => /\.(jpg|jpeg|png|webp|avif)$/i.test(f.filename || f.path))
-             .sort((a: any, b: any) => (a.filename || "").localeCompare(b.filename || "", undefined, { numeric: true }))
-             .map((f: any) => ({
-                path: f.path,
-                day: parseInt((f.filename || "").match(/\d+/)?.[0] || "0")
-             }));
-          
-          // Map each day index to its corresponding image path
-          const mediaByDay: string[] = [];
-          sortedImgs.forEach((img: any) => {
-            if (img.day > 0) {
-              mediaByDay[img.day - 1] = img.path;
+   // Fetch Itinerary Media from Supabase folder "stops"
+   useEffect(() => {
+      async function fetchItineraryMedia() {
+         // Force the canonical stops folder for itinerary media
+         const canonicalPath = "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops";
+         try {
+            const res = await fetch(`/api/media/list?path=${encodeURIComponent(canonicalPath)}`);
+            if (!res.ok) {
+               console.warn('[fetchItineraryMedia] failed to list media for', canonicalPath);
+               return;
             }
-          });
-          setItineraryMedia(mediaByDay);
-        }
-      } catch (err) {
-        console.error("Failed to fetch itinerary media", err);
+            const json = await res.json();
+            const files = json.files || [];
+
+            // Keep only images and sort by filename numeric order so Day 1, Day 2... align with filenames
+            const imgs = files
+               .filter((f: any) => /\.(jpg|jpeg|png|webp|avif)$/i.test(f.filename || f.path))
+               .sort((a: any, b: any) => (a.filename || '').localeCompare(b.filename || '', undefined, { numeric: true }));
+
+            // Group images by their day number extracted from filename. Each day can have multiple images (preserve folder order)
+            const mediaByDay: any[] = [];
+            imgs.forEach((f: any) => {
+               const fn = (f.filename || '').toString();
+               const dayNum = parseInt(fn.match(/\d+/)?.[0] || '0');
+               if (dayNum > 0) {
+                  const entry = {
+                     src: f.path,
+                     place: (f.metadata && (f.metadata.place || f.metadata.caption || f.metadata.title)) || f.caption || f.title || null,
+                     folder: f.path ? f.path.split('/').slice(0, -1).join('/') : undefined,
+                  };
+                  mediaByDay[dayNum - 1] = mediaByDay[dayNum - 1] || [];
+                  mediaByDay[dayNum - 1].push(entry);
+               }
+            });
+
+            setItineraryMedia(mediaByDay);
+         } catch (err) {
+            console.error('Failed to fetch itinerary media', err);
+         }
       }
-    }
-    fetchItineraryMedia();
-  }, [stops_path]);
-
-  // Auto-advance Days effect (every 9 seconds)
-  // Reset timer whenever selectedDay changes manually or automatically
-  useEffect(() => {
-    if (viewMode !== 'ITINERARY') return;
-    const interval = setInterval(() => {
-      setSelectedDay(prev => (prev >= daysCount ? 1 : prev + 1));
-    }, 9000);
-    return () => clearInterval(interval);
-  }, [viewMode, daysCount, selectedDay]);
-
+      fetchItineraryMedia();
+   }, [stops_path]);
   const dateRangeStr = useMemo(() => {
     if (!start_date || !end_date) return "Dates TBD";
     try {
@@ -1232,14 +1227,14 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
                                      ) : (
                                         /* Default Media Player */
                                         <>
-                                           <SmartSlideshow 
-                                             basePath="Open Tours/MADRID TO LISBOA"
-                                             daySpecificMedia={viewMode === 'ITINERARY' && itineraryMedia[selectedDay - 1] 
-                                               ? [{ type: 'image', src: itineraryMedia[selectedDay - 1] }] 
-                                               : undefined}
-                                             disableZoom={viewMode === 'ITINERARY'}
-                                             className="w-full h-full object-cover"
-                                           />
+                                                                <SmartSlideshow 
+                                                                   basePath="Open Tours/MADRID TO LISBOA"
+                                                                                                                                  daySpecificMedia={viewMode === 'ITINERARY' && Array.isArray(itineraryMedia[selectedDay - 1])
+                                                                                                                                     ? itineraryMedia[selectedDay - 1].map((m: any) => ({ type: 'image', src: m.src, folder: m.folder, place: m.place }))
+                                                                                                                                     : undefined}
+                                                                   disableZoom={viewMode === 'ITINERARY'}
+                                                                   className="w-full h-full object-cover"
+                                                                />
                                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
                                            <div className="absolute bottom-3 left-4">
                                               <span className="text-xs font-bold text-white/90 bg-black/40 px-2 py-1 rounded border border-white/20 backdrop-blur-md">

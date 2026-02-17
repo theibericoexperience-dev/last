@@ -64,21 +64,21 @@ export function BehindModal({
           }}
         >
              {/* Header */}
-             <div className="w-full pt-4 px-4 lg:px-6 flex items-center justify-between relative z-10 shrink-0 pb-3">
+             <div className="w-full pt-1 px-4 lg:px-6 flex items-center justify-between relative z-10 shrink-0 pb-1 h-10">
                  <div className="w-[100px]" /> {/* Spacer */}
 
                  {/* Center Tabs */}
-                 <div className="flex flex-col items-center gap-1 z-50 absolute left-1/2 top-4 -translate-x-1/2">
-                    <div className="bg-black/80 p-0.5 rounded-full backdrop-blur-xl shadow-2xl flex border border-white/10">
+                 <div className="flex flex-col items-center gap-1 z-50 absolute left-1/2 top-1 -translate-x-1/2">
+                    <div className="bg-black/90 p-0.5 rounded-full backdrop-blur-xl shadow-2xl flex border border-white/10 scale-90 origin-top">
                      <button 
                        onClick={() => setBehindView('history')}
-                       className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${isHistory ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                       className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${behindView === 'history' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
                      >
                        History
                      </button>
                      <button 
                        onClick={() => setBehindView('ecosystem')}
-                       className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${isEcosystem ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
+                       className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${behindView === 'ecosystem' ? 'bg-white text-black shadow-sm' : 'text-gray-400 hover:text-white'}`}
                      >
                        Behind
                      </button>
@@ -89,7 +89,7 @@ export function BehindModal({
                  <div className="flex justify-end w-[100px]">
                     <button
                         onClick={() => setShowBehindModal(false)}
-                        className="w-8 h-8 flex items-center justify-center bg-black/5 hover:bg-black/10 rounded-full text-gray-700 transition-colors backdrop-blur-sm"
+                        className="w-7 h-7 flex items-center justify-center bg-black/5 hover:bg-black/10 rounded-full text-gray-700 transition-colors backdrop-blur-sm text-sm"
                         aria-label="Cerrar"
                         data-no-close
                     >

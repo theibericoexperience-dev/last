@@ -1,6 +1,7 @@
 // Shared media-related helpers extracted from TourClient to simplify reuse.
 // Keep implementations identical to the previous in-file versions to avoid UX changes.
 import { getSupabaseUrl } from '../../../lib/media-resolver';
+import { getMediaPlaceOverride } from './media-overrides';
 
 export function normalizeUrl(raw: string | null | undefined) {
   if (!raw) return raw as any;
@@ -82,4 +83,47 @@ export function toSentenceCase(raw?: string | null) {
     s = s.replace(/([\.\!\?\;:\n]\s+)([a-záéíóúñ])/gi, (m, p1, p2) => p1 + p2.toUpperCase());
     return s;
   } catch (e) { return String(raw || ''); }
+}
+
+// Extract a human-friendly place/name from a media path or filename.
+export function extractPlaceFromPath(raw?: string | null) {
+  if (!raw) return null;
+  try {
+    // Prefer explicit overrides for known bad filenames before applying heuristics
+    const override = getMediaPlaceOverride(raw);
+    if (override) return override;
+
+    let s = String(raw).trim();
+    // get last path segment
+    const parts = s.split('/').filter(Boolean);
+    let candidate = parts.length ? parts[parts.length - 1] : s;
+    // remove querystring
+    candidate = candidate.split('?')[0];
+    // remove extension
+    candidate = candidate.replace(/\.[a-z0-9]{2,5}$/i, '');
+    // replace common separators
+    candidate = candidate.replace(/[_\-]+/g, ' ');
+    // remove common prefixes like day numbers or IMG/DSC
+    candidate = candidate.replace(/^\d+\s*/g, '').replace(/^(img|dsc|photo)\s*/i, '');
+    candidate = candidate.replace(/\b(extension|extensions)\b/gi, '');
+    candidate = candidate.replace(/\b(main|hero|cover)\b/gi, '');
+    candidate = candidate.replace(/\s+/g, ' ').trim();
+    if (!candidate) return null;
+    // Heuristics: reject if contains digits or too many tokens or tokens are short / noisy
+    const tokens = candidate.split(' ').filter(Boolean);
+    // reject if any token contains a digit
+    if (tokens.some(t => /\d/.test(t))) return null;
+    // reject if too many tokens (likely a filename with many parts) - allow up to 4 tokens
+    if (tokens.length === 0 || tokens.length > 4) return null;
+    // reject tokens that are too short or common noise
+    const noise = /^(img|dsc|photo|final|edit|v1|v2|2020|2021|2022|2023|2024|2025)$/i;
+    if (tokens.every(t => t.length <= 2 || noise.test(t))) return null;
+    // Title case and keep only alphabetic parts
+    const cleanTokens = tokens.map(t => t.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑçÇ\s]/g, '')).filter(Boolean);
+    if (cleanTokens.length === 0) return null;
+    const title = cleanTokens.map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+    // final length safety
+    if (title.length < 3) return null;
+    return title;
+  } catch (e) { return null; }
 }

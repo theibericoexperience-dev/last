@@ -20,6 +20,19 @@ const LoaderContext = createContext<LoaderContextType>({
 export const useLoader = () => useContext(LoaderContext);
 
 export function GlobalLoaderProvider({ children }: { children: React.ReactNode }) {
+  // To avoid Next.js 13+ build errors with useSearchParams on static pages (like 404),
+  // we must wrap the component usage in Suspense or handle fallback.
+  // However, this is a Provider wrapping children. 
+  // We should split the logic that uses hooks into a client component wrapper.
+  
+  return (
+      <React.Suspense fallback={<>{children}</>}>
+          <GlobalLoaderInner>{children}</GlobalLoaderInner>
+      </React.Suspense>
+  );
+}
+
+function GlobalLoaderInner({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -48,7 +61,11 @@ export function GlobalLoaderProvider({ children }: { children: React.ReactNode }
   return (
     <LoaderContext.Provider value={{ loading, startLoading: () => setLoading(true), stopLoading: () => setLoading(false) }}>
       {children}
-      {loading && <TravelLoader />}
+      {loading && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
+          <TravelLoader />
+        </div>
+      )}
     </LoaderContext.Provider>
   );
 }

@@ -40,7 +40,8 @@ export async function GET(req: NextRequest) {
           foundFiles = [...foundFiles, ...matches.map((m: any) => ({
             path: m.publicUrl,
             filename: m.path.split('/').pop(),
-            caption: null
+            caption: null,
+            metadata: m.metadata || null
           }))];
         }
       }
@@ -70,7 +71,8 @@ export async function GET(req: NextRequest) {
         const files = matches.map((entry: any) => ({
           path: entry.publicUrl,
           filename: entry.name,
-          caption: null // captions are harder from manifest, usually local _meta.json handles it
+          caption: entry.caption || null,
+          metadata: entry.metadata || null
         }));
         return NextResponse.json({ ok: true, files });
       }
@@ -86,7 +88,8 @@ export async function GET(req: NextRequest) {
           .map((entry: any) => ({
             path: entry.publicUrl,
             filename: entry.name,
-            caption: null
+            caption: entry.caption || null,
+            metadata: entry.metadata || null
           }));
         return NextResponse.json({ ok: true, files });
       }

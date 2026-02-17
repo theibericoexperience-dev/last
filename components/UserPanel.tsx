@@ -55,7 +55,7 @@ export default function UserPanel({ onCloseAction, onOpenTourCreatorAction }: Pr
         <div className="space-y-8">
           <header>
             <p className="text-xs font-semibold uppercase tracking-[0.5em] text-slate-400">User panel</p>
-            <h2 className="mt-4 text-4xl font-semibold text-slate-900 sm:text-5xl">
+            <h2 className="mt-4 text-xl md:text-4xl font-semibold text-slate-900 sm:text-5xl">
               Everything for your Iberian journey, in one place.
             </h2>
             <p className="mt-4 max-w-2xl text-base text-slate-500">

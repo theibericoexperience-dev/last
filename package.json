@@ -15,6 +15,11 @@
     "test:simple": "node tests/auth.test.js",
     "test:pricing": "node --loader ts-node/esm tests/pricing.test.ts"
   },
+  "scripts-sync": {
+    "sync:behind:report": "node ./scripts/sync_behind_data.js --report",
+    "sync:behind:from-timeline": "node ./scripts/sync_behind_data.js --sync-from=timeline",
+    "sync:behind:from-years": "node ./scripts/sync_behind_data.js --sync-from=years"
+  },
   "dependencies": {
     "@auth/supabase-adapter": "^1.10.0",
     "@headlessui/react": "^2.2.9",
@@ -23,7 +28,7 @@
     "@splidejs/react-splide": "^0.7.12",
     "@splidejs/splide": "^4.1.4",
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.74.0",
+    "@supabase/supabase-js": "^2.95.3",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
@@ -31,8 +36,8 @@
     "d3": "^7.9.0",
     "d3-geo-projection": "^4.0.0",
     "date-fns": "^4.1.0",
-    "dotenv": "^17.2.3",
-    "framer-motion": "^12.23.26",
+    "dotenv": "^17.3.1",
+    "framer-motion": "^12.34.0",
     "gsap": "^3.13.0",
     "jsonwebtoken": "^9.0.3",
     "lottie-react": "^2.4.1",

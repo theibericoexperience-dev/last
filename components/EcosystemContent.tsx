@@ -55,7 +55,6 @@ type Leader = {
   role: string;
   location: string;
   image?: string;
-  shortRole?: string;
 }
 
 const LEADERS: Leader[] = [
@@ -86,10 +85,22 @@ const LEADERS: Leader[] = [
   }
 ];
 
+// Constants for Map Logic
+const TRAVELED_COUNTRIES = [
+   "Portugal", "France", "Morocco", "Italy", "Slovakia", "Croatia", "Montenegro", 
+   "Czech Republic", "Austria", "Romania", "Germany", "Netherlands", "Belgium", 
+   "Luxembourg", "Latvia", "Russia", "Scotland", "England", "Ireland", "Canada", "Hungary",
+   "India", "USA", "Hainan", "Pingyao", "Shanghai", "Harbin", "Yunnan", "Guilin"
+];
+
+const LIVED_COUNTRIES = [
+   "Switzerland", "Finland", "China", "South Korea", "USA"
+];
+
 export default function EcosystemContent({ mediaAutoplay = false }: { mediaAutoplay?: boolean } = {}) {
   const [tab, setTab] = useState<'team' | 'collaborators' | 'you'>('team');
   const [selectedLeader, setSelectedLeader] = useState<Leader | null>(null);
-  const [selectedPanel, setSelectedPanel] = useState<'bio' | 'traveled' | 'lived'>('bio');
+  const [selectedPanel, setSelectedPanel] = useState<'bio' | 'map'>('bio');
 
   return (
     <div className="space-y-6 h-full flex flex-col">
@@ -111,7 +122,7 @@ export default function EcosystemContent({ mediaAutoplay = false }: { mediaAutop
                       onClick={() => setSelectedLeader(leader)}
                       className="group flex flex-col items-center text-center space-y-3 p-4 rounded-xl hover:bg-black/5 transition-all"
                     >
-               <div className="w-24 h-24 rounded-2xl shadow-sm border border-white overflow-hidden group-hover:scale-105 transition-transform bg-white/5">
+               <div className="w-36 h-36 rounded-2xl shadow-sm border border-white overflow-hidden group-hover:scale-105 transition-transform bg-white/5">
                 <img 
                   src={leader.image ? getSupabaseUrl(leader.image) : `https://ui-avatars.com/api/?name=${leader.name}&background=random`} 
                   alt={leader.name}
@@ -127,43 +138,61 @@ export default function EcosystemContent({ mediaAutoplay = false }: { mediaAutop
                   ))}
                </div>
             ) : (
-            <div className="flex flex-row gap-16 items-start animate-in fade-in slide-in-from-bottom-4 duration-500 h-[600px]">
-              {/* Profile Column */}
-              <div className="flex flex-col items-start w-64 flex-shrink-0 pt-4 relative pl-8">
-                <button 
+            <div className="relative flex flex-row gap-4 items-start animate-in fade-in slide-in-from-bottom-4 duration-500 w-full mb-2 pl-4 md:pl-8 overflow-hidden">
+              {/* Profile Column - Sticky */}
+              <div className="flex flex-col items-center w-64 xl:w-72 flex-shrink-0 sticky top-10 self-start mt-[-10px]">
+                
+                {/* Back Button - Positioned absolutely relative to the sticky container */}
+                <button
                   onClick={() => setSelectedLeader(null)}
-                  className="absolute -top-2 left-8 text-gray-900 hover:text-black flex items-center justify-center mb-4 transition-transform hover:-translate-x-1"
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center text-black bg-white/40 hover:bg-white/60 backdrop-blur-md px-3 py-1 rounded-full transition-all border border-white/20 hover:border-white/40 z-50 hover:-translate-y-1 shadow-sm whitespace-nowrap"
                   title="Back to list"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-8 h-8">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5 mr-1.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                   </svg>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Back</span>
                 </button>
+
+                <div className="w-full max-h-[calc(100vh-6rem)] overflow-y-auto hide-scrollbar pt-2 pr-2 pb-10 flex flex-col items-center">
+                  <div className="w-full relative mb-4 flex justify-center">
+                    <div className="relative group w-32 h-32">
+                      <div className="absolute inset-0 bg-blue-500/10 rounded-2xl scale-95 group-hover:scale-105 transition-transform duration-500 opacity-0 group-hover:opacity-100" />
+                      <img 
+                        src={selectedLeader.image ? getSupabaseUrl(selectedLeader.image) : `https://ui-avatars.com/api/?name=${selectedLeader.name}&background=random`} 
+                        alt={selectedLeader.name} 
+                        className="w-full h-full object-cover rounded-2xl shadow-sm border border-gray-100 relative z-10" 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex-1 min-w-0 flex flex-col items-center text-center space-y-1 mb-6 px-2 w-full">
+                    <h4 className="text-2xl font-serif font-bold text-gray-900 leading-tight">{selectedLeader.name}</h4>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600">{selectedLeader.role}</div>
+                    <div className="text-xs text-gray-400 font-medium">{selectedLeader.location}</div>
+                  </div>
                 
-                <img 
-                  src={selectedLeader.image ? getSupabaseUrl(selectedLeader.image) : `https://ui-avatars.com/api/?name=${selectedLeader.name}&background=random`} 
-                  alt={selectedLeader.name} 
-                  className="w-24 h-24 object-cover rounded-2xl mb-6 shadow-sm border border-white mt-10" 
-                />
-                <h4 className="text-2xl font-serif font-bold text-gray-900 w-full text-left">{selectedLeader.name}</h4>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1 w-full text-left">{selectedLeader.role}</div>
-                <div className="text-xs text-gray-400 italic mb-10 w-full text-left">{selectedLeader.location}</div>
-                
-                <div className="flex flex-col gap-2 w-full">
-                  <button onClick={() => setSelectedPanel('bio')} className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${selectedPanel === 'bio' ? 'bg-black text-white shadow-md' : 'bg-white/50 text-gray-600 hover:bg-white'}`}>Biography</button>
-                  <button onClick={() => setSelectedPanel('traveled')} className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${selectedPanel === 'traveled' ? 'bg-black text-white shadow-md' : 'bg-white/50 text-gray-600 hover:bg-white'}`}>Traveled</button>
-                  <button onClick={() => setSelectedPanel('lived')} className={`px-4 py-3 rounded-xl text-sm font-medium transition-all text-left ${selectedPanel === 'lived' ? 'bg-black text-white shadow-md' : 'bg-white/50 text-gray-600 hover:bg-white'}`}>Lived</button>
-                </div>
-              </div>
+                  <nav className="flex flex-col gap-1 w-full">
+                    <button onClick={() => setSelectedPanel('bio')} className={`group flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all ${selectedPanel === 'bio' ? 'bg-black text-white shadow-lg shadow-black/10' : 'bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}>
+                      <span>Biography</span>
+                      {selectedPanel === 'bio' && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                    </button>
+                    <button onClick={() => setSelectedPanel('map')} className={`group flex items-center justify-between px-3 py-2 rounded-xl text-sm font-medium transition-all ${selectedPanel === 'map' ? 'bg-black text-white shadow-lg shadow-black/10' : 'bg-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}>
+                      <span>Living & Travelling</span>
+                      {selectedPanel === 'map' && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                    </button>
+                  </nav>
+                </div> {/* End of scrollable container */}
+              </div> {/* End of sticky column */}
 
               {/* Content Column */}
-              <div className="flex-1 pr-4 h-full overflow-y-auto custom-scrollbar">
-                <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-white/50 shadow-sm min-h-full">
+              <div className="flex-1 h-full pt-0 overflow-hidden flex justify-center">
+                <div className="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-white/60 min-h-[340px] h-full w-full max-w-5xl flex flex-col overflow-y-auto hide-scrollbar overflow-x-hidden">
                   
                   {selectedPanel === 'bio' && (
-                    <div className="space-y-6 animate-in fade-in duration-300 max-w-prose">
+                    <div className="space-y-8 animate-in fade-in duration-500">
                         {selectedLeader.id === 'ramiro' ? (
-                        <div className="text-gray-800 leading-relaxed font-serif text-lg">
+                        <div className="text-gray-800 leading-8 font-serif text-lg space-y-6 border-l-4 border-blue-500/30 pl-4">
                           <p className="mb-4">
                             Ramiro was born in Badajoz, the most populated town in the region of Extremadura, Spain. Located only 5 minutes away from Portugal, he grew up exploring the borderlands until the age of 16. After exploring various European countries with family & friends, a summer exchange in Scotland sparked his desire to learn more about the world. He was later accepted into a Chinese High School via the AFS organization, living with a host family in Harbin for a year.
                           </p>
@@ -182,70 +211,62 @@ export default function EcosystemContent({ mediaAutoplay = false }: { mediaAutop
                         
                         {/* Merged Passions Section */}
                         {selectedLeader.id === 'ramiro' && (
-                        <div className="pt-6 border-t border-gray-200/50">
-                           <h5 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Passions</h5>
-                           <div className="flex flex-wrap gap-2 text-sm">
-                              {['Cooking', 'Exploring', 'Nature', 'Photography', 'History', 'Logistics'].map(p => (
-                                 <span key={p} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-700 shadow-sm">{p}</span>
-                              ))}
-                           </div>
-                        </div>
+                          <div className="pt-10 border-t border-gray-200/60 mt-8">
+                             <h5 className="text-xs font-bold uppercase tracking-[0.2em] text-gray-400 mb-6">Passions</h5>
+                             <div className="flex flex-wrap gap-3">
+                                {['Cooking', 'Exploring', 'Nature', 'Photography', 'History', 'Logistics'].map(p => (
+                                   <span key={p} className="px-5 py-2 bg-white/80 border border-gray-200 rounded-full text-sm font-medium text-gray-700 shadow-sm hover:border-gray-300 hover:shadow-md transition-all cursor-default">{p}</span>
+                                ))}
+                             </div>
+                          </div>
                         )}
                     </div>
                   )}
 
-                  {selectedPanel === 'traveled' && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
-                       <div className="h-96 w-full rounded-xl overflow-hidden border border-gray-200">
+                  {selectedPanel === 'map' && (
+                    <div className="flex flex-col h-full animate-in fade-in duration-300">
+                       <div className="flex-1 min-h-[20rem] basis-0 w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner mb-4 bg-[#aad3df]">
                          <InlineMap 
                             mode="overview"
                             points={[
-                            "Portugal", "France", "Morocco", "Italy", "Slovakia", "Croatia", "Montenegro", 
-                            "Czech Republic", "Austria", "Romania", "Germany", "Netherlands", "Belgium", 
-                            "Luxembourg", "Latvia", "Russia", "Scotland", "England", "Ireland", "Canada", "Hungary",
-                            "India", "USA", "Hainan", "Pingyao", "Shanghai", "Harbin", "Yunnan", "Guilin"
-                            ].map(c => ({ coords: LOCATIONS[c], name: c })).filter(p => p.coords)}
+                              ...TRAVELED_COUNTRIES.map(c => ({ coords: LOCATIONS[c], name: c, type: 'traveled' })).filter(p => p.coords),
+                              ...LIVED_COUNTRIES.map(c => ({ coords: LOCATIONS[c], name: c, type: 'lived' })).filter(p => p.coords)
+                            ] as any}
                             showLabels={false}
                             fit="points"
+                            minZoom={3} // Increased minimum zoom to prevent gray areas on wider screens
+                            maxZoom={5} // Slightly more zoom allowed
                          />
                        </div>
                        
-                       <div className="flex flex-wrap gap-x-6 gap-y-2">
-                          {[
-                            "Portugal", "France", "Morocco", "Italy", "Slovakia", "Croatia", "Montenegro", 
-                            "Czech Republic", "Austria", "Romania", "Germany", "Netherlands", "Belgium", 
-                            "Luxembourg", "Latvia", "Russia", "Scotland", "England", "Ireland", "Canada", "Hungary",
-                            "India", "China", "USA"
-                          ].sort().map(country => (
-                             <span key={country} className="text-sm font-serif text-gray-800 pb-1 border-b border-transparent hover:border-emerald-500 transition-colors cursor-default">
-                                {country}
-                             </span>
-                          ))}
-                       </div>
-                    </div>
-                  )}
+                       <div className="grid grid-cols-1 md:grid-cols-[60%_40%] gap-4 2xl:gap-8 pt-2 flex-shrink-0">
+                          <div>
+                             <h5 className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-600 mb-3 flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
+                                Traveled
+                             </h5>
+                             <div className="flex flex-wrap gap-x-4 gap-y-2">
+                                {TRAVELED_COUNTRIES.filter(c => !LIVED_COUNTRIES.includes(c)).sort().map(country => (
+                                  <span key={country} className="text-sm font-serif text-gray-800 pb-0.5 border-b border-transparent hover:border-emerald-500 transition-colors cursor-default">
+                                      {country}
+                                  </span>
+                                ))}
+                             </div>
+                          </div>
 
-                  {selectedPanel === 'lived' && (
-                    <div className="space-y-6 animate-in fade-in duration-300">
-                       <div className="h-96 w-full rounded-xl overflow-hidden border border-gray-200">
-                         <InlineMap 
-                            mode="overview"
-                            points={[
-                             "Switzerland", "Finland", "China", "South Korea", "USA"
-                            ].map(c => ({ coords: LOCATIONS[c], name: c })).filter(p => p.coords)}
-                            showLabels={false}
-                            fit="points"
-                         />
-                       </div>
-                       
-                       <div className="flex flex-wrap gap-x-6 gap-y-2">
-                          {[
-                             "Switzerland", "Finland", "China", "South Korea", "USA"
-                          ].sort().map(country => (
-                             <span key={country} className="text-sm font-serif text-gray-800 pb-1 border-b border-transparent hover:border-blue-600 transition-colors cursor-default">
-                                {country}
-                             </span>
-                          ))}
+                          <div>
+                            <h5 className="text-xs font-bold uppercase tracking-[0.2em] text-blue-600 mb-3 flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm"></span>
+                              Lived
+                            </h5>
+                            <div className="flex flex-wrap gap-x-4 gap-y-2">
+                                {LIVED_COUNTRIES.sort().map(country => (
+                                  <span key={country} className="text-sm font-serif text-gray-800 pb-0.5 border-b border-transparent hover:border-blue-600 transition-colors cursor-default">
+                                      {country}
+                                  </span>
+                                ))}
+                            </div>
+                          </div>
                        </div>
                     </div>
                   )}
@@ -260,7 +281,7 @@ export default function EcosystemContent({ mediaAutoplay = false }: { mediaAutop
         {tab === 'collaborators' && (
           <div className="space-y-4">
             {/* load and show collaborators from MEDIAWEB/BEHIND/providers */}
-            <CollaboratorsList mediaAutoplay={mediaAutoplay} />
+            <CollaboratorsList />
           </div>
         )}
 
@@ -310,108 +331,124 @@ function useMediaList(path: string) {
   return files;
 }
 
-function CollaboratorsList({ mediaAutoplay = false }: { mediaAutoplay?: boolean } = {}) {
-  // Use the BEHIND_OPTIMIZED/providers path which is now served from Supabase
+function CollaboratorsList() {
   const path = 'providers';
   const files = useMediaList(path);
-  // try to read metadata for captions if exists (optional)
-  const metaUrl = getSupabaseUrl('providers/_meta.json');
 
-  // Hooks must be declared unconditionally at the top of the component
-  const [meta, setMeta] = useState<Record<string,string> | null>(null);
-  const [index, setIndex] = useState(0);
+  // Specific collaborators requested by user
+  const ORDERED_COLLABORATORS = [
+    { 
+      filename: 'MARIA-1.webp', 
+      person: 'Maria', 
+      role: 'Chef',
+      text: "Maria, a local chef from Inner Alentejo, she evokes in her original recipes ingredients and techniques that were popular among the Romans that used to rule this part of Iberia."
+    },
+    { 
+      // explicit public URL provided by user
+      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_3685.webp',
+      filename: 'TONI.webp', 
+      person: 'Toni', 
+      role: 'Shepperd & Cheese Maker',
+      text: "Toni, who used to work in IT and decided to approach the shepherd's lifestyle, he receives us in his farm and takes us on a short hike with his goats, and lets us try homemade cheese and local treats."
+    },
+    {
+      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/VIDAL.webp',
+      filename: 'VIDAL.webp',
+      person: 'Vidal',
+      role: 'Dehesa Estate Owner',
+      text: "Vidal, a dehesa estate owner, has bred the invaluable ibérico and retinto breeds for over 50 years and is now retired. He welcomed us and showed us the dehesa's millennial farming techniques and treated us to a traditional western Spanish rice meal (black rice)."
+    },
+    {
+      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/isabe%20bottle-1.webp',
+      filename: 'ISABEL.webp',
+      person: 'Isabel',
+      role: 'Restaurant Owner',
+      text: "Isabel runs a local restaurant in Monsaraz and cooks traditional family meals from Inner Alentejo. She is the warmest cook around!"
+    },
+    {
+      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/antonio.webp',
+      filename: 'ANTONIO.webp',
+      person: 'Antonio',
+      role: 'Historian in Extremadura',
+      text: "Antonio is one of the most knowledgeable historians in Extremadura, and he is always ready to lead wonderful walking tours with many discoveries."
+    },
+    {
+      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_4275.webp',
+      filename: 'RENACER.webp',
+      person: 'Renacer',
+      role: 'Folklore Group',
+      text: "One of Spain's finest folklore groups, they are very connected with Ibero's mission of showcasing to the world the true gems of Extremadura & Alentejo."
+    },
+    {
+      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/nelson.webp',
+      filename: 'NELSON.webp',
+      person: 'Nelson',
+      role: "Alentejo Local Expert",
+      text: "Nelson's expertise in the Alentejo Region helps us dive faster into its History & Culture"
+    },
+    {
+      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606291333_aa65f02d0b_o.webp',
+      filename: 'JOAO.webp',
+      person: 'Joao',
+      role: 'Local in Salvaterra',
+      text: "Joao used to help, as a kid, smuggle coffee from Portugal to Spain during Salazar's and Franco's dictatorships."
+    }
+  ];
 
-  // accept mediaAutoplay prop for future use (not strictly necessary for static collaborators)
-  // ...existing code...
-
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await fetch(metaUrl);
-        if (!res.ok) return;
-        const j = await res.json();
-        if (mounted) setMeta(j);
-      } catch (e) {}
-    })();
-    return () => { mounted = false; };
-  }, []);
-
-  // show 2 at a time with pagination controls (advance by 2 so pairs change together)
-  const prev = () => setIndex(i => Math.max(0, i - 2));
-  const next = () => setIndex(i => Math.min(Math.max(0, displayItems.length - 2), i + 2));
-
-  // image error fallback: try multiple extensions before falling back to placeholder
-  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    try {
-      const img = e.currentTarget as HTMLImageElement;
-      tryImageFallback(img);
-    } catch (err) {}
-  };
-
-  // Ordered list and captions provided by the user (fall back to files if available)
-const ORDERED_COLLABORATORS = [
-    { filename: 'MARIA-1.webp', person: 'MARIA', text: 'Collaborator' },
-    { filename: 'RAMON.webp', person: 'RAMON', text: 'Collaborator' },
-    { filename: 'TONI.webp', person: 'TONI', text: 'Collaborator' },
-    { filename: 'KIERAN.webp', person: 'KIERAN', text: 'Collaborator' },
-    { filename: 'JUANJO.webp', person: 'JUANJO', text: 'Collaborator' },
-    { filename: 'HAFID.webp', person: 'HAFID', text: 'Collaborator' },
-    { filename: 'YOUSSEF.webp', person: 'YOUSSEF', text: 'Collaborator' },
-    { filename: 'MUSTAFA.webp', person: 'MUSTAFA', text: 'Collaborator' },
-    { filename: 'OMAR.webp', person: 'OMAR', text: 'Collaborator' }
-];  // helper: get base filename (no path, lowercased)
+  // helper: get base filename (no path, lowercased)
   const baseName = (p: string) => (p || '').split('/').pop()?.replace(/\.[^.]+$/, '')?.toLowerCase() || '';
 
-  // Build display items in the requested order. 
   const displayItems = ORDERED_COLLABORATORS.map((o) => {
+    // If collaborator already provides a 'path' (absolute URL), prefer it.
+    if (o.path) return { ...o };
     const found = files.find(f => baseName(f.filename || f.path) === o.filename.replace(/\.[^.]+$/, '').toLowerCase());
     const path = found ? getSupabaseUrl(found.path || found.filename) : getSupabaseUrl('providers/' + o.filename);
     return { ...o, path };
   });
 
-  // listen for global historyNav events (the portal chevrons dispatch these)
-  useEffect(() => {
-    const onNav = (e: any) => {
-      if (e && e.detail) {
-        if (e.detail === 'prev') prev();
-        else if (e.detail === 'next') next();
-      }
-    };
-    window.addEventListener('historyNav', onNav as EventListener);
-    return () => window.removeEventListener('historyNav', onNav as EventListener);
-  }, [displayItems]);
-
-  const disabledPrev = index <= 0;
-  const disabledNext = index + 2 >= displayItems.length;
-
-  // Broadcast disabled state so external arrow controls (portal/fallback) can reflect it
-  useEffect(() => {
-    try {
-      window.dispatchEvent(new CustomEvent('historyState', { detail: { disabledPrev, disabledNext } }));
-    } catch (e) {}
-  }, [disabledPrev, disabledNext]);
-
-  // Always render the displayItems (we use the manifest fallback paths when files are missing)
   return (
-    <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayItems.map((f) => (
-          <div key={f.filename} className="bg-white p-4 rounded shadow-sm">
-            <div className="flex items-start gap-4">
-              <img
-                src={f.path}
-                onError={handleImgError}
-                alt={f.person}
-                className="w-48 h-48 md:w-56 md:h-56 object-cover rounded-xl flex-shrink-0"
-              />
-              <div>
-                <div className="font-semibold text-black">{f.person}</div>
-                <div className="text-sm text-black/70 mt-1">{f.text}</div>
+    <div className="px-4 pb-10 flex justify-center">
+      <div className="max-w-7xl w-full">
+
+        {/* outer scroll container showing approx 4 items; intro paragraph is inside so it scrolls with the items */}
+        <div className="max-h-[calc(4*13rem)] overflow-y-auto hide-scrollbar pb-40 space-y-6">
+          <p className="text-center text-gray-700 text-base max-w-4xl mx-auto">
+            Our tours offer a true glimpse of the people that live in the area where Ibero travels, here you can learn a little about some of the people that make the Highlights of Ibero Open Tours
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-14">
+            {displayItems.map((item, idx) => (
+              <div key={idx} className="group flex flex-row items-center gap-8 p-6 rounded-[2rem] hover:bg-white/40 transition-colors border border-transparent hover:border-white/20">
+                {/* Photo Column - Reduced height portrait */}
+                <div className="w-56 flex-shrink-0">
+                  <div className="rounded-2xl overflow-hidden shadow-lg bg-gray-100 relative group-hover:-translate-y-1 transition-transform duration-500 h-40">
+                    <img 
+                      src={item.path} 
+                      alt={item.person}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${item.person}&background=random&size=256`;
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+                  </div>
+                </div>
+                
+                {/* Text Column - Slightly wider: Name + Title in one line, and larger explanatory text */}
+                <div className="w-80">
+                   <h3 className="font-serif font-bold text-2xl text-gray-900 mb-3 flex items-center gap-3 overflow-hidden">
+                     <span className="whitespace-nowrap truncate">{item.person}</span>
+                     <span className="font-normal text-lg text-gray-700 whitespace-nowrap truncate">- {item.role}</span>
+                   </h3>
+                   <p className="text-base leading-relaxed text-gray-700 font-medium font-serif border-l-4 border-blue-500/30 pl-4 py-1">
+                     {item.text}
+                   </p>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-        ))}
+          {/* spacer so last row can be scrolled fully into view */}
+          <div className="h-40 md:h-48" aria-hidden />
+        </div>
       </div>
     </div>
   );
@@ -419,15 +456,60 @@ const ORDERED_COLLABORATORS = [
 
 function YouGallery() {
   const files = useMediaList('YOU');
+  const [showGallery, setShowGallery] = useState(false);
   if (!files || files.length === 0) return <div className="text-black/60">No "YOU" gallery found.</div>;
+
+  // chunk files into pages of 8 images
+  const perPage = 8;
+  const pages: any[] = [];
+  for (let i = 0; i < files.length; i += perPage) pages.push(files.slice(i, i + perPage));
+
+  if (!showGallery) {
+    // initial view: intro text + a single small row of images + 'See gallery' CTA
+    const preview = files.slice(0, Math.min(4, files.length));
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto p-4">
+        <p className="text-gray-700 text-base leading-relaxed">
+          We can't finish this section without reminding that it is you, the one who places the trust in Ibero, that makes this a reality. An authentic tour, where the only purpose is to bring alive the culture and history of these regions, in a way that you will always remember and feel part of.
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {preview.map((f: any) => (
+            <div key={f.path} className="bg-white rounded overflow-hidden h-40">
+              <img src={getSupabaseUrl(f.path)} alt={f.filename} className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowGallery(true)} className="text-sm font-semibold text-blue-600 hover:underline">- see gallery</button>
+        </div>
+      </div>
+    );
+  }
+
+  // full gallery: show inside the same centered container as the preview (max-w-4xl)
   return (
-    <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {files.map((f) => (
-          <div key={f.path} className="bg-white rounded overflow-hidden">
-            <img src={getSupabaseUrl(f.path)} alt={f.filename} className="w-full h-40 object-cover" />
-          </div>
-        ))}
+    <div className="max-w-4xl mx-auto p-4">
+      <div className="max-h-[80vh] overflow-y-auto custom-scrollbar space-y-6">
+        <p className="text-gray-700 text-base leading-relaxed">
+          We can't finish this section without reminding that it is you, the one who places the trust in Ibero, that makes this a reality. An authentic tour, where the only purpose is to bring alive the culture and history of these regions, in a way that you will always remember and feel part of.
+        </p>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => setShowGallery(false)} className="text-sm font-semibold text-blue-600 hover:underline">hide gallery</button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {files.map((f: any) => (
+            <div key={f.path} className="bg-white rounded overflow-hidden h-40">
+              <img src={getSupabaseUrl(f.path)} alt={f.filename} className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+
+        {/* spacer to allow final row to scroll into view fully */}
+        <div className="h-20" aria-hidden />
       </div>
     </div>
   );

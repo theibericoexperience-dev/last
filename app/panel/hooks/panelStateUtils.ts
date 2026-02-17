@@ -48,7 +48,7 @@ export function updatePanelSearchParams(
     if (changes.orderId === null) {
       params.delete('orderId');
     } else if (changes.orderId !== undefined) {
-      const v = (changes.orderId || '').trim();
+      const v = String(changes.orderId || '').trim();
       if (v === '') params.delete('orderId');
       else params.set('orderId', v);
     }

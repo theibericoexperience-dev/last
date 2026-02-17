@@ -9,6 +9,7 @@ export type MapPoint = {
   coords: [number, number];
   // Add support for order/type to filter in overview mode
   order?: number; 
+  type?: 'lived' | 'traveled';
 };
 
 export type MapRoute = {
@@ -36,6 +37,8 @@ type InlineMapProps = {
   fitPaddingBottom?: number;
   /** Cap max zoom when fitting */
   maxZoom?: number;
+  /** Cap min zoom when fitting */
+  minZoom?: number;
   /** Whether to show labels for key cities */
   showLabels?: boolean;
   initialDay?: number | null;
@@ -169,6 +172,7 @@ export default function InlineMap(props: InlineMapProps) {
       const padRight = opts?.fitPaddingRight ?? fitPaddingRight;
       const padBottom = opts?.fitPaddingBottom ?? fitPaddingBottom;
       const MAX_ZOOM = typeof opts?.maxZoom === "number" ? opts.maxZoom : maxZoom;
+      const MIN_ZOOM = typeof props.minZoom === "number" ? props.minZoom : 4;
 
       // Compute combined bounds from route + visible markers.
       let finalBounds: any = null;
@@ -186,7 +190,6 @@ export default function InlineMap(props: InlineMapProps) {
       }
 
       if (finalBounds && finalBounds.isValid && finalBounds.isValid()) {
-        const MIN_ZOOM = 4;
         const targetZoom = Math.max(
           MIN_ZOOM,
           Math.min(MAX_ZOOM, mapRef.current.getBoundsZoom(finalBounds, false)),
@@ -600,36 +603,30 @@ export default function InlineMap(props: InlineMapProps) {
       // ignore
     }
 
-    // Add markers (ignore invalid coords, so they can't blow up fitBounds)
+
+        // Add markers (ignore invalid coords, so they can't blow up fitBounds)
     for (const p of points) {
       try {
         if (!isValidLatLngPair(p.coords)) continue;
+        
+        // Determine marker color based on type
+        let fillColor = "#0074d9"; // default blue
+        if (p.type === 'traveled') fillColor = "#10b981"; // emerald-500
+        if (p.type === 'lived') fillColor = "#3b82f6"; // blue-500
+
         const m = L.circleMarker(p.coords, {
           radius: 6,
-          fillColor: "#0074d9",
+          fillColor: fillColor,
           fillOpacity: 0.95,
           color: "#fff",
           weight: 0.6,
-        }, { pane: mapRef.current && mapRef.current.getPane ? "markerPane" : undefined }).addTo(mapRef.current);
+        }).addTo(mapRef.current);
 
-        try {
-          if (p.day != null) (m as any).__day = Number(p.day);
-          if (p.name) (m as any).__label = String(p.name);
-          if (!(m as any).__uid) (m as any).__uid = String(uidCounterRef.current++);
-          if (p.name) {
-            try {
-              m.bindTooltip(String(p.name), { direction: "top", offset: [0, -8], opacity: 0.95 });
-            } catch {
-              // ignore
-            }
-            try {
-              m.bindPopup(String(p.name));
-            } catch {
-              // ignore
-            }
-          }
-        } catch {
-          // ignore
+        if (p.day != null) (m as any).__day = Number(p.day);
+        if (p.name) (m as any).__label = String(p.name);
+        if (!(m as any).__uid) (m as any).__uid = String(uidCounterRef.current++);
+        if (p.name) {
+          m.bindTooltip(String(p.name), { direction: "top", offset: [0, -8], opacity: 0.95 });
         }
 
         markersRef.current.push(m);

@@ -115,7 +115,7 @@ export default function UserBubble({
           type="button"
           aria-label="Open your panel"
           onClick={handleClick}
-          className={(buttonClassName ?? 'p-2 text-black bg-transparent inline-flex items-center justify-center') + (checking ? ' opacity-70' : ' opacity-100')}
+          className={(buttonClassName ?? 'p-3 text-black bg-transparent inline-flex items-center justify-center') + (checking ? ' opacity-70' : ' opacity-100')}
         >
           <span className="sr-only">Open your panel</span>
           <span className="flex items-center justify-center text-current">{Icon}</span>
@@ -132,7 +132,7 @@ export default function UserBubble({
           type="button"
           aria-label="Open your panel"
           onClick={handleClick}
-          className={buttonClassName ?? "group inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 p-2 text-[14px] font-semibold uppercase tracking-tight text-white backdrop-blur transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"}
+          className={buttonClassName ?? "group inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 p-3 text-[14px] font-semibold uppercase tracking-tight text-white backdrop-blur transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"}
         >
           <span className="sr-only">Open your panel</span>
           <span className="flex items-center justify-center text-white">{Icon}</span>
@@ -147,7 +147,7 @@ export default function UserBubble({
       <button
         aria-label="Open your panel"
         onClick={handleClick}
-        className={buttonClassName ?? 'pointer-events-auto inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-transparent text-white transition hover:bg-white/5 focus:outline-none'}
+        className={buttonClassName ?? 'pointer-events-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-transparent text-white transition hover:bg-white/5 focus:outline-none'}
       >
         <span className="sr-only">Open your panel</span>
         <span className="block text-current">{Icon}</span>

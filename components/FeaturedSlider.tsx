@@ -50,7 +50,7 @@ export default function FeaturedSlider() {
       <div className="relative mx-auto flex max-w-6xl flex-col gap-10 px-4">
         <header className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.5em] text-white/60">Routes in motion</p>
-          <h2 className="mt-3 text-4xl font-semibold tracking-tight text-white sm:text-5xl">Curated journeys sweeping across Iberia & beyond</h2>
+          <h2 className="mt-3 text-xl md:text-4xl font-semibold tracking-tight text-white sm:text-5xl">Curated journeys sweeping across Iberia & beyond</h2>
           <p className="mt-4 text-base text-white/70">Swipe through our upcoming departures and extensions. Each card mirrors the Cards reference: full-bleed artwork, bold typography, and the same hover lift as the Webflow demo.</p>
         </header>
 

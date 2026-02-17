@@ -53,7 +53,6 @@ export default function PaymentsSection({ orders, loading, onPayNow }: PaymentsS
   if (loading) {
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-slate-900">Payments</h2>
         <div className="animate-pulse space-y-4">
           {[1, 2].map((i) => (
             <div key={i} className="rounded-xl border border-slate-200 bg-white p-6">
@@ -69,7 +68,6 @@ export default function PaymentsSection({ orders, loading, onPayNow }: PaymentsS
   if (orders.length === 0) {
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-slate-900">Payments</h2>
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
           <CreditCardIcon className="mx-auto h-12 w-12 text-slate-400" />
           <h3 className="mt-4 text-lg font-medium text-slate-900">No payments yet</h3>
@@ -102,8 +100,6 @@ export default function PaymentsSection({ orders, loading, onPayNow }: PaymentsS
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-slate-900">Payments</h2>
-
       {/* Summary Card */}
       <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-900 to-slate-800 p-6 text-white">
         <p className="text-sm font-medium text-slate-300">Payment Summary</p>

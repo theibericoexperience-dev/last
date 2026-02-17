@@ -20,7 +20,7 @@ export const behindYears: YearData[] = [
     year: 2022,
     title: '2022',
     paragraphs: [
-      `From 2022 onward, Ramiro’s professional experience as a guide and tour organizer grew rapidly. In 2022, he led two classic car tours with the British and Swedish Rolls Royce and Jaguar Clubs under the organization of the Madrid-based agency Classics On The Road. That same year, he began collaborating with Education First (EF) www.eftours.com, guiding more than ten U.S. and Canadian high school tours and showing over 300 students and teachers the cultural richness of Spain, Portugal, and Italy.`
+  `From 2022 onward, Ramiro’s professional experience as a guide and tour organizer grew rapidly. In 2022, he led two classic car tours with the British and Swedish Rolls Royce and Jaguar Clubs under the organization of the Madrid-based agency Classics On The Road. That same year, he began collaborating with Education First (EF) www.eftours.com, guiding more than ten U.S and Canadian high school tours and showing over 300 students and teachers the cultural richness of Spain, Portugal, and Italy.`
     ],
     media: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/YEARS%20MEDIA/2022.mp4',
     hitos: ['100 customers led in 5 tours', '3 High Schools (USA)', '4 Classic Cars Groups']
