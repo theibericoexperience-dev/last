@@ -44,7 +44,7 @@ type InlineMapProps = {
   initialDay?: number | null;
   day?: number | null;
   media?: any;
-  onBusClick?: () => void;
+  onBusClickAction?: () => void;
 };
 
 const LEAFLET_CSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
@@ -88,7 +88,7 @@ export default function InlineMap(props: InlineMapProps) {
     initialDay = 1,
     day,
     media,
-    onBusClick,
+    onBusClickAction,
     mode = 'detailed', // default detailed
     activeDay,
     fit = "auto",
