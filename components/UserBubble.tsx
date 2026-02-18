@@ -4,11 +4,9 @@ import React, { useEffect, useState, useTransition } from 'react';
 import { supabaseClient } from '@/lib/db/supabaseClient';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLoader } from '@/components/GlobalLoaderProvider';
+import '../styles/header.css'; // Import the CSS file
 
-/**
- * UserBubble - styled similarly to MY PANEL on landing (oval, header-aligned) and compact/fixed on other pages.
- * Shows only an icon (no text). Clicking navigates to /panel (or login flow if not authenticated).
- */
+// ... (keep the existing UserBubbleVariant type)
 type UserBubbleVariant = 'auto' | 'inline' | 'floating' | 'modalHeader';
 
 export default function UserBubble({
@@ -27,62 +25,38 @@ export default function UserBubble({
   const { startLoading } = useLoader();
   const [isPending, startTransition] = useTransition();
   const [logged, setLogged] = useState<boolean | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
-  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let mounted = true;
     async function check() {
       if (!supabaseClient) return setLogged(false);
       try {
-        const { data: { session } = {} as any } = await supabaseClient.auth.getSession();
-        if (!mounted) return;
-        if (session?.user) {
-          setLogged(true);
-          setEmail((session.user as any).email || null);
-        } else {
-          setLogged(false);
-          setEmail(null);
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (mounted) {
+          setLogged(!!session?.user);
         }
       } catch (e) {
-        if (!mounted) return;
-        setLogged(false);
-        setEmail(null);
+        if (mounted) {
+          setLogged(false);
+        }
       }
     }
-    (async () => {
-      setChecking(true);
-      await check();
-      setChecking(false);
-    })();
+    check();
     const { data: sub } = supabaseClient?.auth.onAuthStateChange?.((event, sess) => {
-      if (!mounted) return;
-      if (sess?.user) {
-        setLogged(true);
-        setEmail((sess.user as any).email || null);
-      } else {
-        setLogged(false);
-        setEmail(null);
+      if (mounted) {
+        setLogged(!!sess?.user);
       }
     }) ?? { data: null };
-    return () => { mounted = false; try { sub?.subscription?.unsubscribe?.(); } catch(e){} };
+    return () => { mounted = false; sub?.subscription?.unsubscribe?.(); };
   }, []);
 
-
-  const isLanding = pathname === '/' || pathname === '';
-  const isTourPage = pathname?.startsWith('/tour');
-  const isBehindPage = pathname === '/behind';
-
   const handleClick = async () => {
-    // If not logged, navigate to login/register flow (maintain current behaviour)
-    const { data: { session } = {} as any } = await supabaseClient.auth.getSession();
-    if (session?.user) {
+    if (logged) {
       startLoading();
       startTransition(() => {
         router.push('/panel');
       });
     } else {
-      // If a parent provided a register handler, prefer that (e.g. landing page opens a modal)
       if (typeof onOpenRegisterAction === 'function') {
         onOpenRegisterAction();
       } else {
@@ -94,7 +68,6 @@ export default function UserBubble({
     }
   };
 
-  // Shared icon (user outline)
   const Icon = (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
       <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5z" fill="currentColor" />
@@ -102,21 +75,24 @@ export default function UserBubble({
     </svg>
   );
 
-  if (variant === 'auto' && (isTourPage || isBehindPage)) return null;
+  const isLanding = pathname === '/' || pathname === '';
+  const isTourPage = pathname?.startsWith('/tour');
+  const isBehindPage = pathname === '/behind';
 
-  const resolvedVariant: UserBubbleVariant = variant === 'auto'
-    ? (isLanding ? 'inline' : 'floating')
-    : variant;
+  if (variant === 'auto' && (isTourPage || isBehindPage)) {
+    return null;
+  }
+
+  const resolvedVariant: UserBubbleVariant = variant === 'auto' ? (isLanding ? 'inline' : 'floating') : variant;
 
   if (resolvedVariant === 'modalHeader') {
     return (
-      <div className={wrapperClassName ?? ''}>
+      <div className={wrapperClassName}>
         <button
           type="button"
           aria-label="Open your panel"
           onClick={handleClick}
-          className={(buttonClassName ?? 'p-3 text-black bg-transparent inline-flex items-center justify-center') + (checking ? ' opacity-70' : ' opacity-100')}
-        >
+          className={`p-3 text-black bg-transparent inline-flex items-center justify-center ${logged === null ? 'opacity-70' : 'opacity-100'} ${buttonClassName}`}>
           <span className="sr-only">Open your panel</span>
           <span className="flex items-center justify-center text-current">{Icon}</span>
         </button>
@@ -125,15 +101,13 @@ export default function UserBubble({
   }
 
   if (resolvedVariant === 'inline') {
-    // Render inline-styled oval similar to My Panel (header-aligned). Non-fixed.
     return (
       <div className={wrapperClassName ?? 'inline-block'}>
         <button
           type="button"
           aria-label="Open your panel"
           onClick={handleClick}
-          className={buttonClassName ?? "group inline-flex items-center justify-center rounded-full border border-white/20 bg-white/5 p-3 text-[14px] font-semibold uppercase tracking-tight text-white backdrop-blur transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80"}
-        >
+          className={`user-bubble-button ${buttonClassName}`}>
           <span className="sr-only">Open your panel</span>
           <span className="flex items-center justify-center text-white">{Icon}</span>
         </button>
@@ -143,12 +117,11 @@ export default function UserBubble({
 
   // Elsewhere: compact floating circular button in top-right
   return (
-    <div className={wrapperClassName ?? 'fixed right-6 top-6 z-40 pointer-events-none sm:block'}>
+    <div className={`user-bubble-floating-wrapper ${wrapperClassName}`}>
       <button
         aria-label="Open your panel"
         onClick={handleClick}
-        className={buttonClassName ?? 'pointer-events-auto inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-transparent text-white transition hover:bg-white/5 focus:outline-none'}
-      >
+        className={`user-bubble-floating-button ${buttonClassName}`}>
         <span className="sr-only">Open your panel</span>
         <span className="block text-current">{Icon}</span>
       </button>
