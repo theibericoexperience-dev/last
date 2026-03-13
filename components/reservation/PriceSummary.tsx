@@ -79,7 +79,7 @@ export default function PriceSummary(props: PriceSummaryProps) {
             <div className="flex items-center justify-between">
               <h4 className="text-base font-medium text-gray-900">Price summary</h4>
               <div className="flex items-center gap-4">
-                <div className="font-medium">${basePricePerTraveler.toLocaleString()}</div>
+                <div className="font-medium">${basePricePerTraveler.toLocaleString()} <span className="text-xs text-gray-500">/ person</span></div>
                 <div className="flex items-center gap-2">
                   <label className="text-xs text-gray-500 mr-1">Travelers</label>
                   <div className="inline-flex items-center border rounded-md overflow-hidden">

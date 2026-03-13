@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from 'react';
-import { UsersIcon } from '@heroicons/react/24/outline';
+import { UsersIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 import PassportSubsection from './PassportSubsection';
 import { getUserProfile } from '@/lib/domain/profile/api';
@@ -28,13 +28,6 @@ export default function TravelersSection({ orders, loading }: TravelersSectionPr
   const [completedCards, setCompletedCards] = useState<Record<number, boolean>>({});
   const [primaryName, setPrimaryName] = useState<string | null>(null);
   const [travelerNames, setTravelerNames] = useState<Record<number, string>>({});
-
-  useEffect(() => {
-    // If not completed, force open primary on first load
-    if (!completedCards[0]) {
-      setOpenCards(prev => ({ ...prev, 0: true }));
-    }
-  }, []); // Run once on mount
 
   useEffect(() => {
     let mounted = true;
@@ -137,36 +130,33 @@ export default function TravelersSection({ orders, loading }: TravelersSectionPr
           const subtitle = isCompleted ? 'Information saved' : (isPrimary ? 'Please complete your details' : 'Add guest details');
 
           return (
-            <div key={slotId} className={`rounded-xl border transition-all duration-300 ${isOpen ? 'border-amber-200 bg-amber-50/30 ring-1 ring-amber-100' : 'border-slate-200 bg-white hover:border-amber-200'}`}>
+            <div key={slotId} className={`rounded-xl border transition-all duration-300 ${isOpen ? 'border-amber-200 bg-amber-50/30' : 'border-slate-200 bg-white hover:border-amber-200'}`}>
                <button
                   type="button"
                   onClick={toggle}
-                  className="w-full text-left p-5"
+                  className="w-full text-left p-5 flex items-center gap-4"
                >
-                  <div className="flex items-center justify-between mb-2">
-                     <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                        {isPrimary ? 'Primary Traveler' : `Guest ${index + 1}`}
-                     </span>
-                     {/* Status Indicator */}
-                     <div className={`flex items-center justify-center rounded-full transition-all duration-300 ${isCompleted ? 'bg-green-100 text-green-600' : (isOpen ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400')}`}>
-                        {isCompleted ? (
-                           <CheckCircleIcon className="w-6 h-6" />
-                        ) : (
-                           <div className="w-6 h-6 flex items-center justify-center text-xs font-bold">
-                              {isOpen ? '...' : '!'}
-                           </div>
-                        )}
-                     </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                          {isPrimary ? 'Primary Traveler' : `Guest ${index + 1}`}
+                       </span>
+                    </div>
+                    
+                    <div className="font-semibold text-slate-900 text-base flex items-center gap-2">
+                       {title}
+                       {isCompleted && <CheckCircleIcon className="w-4 h-4 text-green-500" />}
+                    </div>
+                    <p className={`text-xs transition-colors ${isCompleted ? 'text-green-600' : 'text-slate-500'}`}>{subtitle}</p>
                   </div>
-                  
-                  <div className="font-medium text-slate-900 text-lg flex items-center gap-2">
-                     {title}
+
+                  <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180 text-amber-500' : 'rotate-0 text-slate-400'}`}>
+                    <ChevronDownIcon className="w-5 h-5 stroke-[2.5]" />
                   </div>
-                  <p className={`text-sm mt-1 transition-colors ${isCompleted ? 'text-green-600' : 'text-slate-500'}`}>{subtitle}</p>
                </button>
 
                {/* Collapsible Content */}
-               <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+               <div className={`overflow-hidden transition-all duration-500 ease-in-out ${isOpen ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'}`}>
                   <div className="p-5 pt-0 border-t border-amber-100/50 mt-2">
                      <PassportSubsection 
                         orderId={String(activeOrder.id || activeOrder.order_id)} 

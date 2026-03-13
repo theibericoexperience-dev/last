@@ -1,0 +1,129 @@
+1654 <div className="hidden md:block h-full">
+1656    <div className="h-full w-full overflow-hidden">
+1658       <div className="grid grid-cols-1 lg:grid-cols-2 h-full gap-4">
+1661          <div className="h-full min-h-0 relative flex flex-col pt-0">
+1663             <div className="flex-1 relative flex flex-col bg-white/60 backdrop-blur-sm border border-white/50 rounded-xl overflow-hidden shadow-sm h-full">
+1666                <div className="hidden md:block absolute bottom-2 left-2 right-2 z-[60]">
+1667                   <div className="grid grid-cols-4 gap-2 bg-white/20 backdrop-blur-xl p-1.5 rounded-2xl border border-white/30 shadow-2xl">
+1720                      <div className="w-5 h-5 border-2 border-gray-300 border-t-black rounded-full animate-spin"/>
+1726                      </div>
+1727                   </div>
+1729                   <div className="flex-1 flex flex-col h-full overflow-hidden">
+1731                      <div className="h-full flex flex-col">
+1733                         <div className="p-0 md:p-6 relative flex-1 flex flex-col justify-center overflow-hidden">
+1748                            <div
+1794                               <div key={`day-${d.day_number}`} data-it-day={d.day_number} className={`flex flex-col relative w-full bg-white ${isExpanded ? '' : ''}`}>
+1796                                  <div className="bg-white px-5 pt-5 pb-2 transition-all md:sticky md:top-0 z-30"
+1799                                     <div className="flex flex-col items-center gap-0">
+1801                                        <div className="flex items-center gap-3 text-[13px] font-bold uppercase tracking-[0.25em] text-gray-400 mb-1">
+1805                                        </div>
+1813                                        <div className="py-3 flex items-center gap-1.5 text-black text-[12px] font-bold uppercase tracking-[0.25em]">
+1816                                        </div>
+1817                                     </div>
+1818                                  </div>
+1821                                  <div className={`px-5 pt-0 flex flex-col items-center ${isExpanded ? 'pb-10' : 'pb-24 border-b border-gray-100'}`}>
+1824                                     <div className="w-11/12 relative overflow-hidden rounded-3xl bg-gray-100 shadow-sm border border-black/5 mx-auto mt-6 md:mt-8 mb-6" style={{ aspectRatio: '16/9' }}>
+1833                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+1836                                           <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 bg-gray-50 rounded-2xl">
+1839                                           </div>
+1841                                        </div>
+1845                                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[2000px] opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0 invisible'}`}>
+1846                                           <div className="space-y-6">
+1848                                              <div>
+1855                                              </div>
+1858                                              <div className="pb-6">
+1865                                              </div>
+1867                                           </div>
+1868                                        </div>
+1869                                     </div>
+1870                                  </div>
+1876                                  <div key={`cta-${d.day_number}`} className="w-full px-5 py-6 bg-gray-50/50 border-y border-gray-100 flex flex-col items-center justify-center gap-3">
+1877                                     <div className="flex items-center gap-3 w-full max-w-[340px]">
+1890                                     </div>
+1891                                  </div>
+1897                               </div>
+1899                               <div className="hidden md:flex flex-col max-w-4xl mx-auto w-full h-full overflow-hidden md:justify-center relative">
+1902                                  <div className="shrink-0 mb-3 flex items-center gap-1 overflow-visible py-1">
+1912                                     <div className="flex-1 overflow-x-auto overflow-y-visible no-scrollbar">
+1913                                        <div className="flex gap-1 justify-center py-0.5">
+1931                                        </div>
+1932                                     </div>
+1942                                  </div>
+1945                                  <div className="mb-4 shrink-0 text-center">
+1954                                  </div>
+1957                                  <div className="flex-1 flex flex-col md:flex-row gap-4 md:gap-4 md:min-h-0 px-4 md:px-0">
+1960                                     <div className="flex-1 flex flex-col bg-white/40 backdrop-blur-md rounded-xl p-4 md:p-4 border border-white/50 shadow-sm transition-all hover:shadow-md">
+1961                                        <div className="flex items-center gap-2 mb-2 border-b border-gray-200/50 pb-2 shrink-0">
+1964                                        </div>
+1965                                        <div className="text-base md:text-lg text-gray-800 leading-relaxed font-serif">
+1973                                        </div>
+1974                                     </div>
+1977                                     <div className="md:hidden w-full aspect-[4/3] rounded-xl overflow-hidden relative shadow-lg border border-gray-200 shrink-0 my-2 bg-white">
+1979                                        <div className="w-full h-full p-6 animate-in fade-in zoom-in duration-300 flex flex-col items-center justify-center text-center">
+1980                                           <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 mb-4">
+1982                                           </div>
+1990                                        </div>
+1992                                        <div className="w-full h-full p-6 animate-in fade-in zoom-in duration-300 flex flex-col overflow-y-auto">
+1993                                           <div className="flex items-center gap-3 mb-6">
+1994                                              <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
+1996                                              </div>
+1997                                              <div>
+2000                                              </div>
+2001                                           </div>
+2013                                        </div>
+2016                                        <div className="fixed inset-0 z-50 bg-white flex flex-col animate-in slide-in-from-bottom-5 duration-300">
+2028                                           <div className="w-full h-40 xl:h-48 relative overflow-hidden shrink-0">
+2034                                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+2039                                              </div>
+2042                                              <div className="flex-1 overflow-y-auto p-6 pb-32 bg-white">
+2056                                                 <div className="bg-green-100 p-0.5 rounded-full mt-0.5 shrink-0">
+2058                                                 </div>
+2064                                                 <div className="p-4 bg-gray-50 rounded-xl border border-gray-100 mb-8">
+2069                                                 </div>
+2072                                                 <div className="border-t border-gray-100 pt-6 mb-6">
+2076                                                    <div className="space-y-1 text-xs font-medium text-gray-500">
+2077                                                       <div className="grid grid-cols-2 gap-x-4">
+2080                                                       </div>
+2081                                                       <div>REG: <strong className="text-black">AV-00661</strong></div>
+2082                                                       <div className="pt-2 text-gray-600">tours@ibero.world</div>
+2083                                                       <div className="font-bold text-black">www.ibero.world</div>
+2084                                                    </div>
+2085                                                 </div>
+2086                                              </div>
+2089                                              <div className="absolute bottom-6 left-6 right-6">
+2097                                              </div>
+2103                                           </div>
+2115                                           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
+2116                                              <div className="absolute top-3 left-4">
+2120                                              </div>
+2123                                           </div>
+2126                                           <div className="flex-1 flex flex-col bg-white/40 backdrop-blur-md rounded-xl p-4 md:p-4 border border-white/50 shadow-sm transition-all hover:shadow-md">
+2127                                              <div className="flex items-center gap-2 mb-2 border-b border-gray-200/50 pb-2 shrink-0">
+2130                                              </div>
+2131                                              <div className="text-base md:text-lg text-gray-800 leading-relaxed font-serif">
+2139                                              </div>
+2140                                           </div>
+2143                                           <div className="md:hidden h-28 shrink-0" />
+2144                                           </div>
+2145                                        </div>
+2149                                     </div>
+2152                                     <div className="hidden md:block mt-auto flex-shrink-0 bg-white/40 border-t border-gray-200/20 p-4 pb-2 z-20 rounded-b-xl">
+2153                                        <div className="flex items-center justify-between mb-2">
+2165                                        </div>
+2166                                        <div className="overflow-x-auto pb-2 custom-scrollbar -mx-4 px-4">
+2167                                           <div className="grid grid-cols-7 gap-1 min-w-[300px]">
+2193                                              <div className="flex flex-col items-center justify-center pt-1">
+2208                                                 <div className={`mt-0.5 w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-black/20 group-hover:bg-black'}`} />
+2210                                                 </div>
+2215                                              </div>
+2216                                           </div>
+2217                                        </div>
+2219                                     </div>
+2221                                     <div className="h-full w-full overflow-hidden">
+2222                                        <div className="h-full w-full">
+2224                                        </div>
+2225                                     </div>
+2227                                  </div>{/* end grid-cols-1 lg:grid-cols-2 */}
+2228                               </div>{/* end hidden md:block */}
+2229                            </div>{/* end tour-modal-body */}
+2230                         </div>{/* end hidden md:block */}

@@ -115,6 +115,20 @@ export default function InlineMap(props: InlineMapProps) {
   const lastDataHashRef = useRef<string | null>(null);
   const [isMapReady, setIsMapReady] = React.useState(false);
 
+  // Fix for "Phantom Container" / Grey Map issue on initial load/resize
+  useEffect(() => {
+    if (mapRef.current) {
+      const L = (window as any).L;
+      if (L) {
+        // Give time for layout transitions to finish
+        const timer = setTimeout(() => {
+          if (mapRef.current) mapRef.current.invalidateSize();
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [className, isMapReady]);
+
   const applyActiveDay = (
     dayIndexOrDayNumber: number | null,
     opts?: {

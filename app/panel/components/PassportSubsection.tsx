@@ -91,44 +91,44 @@ export default function PassportSubsection({ orderId, slotId, initial, onSave }:
 
   return (
     <div className="space-y-4">
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">First Name</label>
+       <div className="grid grid-cols-2 gap-x-3 gap-y-3 sm:gap-x-6 sm:gap-y-4 auto-cols-fr">
+          <div className="space-y-1 w-full min-w-0 col-span-1">
+             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">First Name</label>
              <input 
                 type="text" 
                 value={formData.firstName}
                 onChange={(e) => updateField('firstName', e.target.value)}
-                className="w-full rounded-md border-slate-200 text-sm focus:border-amber-400 focus:ring-amber-400"
+                className="w-full min-w-0 rounded-md border-slate-200 text-sm py-1.5 focus:border-amber-400 focus:ring-amber-400"
                 placeholder="Given names"
              />
           </div>
-          <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Last Name</label>
+          <div className="space-y-1 w-full min-w-0 col-span-1">
+             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Last Name</label>
              <input 
                 type="text" 
                 value={formData.lastName}
                 onChange={(e) => updateField('lastName', e.target.value)}
-                className="w-full rounded-md border-slate-200 text-sm focus:border-amber-400 focus:ring-amber-400"
+                className="w-full min-w-0 rounded-md border-slate-200 text-sm py-1.5 focus:border-amber-400 focus:ring-amber-400"
                 placeholder="Family name"
              />
           </div>
 
-          <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Date of Birth</label>
+          <div className="space-y-1 w-full min-w-0 col-span-1">
+             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Date of Birth</label>
              <input 
                 type="date" 
                 value={formData.dateOfBirth}
                 onChange={(e) => updateField('dateOfBirth', e.target.value)}
-                className="w-full rounded-md border-slate-200 text-sm focus:border-amber-400 focus:ring-amber-400"
+                className="w-full min-w-0 rounded-md border-slate-200 text-sm py-1.5 focus:border-amber-400 focus:ring-amber-400 appearance-none"
              />
           </div>
 
-          <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Gender</label>
+          <div className="space-y-1 w-full min-w-0 col-span-1">
+             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Gender</label>
              <select 
                 value={formData.gender}
                 onChange={(e) => updateField('gender', e.target.value as any)}
-                className="w-full rounded-md border-slate-200 text-sm focus:border-amber-400 focus:ring-amber-400"
+                className="w-full min-w-0 rounded-md border-slate-200 text-sm py-1.5 focus:border-amber-400 focus:ring-amber-400"
              >
                 <option value="unspecified">Select...</option>
                 <option value="male">Male</option>
@@ -136,21 +136,21 @@ export default function PassportSubsection({ orderId, slotId, initial, onSave }:
              </select>
           </div>
 
-          <div className="md:col-span-2 border-t border-slate-100 my-2"></div>
+          <div className="col-span-2 border-t border-slate-100 my-1 sm:my-2"></div>
 
-          <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Passport Number</label>
+          <div className="space-y-1 w-full min-w-0 col-span-1">
+             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Passport No.</label>
              <input 
                 type="text" 
                 value={formData.documentNumber}
                 onChange={(e) => updateField('documentNumber', e.target.value)}
-                className="w-full rounded-md border-slate-200 text-sm focus:border-amber-400 focus:ring-amber-400"
-                placeholder="Enter passport number"
+                className="w-full min-w-0 rounded-md border-slate-200 text-sm py-1.5 focus:border-amber-400 focus:ring-amber-400"
+                placeholder="Number"
              />
           </div>
 
-          <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Country of Issue</label>
+          <div className="space-y-1 w-full min-w-0 col-span-1">
+             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Issue Country</label>
              <input 
                 type="text" 
                 value={formData.issuingCountry || formData.documentCountry}
@@ -158,28 +158,28 @@ export default function PassportSubsection({ orderId, slotId, initial, onSave }:
                     updateField('issuingCountry', e.target.value);
                     updateField('documentCountry', e.target.value);
                 }}
-                className="w-full rounded-md border-slate-200 text-sm focus:border-amber-400 focus:ring-amber-400"
-                placeholder="e.g. USA, UK, Spain"
+                className="w-full min-w-0 rounded-md border-slate-200 text-sm py-1.5 focus:border-amber-400 focus:ring-amber-400"
+                placeholder="e.g. USA"
              />
           </div>
 
-           <div className="space-y-1">
-             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Expiration Date</label>
+           <div className="space-y-1 col-span-2 sm:col-span-1 w-full min-w-0">
+             <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Expiration Date</label>
              <input 
                 type="date" 
                 value={formData.documentExpires}
                 onChange={(e) => updateField('documentExpires', e.target.value)}
-                className="w-full rounded-md border-slate-200 text-sm focus:border-amber-400 focus:ring-amber-400"
+                className="w-full min-w-0 rounded-md border-slate-200 text-sm py-1.5 focus:border-amber-400 focus:ring-amber-400 appearance-none"
              />
           </div>
        </div>
 
-       <div className="flex justify-end pt-4">
+       <div className="flex justify-end pt-2 sm:pt-4">
           <button
              type="button"
              onClick={handleSave}
              disabled={loading}
-             className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:opacity-50"
+             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-6 py-2 sm:py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-amber-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:opacity-50"
           >
              {loading ? 'Saving...' : 'Save & Continue'}
           </button>

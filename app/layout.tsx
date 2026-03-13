@@ -1,78 +1,100 @@
-// app/layout.tsx
-import React from "react";
+
 import "./globals.css";
+import React from 'react';
+import type { Metadata, Viewport } from "next";
+import MobileFullScreen from "@/components/MobileFullScreen";
+
 import CookieConsent from './components/CookieConsent';
 import SentryInitClient from './components/SentryInitClient';
 import { NotificationProvider } from '../components/NotificationProvider';
 import UserBubble from '../components/UserBubble';
 import { GlobalLoaderProvider } from '@/components/GlobalLoaderProvider';
 
-  const title = 'Ibero Tours — Authentic travels across Spain & Portugal';
-  const description = 'Authentic small-group travels focused on local food, culture and nature across Spain and Portugal.';
-  const siteUrl = 'https://agencia-viajes2.vercel.app';
-  const ogImage = '/_optimized/og-default-w1200.webp';
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#000000",
+};
+
+export const metadata: Metadata = {
+  title: {
+    default: "IBERO | Luxury Travel",
+    template: "%s | IBERO",
+  },
+  description: "Authentic small-group travels focused on local food, culture and nature across Spain and Portugal.",
+  metadataBase: new URL('https://www.ibero.world'),
+  openGraph: {
+    title: "Ibero Tours — Authentic travels across Spain & Portugal",
+    description: "Authentic small-group travels focused on local food, culture and nature across Spain and Portugal.",
+    url: 'https://www.ibero.world',
+    siteName: 'Ibero Tours',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: '/_optimized/og-default-w1200.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Ibero Tours - Spain and Portugal',
+      },
+    ],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+  },
+};
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
       <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-        <meta httpEquiv="Pragma" content="no-cache" />
-        <meta httpEquiv="Expires" content="0" />
-  <meta property="og:title" content={title} />
-  <meta property="og:description" content={description} />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Ibero Tours" />
-  <meta property="og:url" content={siteUrl} />
-  <meta property="og:image" content={`${siteUrl}${ogImage}`} />
-  <link rel="canonical" href={siteUrl} />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Kalam:wght@300;400;700&display=swap" rel="stylesheet" />
         <style dangerouslySetInnerHTML={{ __html: `
     body { background: #000; margin: 0; }
     /* Only force full-viewport positioning for the intended background video elements.
-       This prevents modal or inline videos from being pinned full-screen. */
+       Uses dvh (dynamic viewport height) so it tracks the visible area on iOS Safari/Chrome
+       when the browser UI collapses. Falls back to vh for older browsers. */
     video.video-background, video#inkVideo {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100vh;
+      height: 100dvh;
       object-fit: cover;
       z-index: 0;
     }
   ` }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "TravelAgency",
-          "name": "Ibero Tours",
-          "url": siteUrl,
-          "description": description,
-          "sameAs": [
-            "https://www.facebook.com/your-page",
-            "https://www.instagram.com/your-page"
-          ]
-        }) }} />
       </head>
       <body>
         <GlobalLoaderProvider>
-          {/* Global top/bottom separators: thin black bands across the viewport */}
-          {/* Rounded rectangle frame: four joined thin lines with rounded corners */}
-          {/* decorative frame removed to avoid covering the hero video */}
-          {/* layout header and body content (skip link and debug server marker removed) */}
+          <MobileFullScreen />
           <NotificationProvider>
             {children}
             <UserBubble />
           </NotificationProvider>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){
+          function loadGA(){
+            var id = window.__NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ''}';
+            if(!id) return;
+            if(document.querySelector('[data-ga]')) return;
+            var s = document.createElement('script'); s.src = 'https://www.googletagmanager.com/gtag/js?id='+id; s.async = true; s.setAttribute('data-ga', '1'); document.head.appendChild(s);
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', id);
+          }
+          if(document.cookie.indexOf('cookie_consent=v2_yes') !== -1) loadGA();
+          window.addEventListener('cookie-consent-accepted', loadGA);
+        })();`}} />
           <CookieConsent />
         </GlobalLoaderProvider>
         <script dangerouslySetInnerHTML={{ __html: `(function(){
@@ -84,7 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);} window.gtag = gtag; gtag('js', new Date()); gtag('config', id);
           }
-          if(document.cookie.indexOf('cookie_consent=yes') !== -1) loadGA();
+          if(document.cookie.indexOf('cookie_consent=v2_yes') !== -1) loadGA();
           window.addEventListener('cookie-consent-accepted', loadGA);
         })();`}} />
 
@@ -190,6 +212,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             else window.addEventListener('DOMContentLoaded', function(){ setTimeout(fire, 4000); });
           }catch(e){}
         })();`}} />
+        <MobileFullScreen />
       </body>
     </html>
   );

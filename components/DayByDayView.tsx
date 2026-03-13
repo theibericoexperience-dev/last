@@ -13,13 +13,12 @@ export function DayByDayView({ day, data, onPrevDay, onNextDay }: DayByDayViewPr
   return (
     <div className="grid grid-rows-2 min-h-0 h-full gap-3">
       {/* Morning activity */}
-      <div className="row-span-1 h-full min-h-0 w-full bg-white/10 rounded-lg flex items-stretch overflow-hidden">
-        <div className="relative w-full h-full bg-black/5 rounded overflow-hidden">
+      <div className="row-span-1 min-h-0 w-full bg-white/10 rounded-lg flex items-stretch overflow-hidden">
+        <div className="relative w-full bg-black/5 rounded overflow-hidden aspect-video">
           <img
             src={mediaUrl(data.morning.media) || data.morning.media}
             alt={data.morning.title}
-            className="block object-cover w-full h-full"
-            style={{ borderRadius: 8 }}
+            className="block object-cover w-full h-full rounded"
           />
           <div className="absolute bottom-0 left-0 right-0 p-2">
             <div className="bg-white/90 p-3 rounded-t-lg border-2 border-gray-300 text-center w-full">
@@ -30,13 +29,12 @@ export function DayByDayView({ day, data, onPrevDay, onNextDay }: DayByDayViewPr
         </div>
       </div>
       {/* Afternoon activity */}
-      <div className="row-span-1 h-full min-h-0 w-full bg-white/10 rounded-lg flex items-stretch overflow-hidden">
-        <div className="relative w-full h-full bg-black/5 rounded overflow-hidden">
+      <div className="row-span-1 min-h-0 w-full bg-white/10 rounded-lg flex items-stretch overflow-hidden">
+        <div className="relative w-full bg-black/5 rounded overflow-hidden aspect-video">
           <img
             src={mediaUrl(data.afternoon.media) || data.afternoon.media}
             alt={data.afternoon.title}
-            className="block object-cover w-full h-full"
-            style={{ borderRadius: 8 }}
+            className="block object-cover w-full h-full rounded"
           />
           <div className="absolute bottom-0 left-0 right-0 p-2">
             <div className="bg-white/90 p-3 rounded-t-lg border-2 border-gray-300 text-center w-full">

@@ -47,17 +47,15 @@ export default function PanelContent() {
 
   return (
     <div>
-      // ...existing code...
-      <PanelSidebar 
-          isOpen={false} // Default or prop
-          setIsOpen={() => {}} // No-op or prop
-          activeSection={activeSection} 
-          onSectionChange={setSection} 
-          orderCount={orders.length} 
-          ticketCount={tickets.filter((t:any)=>t.status==='open').length} 
-          bonusBalance={bonusBalance} 
-      />
-// ...existing code...
+              <PanelSidebar
+          mobileState="closed"
+          setMobileState={() => {}}
+          activeSection={activeSection}
+          onSectionChange={(s) => setSection(s)}
+          orderCount={orders.length}
+          ticketCount={tickets.length}
+          bonusBalance={bonusBalance}
+        />
       <main>{renderSection()}</main>
     </div>
   );
