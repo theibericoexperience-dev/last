@@ -72,6 +72,7 @@ export default function UserBubble({
   const isLanding = pathname === '/' || pathname === '';
   const isTourPage = pathname?.startsWith('/tour');
   const isBehindPage = pathname === '/behind';
+  const isPanelPage = pathname?.startsWith('/panel');
 
   const handleClick = async () => {
     // If not logged, navigate to login/register flow (maintain current behaviour)
@@ -102,7 +103,7 @@ export default function UserBubble({
     </svg>
   );
 
-  if (variant === 'auto' && (isTourPage || isBehindPage)) return null;
+  if (variant === 'auto' && (isTourPage || isBehindPage || isPanelPage)) return null;
 
   const resolvedVariant: UserBubbleVariant = variant === 'auto'
     ? (isLanding ? 'inline' : 'floating')
@@ -126,8 +127,9 @@ export default function UserBubble({
 
   if (resolvedVariant === 'inline') {
     // Render inline-styled oval similar to My Panel (header-aligned). Non-fixed.
+    // Hidden on mobile — mobile navigation handled by Header menu.
     return (
-      <div className={wrapperClassName ?? 'inline-block'}>
+      <div className={wrapperClassName ?? 'hidden md:inline-block'}>
         <button
           type="button"
           aria-label="Open your panel"
@@ -143,7 +145,7 @@ export default function UserBubble({
 
   // Elsewhere: compact floating circular button in top-right
   return (
-    <div className={wrapperClassName ?? 'fixed right-6 top-6 z-40 pointer-events-none sm:block'}>
+    <div className={wrapperClassName ?? 'fixed right-6 top-6 z-40 pointer-events-none hidden md:block'}>
       <button
         aria-label="Open your panel"
         onClick={handleClick}

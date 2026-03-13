@@ -8,6 +8,7 @@ export type TourOverview = {
   stopsPath?: string; // optional path to folder with stops/media used by preview
   description?: string;
   startDate?: string; // optional YYYY-MM start date (used for card display)
+  days?: number; // total days of the tour
 };
 
 const tours: TourOverview[] = [
@@ -18,6 +19,7 @@ const tours: TourOverview[] = [
     year: 2026,
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/madrid.webp',
     startDate: '2026-03',
+    days: 12,
     stopsPath: 'Open Tours/MADRID TO LISBOA/MAIN TOUR/stops',
     description: `Explore the unkown areas of Southwest Iberia and get a glimpse of the 2 Capitals.
 Visit Roman, Arab and Medieval Christian heritage.
@@ -31,6 +33,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     year: 2026,
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
     startDate: '2026-04',
+    days: 10,
     stopsPath: 'Open Tours/PORTO & GALICIA/media',
     description: 'Discover the hidden corners of Northern Portugal and Spain’s Atlantic coast.'
   },
@@ -40,6 +43,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     year: 2026,
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/LAOS%20&%20VIETNAM/laos.webp',
     startDate: '2026-05',
+    days: 18,
     stopsPath: 'Open Tours/LAOS & VIETNAM/media'
   },
   {
@@ -48,6 +52,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     year: 2026,
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp',
     startDate: '2026-09',
+    days: 21,
     stopsPath: 'Open Tours/NEW ZEALAND & AUSTRALIA/media'
   },
 
@@ -58,6 +63,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     year: 2026,
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp',
     startDate: '2026-07',
+    days: 8,
     stopsPath: 'Open Tours/lofoten/media'
   },
 
@@ -68,21 +74,24 @@ This area tends to have mild temperatures in Winter & Early Spring`
     year: 2027, 
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/lofowinter27.jpg', 
     stopsPath: '2027/lofowinter27_media', 
-    startDate: '2027-01' 
+    startDate: '2027-01',
+    days: 7
   },
   { 
     id: 'madrid-2027', 
     title: 'MADRID TO LISBON (2027)', 
     year: 2027, 
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/mad27.jpg', 
-    stopsPath: '2027/mad27_media' 
+    stopsPath: '2027/mad27_media',
+    days: 12
   },
   { 
     id: 'porto-2027', 
     title: 'PORTO & GALICIA (2027)', 
     year: 2027, 
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/por27.jpg', 
-    stopsPath: '2027/por27_media' 
+    stopsPath: '2027/por27_media',
+    days: 10
   },
   { 
     id: 'lofo-summer-2027', 
@@ -90,21 +99,24 @@ This area tends to have mild temperatures in Winter & Early Spring`
     year: 2027, 
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/lofosummer27.jpg', 
     stopsPath: '2027/lofosummer27_media', 
-    startDate: '2027-07' 
+    startDate: '2027-07',
+    days: 8
   },
   { 
     id: 'laos-2027', 
     title: 'LAOS & VIETNAM (2027)', 
     year: 2027, 
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/laos27.jpg', 
-    stopsPath: '2027/laos27_media' 
+    stopsPath: '2027/laos27_media',
+    days: 18
   },
   { 
     id: 'aus-2027', 
     title: 'NEW ZEALAND & AUSTRALIA (2027)', 
     year: 2027, 
     cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/aus27.jpg', 
-    stopsPath: '2027/aus27_media' 
+    stopsPath: '2027/aus27_media',
+    days: 21
   }
 ];
 

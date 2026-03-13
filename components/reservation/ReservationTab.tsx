@@ -39,9 +39,13 @@ export interface ReservationFormData {
 
 export interface ReservationTabProps {
   tourData: TourData;
+  /** Optional: pre-selected optionals from the Extensions section (keys matching selectedAddons format) */
+  preSelectedOptionals?: Record<string, boolean>;
+  /** When true: disables internal scroll on mobile (used when ReservationTab is inside an already-scrolling container) */
+  noInternalScroll?: boolean;
 }
 
-export default function ReservationTab({ tourData, onOpenRegister }: ReservationTabProps & { onOpenRegister?: () => void }) {
+export default function ReservationTab({ tourData, onOpenRegister, preSelectedOptionals, noInternalScroll }: ReservationTabProps & { onOpenRegister?: () => void }) {
   const router = useRouter();
   // Supabase is the source of truth. Read client session from Supabase.
   const [sbSession, setSbSession] = useState<any>(null);
@@ -91,7 +95,11 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
   const singleTravelerNightSurchargePerNight = 100; // USD
   const depositPerTraveler = 1000; // USD
 
-  const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>({});
+  const [selectedAddons, setSelectedAddons] = useState<Record<string, boolean>>(preSelectedOptionals ?? {});
+  // Sync when parent's pre-selected optionals change (e.g. user toggles extensions before opening reservation)
+  useEffect(() => {
+    if (preSelectedOptionals) setSelectedAddons(preSelectedOptionals);
+  }, [preSelectedOptionals]);
   const [showNoAddonsPrompt, setShowNoAddonsPrompt] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState<string | null>(null);
@@ -398,10 +406,23 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
     setShowServerModal(false);
     setIsSubmitting(false);
   };
+  
+  // Mobile only state
+  const [mobileInfoExpanded, setMobileInfoExpanded] = useState(false);
+  const [airportExpanded, setAirportExpanded] = useState(false);
+  const [commentsExpanded, setCommentsExpanded] = useState(false);
+  const [priceDetailsExpanded, setPriceDetailsExpanded] = useState(false);
+
+  // Auto-expand sections if there are validation errors
+  useEffect(() => {
+    if (errors.departureAirport || errors.customDepartureAirport) {
+      setAirportExpanded(true);
+    }
+  }, [errors.departureAirport, errors.customDepartureAirport]);
 
   return (
     /* Container for reservation form - no scroll on desktop, two fixed columns */
-  <div className="w-full h-full px-0 py-0 pb-4">
+  <div className="w-full h-full px-0 py-0 pb-4 relative overflow-hidden">
       <style>{`@keyframes ibero-pulse { 0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.0);} 50% { box-shadow: 0 0 20px 6px rgba(250, 204, 21, 0.12);} 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.0);} }`}</style>
       <style>{`
         /* Hide scrollbar for Chrome, Safari and Opera */
@@ -413,206 +434,336 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
         }
-      `}</style>
+        /* New Mobile Styles */
+        @media (max-width: 768px) {
+           .mobile-reservation-grid {
+              display: block !important;
+              position: relative !important;
+              height: 100% !important;
+              overflow-x: hidden !important;
+           }
+           .mobile-left-col {
+              width: 100% !important;
+              height: 100% !important;
+              overflow-y: ${noInternalScroll ? 'visible' : 'auto'} !important;
+              padding-bottom: 80px !important; /* Spacing for bottom nav */
+           }
+           .mobile-right-drawer {
+              position: absolute !important;
+              top: 0 !important;
+              right: 0 !important;
+              bottom: 0 !important;
+              width: 90% !important;
+              background: white !important;
+              z-index: 50 !important;
+              transform: translateX(100%) !important;
+              transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+              box-shadow: -10px 0 20px rgba(0,0,0,0.1) !important;
+              height: 100% !important;
+              display: flex !important;
+              flex-direction: column !important;
+           }
+           .mobile-right-drawer.open {
+              transform: translateX(0) !important;
+           }
 
-   {/* Main layout: CSS Grid with FIXED two columns - NEVER stacks */}
+           /* Floating More Info tab only on mobile */
+           .mobile-more-info-tab {
+              position: absolute !important;
+              top: 50% !important;
+              right: 0 !important;
+              transform: translateY(-50%) !important;
+              background: black !important;
+              color: white !important;
+              font-size: 9px !important;
+              letter-spacing: 2px !important;
+              text-transform: uppercase !important;
+              cursor: pointer !important;
+              z-index: 40 !important;
+              text-align: center !important;
+              box-shadow: -2px 0 5px rgba(0,0,0,0.1) !important;
+              writing-mode: vertical-lr !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+              padding: 16px 6px !important;
+              border-radius: 20px 0 0 20px !important;
+           }
+           .mobile-more-info-tab > span {
+              display: block;
+              transform: rotate(180deg);
+           }
+
+           .mobile-more-info-close-tab {
+              position: absolute !important;
+              top: 50% !important;
+              left: 0 !important;
+              transform: translateY(-50%) !important;
+              background: black !important;
+              color: white !important;
+              padding: 16px 6px !important;
+              border-radius: 0 20px 20px 0 !important;
+              font-size: 9px !important;
+              writing-mode: vertical-lr !important;
+              text-orientation: mixed !important;
+              font-weight: bold !important;
+              letter-spacing: 2px !important;
+              text-transform: uppercase !important;
+              cursor: pointer !important;
+              z-index: 60 !important;
+              text-align: center !important;
+              box-shadow: 2px 0 5px rgba(0,0,0,0.1) !important;
+              display: flex !important;
+              align-items: center !important;
+              justify-content: center !important;
+           }
+           .mobile-more-info-close-tab > span {
+              display: block;
+              transform: rotate(180deg);
+              white-space: nowrap;
+           }
+        }
+      `}</style>
+      
+  {/* MOBILE: Right drawer toggle tab (OPEN) */}
+  {!mobileInfoExpanded && (
+    <div 
+      className="mobile-more-info-tab md:hidden"
+      onClick={() => setMobileInfoExpanded(true)}
+    >
+      <span>MORE INFO</span>
+    </div>
+  )}
+
+  {/* MOBILE: Left drawer toggle tab (CLOSE) - Only when expanded */}
+  {mobileInfoExpanded && (
+    <div 
+      className="mobile-more-info-close-tab md:hidden"
+      onClick={() => setMobileInfoExpanded(false)}
+    >
+      <span>CLOSE INFO</span>
+    </div>
+  )}
+
+   {/* Main layout: Desktop Grid vs Mobile Block */}
   <div
+    className="mobile-reservation-grid mx-auto w-full max-w-5xl px-4 md:pl-6 md:pr-0"
     style={{
       display: 'grid',
-      gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
-      gap: '1rem',
+      // Desktop: left column flexible, right column fixed to 360px.
+      // Mobile (<=768px) is overridden by the .mobile-reservation-grid media rule which sets display:block;
+      gridTemplateColumns: 'minmax(0, 1fr) 360px',
+      gap: '0.5rem',
       height: '100%',
     }}
   >
             {/* Left column: Pricing summary, comments, submit */}
-            <div className="flex flex-col h-full min-h-0">
-            <div className="p-4 rounded-lg border bg-white flex-1 flex flex-col">
+            <div className="mobile-left-col flex flex-col h-full min-h-0">
+            <div className="p-4 md:p-6 rounded-lg border bg-white flex-1 flex flex-col font-sans">
               <div className="w-full flex flex-col h-full min-h-0">
-                <div className="p-3 bg-gray-50 rounded">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-base font-medium text-gray-900">Price summary</h4>
-                    <div className="flex items-center gap-4">
-                      <div className="font-medium">${basePricePerTraveler.toLocaleString()}</div>
-                      <div className="flex items-center gap-2">
-                        <label className="text-xs text-gray-500 mr-1">Travelers</label>
-                        <div className="inline-flex items-center border rounded-md overflow-hidden">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const next = Math.max(1, travelers - 1);
-                              setValue('travelers', next, { shouldValidate: true, shouldDirty: true });
-                            }}
-                            className="px-2 py-1 text-sm bg-white hover:bg-gray-100"
-                          >-
-                          </button>
-                          <div className="px-3 py-1 text-sm">{travelers}</div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const next = travelers + 1;
-                              setValue('travelers', next, { shouldValidate: true, shouldDirty: true });
-                            }}
-                            className="px-2 py-1 text-sm bg-white hover:bg-gray-100"
-                          >+
-                          </button>
-                        </div>
+                
+                {/* Minimalist Price Summary */}
+                <div className="p-4 md:p-5 bg-gray-50/50 rounded-lg border border-gray-100">
+                  <div className="space-y-1 md:space-y-4 text-base text-gray-700">
+                    {/* Travelers selector */}
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Travelers</span>
+                      <div className="inline-flex items-center border border-gray-200 rounded-md bg-white h-10">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = Math.max(1, travelers - 1);
+                            setValue('travelers', next, { shouldValidate: true, shouldDirty: true });
+                          }}
+                          className="px-4 h-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
+                        >-</button>
+                        <div className="px-4 h-full flex items-center justify-center font-medium text-gray-800 border-x border-gray-100">{travelers}</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = travelers + 1;
+                            setValue('travelers', next, { shouldValidate: true, shouldDirty: true });
+                          }}
+                          className="px-4 h-full flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors"
+                        >+</button>
                       </div>
                     </div>
-                  </div>
-                  <div className="mt-3 flex-1 overflow-auto text-sm text-gray-700 space-y-2">
+
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Base Price <span className="text-xs text-gray-500">/ person</span></span>
+                      <span className="font-medium">${basePricePerTraveler.toLocaleString()}</span>
+                    </div>
+                    
                     {roomSupplement > 0 && (
-                      <div className="flex justify-between">
-                        <div>Single-traveler surcharge</div>
-                        <div className="font-medium">${roomSupplement.toLocaleString()}</div>
+                      <div className="flex justify-between items-center">
+                        <span className="font-medium">Single Surcharge</span>
+                        <span className="font-medium">${roomSupplement.toLocaleString()}</span>
                       </div>
                     )}
 
-                    <div>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex justify-between items-center">
-                          <button
-                            type="button"
-                            onClick={() => setOptionalsOpen(true)}
-                            className="text-emerald-600 font-semibold text-sm hover:underline"
-                            aria-haspopup="dialog"
-                            aria-controls="optionals-modal"
-                          >
-                            Add‑ons
-                          </button>
-                          <div className="font-medium">${addonsTotal.toLocaleString()}</div>
-                        </div>
-                        {/* Selected Add-ons List */}
-                        {addonsTotal > 0 && (
-                          <div className="pl-2 border-l-2 border-emerald-100 flex flex-col gap-1">
-                            {addons.map(a => selectedAddons[a.key] && (
-                              <div key={a.key} className="flex justify-between items-center text-[10px] text-gray-500 italic">
-                                <span>{a.label}</span>
-                                <span>${(a.perTraveler ? a.price * travelers : a.price).toLocaleString()}</span>
-                              </div>
-                            ))}
-                            {extensionsList.map(ex => selectedAddons['ext:'+ex.key] && (
-                              <div key={ex.key} className="flex justify-between items-center text-[10px] text-gray-500 italic">
-                                <span>{ex.name} Extension ({ex.days}d)</span>
-                                <span>${((ex.pricePerDay || 250) * ex.days * travelers).toLocaleString()}</span>
-                              </div>
-                            ))}
+                    <div className="flex justify-between items-center">
+                      <button 
+                        type="button" 
+                        onClick={() => setOptionalsOpen(true)} 
+                        className="text-emerald-600 hover:text-emerald-700 transition-colors font-medium"
+                      >
+                        Add‑ons
+                      </button>
+                      <span className="font-medium">${addonsTotal.toLocaleString()}</span>
+                    </div>
+
+                    <hr className="border-gray-200 my-1" />
+
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-900">Total</span>
+                      <span className="font-semibold text-gray-900">${totalPrice.toLocaleString()}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-gray-900">Deposit Due</span>
+                      <span className="font-bold text-emerald-600">${depositDue.toLocaleString()}</span>
+                    </div>
+
+                    {/* Expandable Due Date & Cashback */}
+                    <div className="pt-1">
+                      <button 
+                        type="button" 
+                        onClick={() => setPriceDetailsExpanded(!priceDetailsExpanded)}
+                        className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        {priceDetailsExpanded ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
+                        <span>View details</span>
+                      </button>
+                      
+                      {priceDetailsExpanded && (
+                        <div className="mt-3 p-3 bg-white rounded border border-gray-100 text-sm text-gray-600 space-y-2 animate-in fade-in slide-in-from-top-1">
+                          <div className="flex justify-between">
+                            <span>Deposit due by</span>
+                            <span className="font-medium text-gray-800">{depositDate}</span>
                           </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <hr className="my-2" />
-                    <div className="flex flex-col items-stretch">
-                      <div className="flex justify-between items-baseline">
-                        <div className="text-sm text-gray-600">Deposit</div>
-                        <div className="text-2xl font-semibold">${depositDue.toLocaleString()}</div>
-                      </div>
-                        <div className="mt-1 text-xs text-gray-500 flex flex-col gap-1">
-                        <div className="flex justify-between">
-                        <div>Due by {depositDate}</div>
-                        <div>Total: ${totalPrice.toLocaleString()}</div>
+                          <div className="flex justify-between">
+                            <span>Estimated cashback (5%)</span>
+                            <span className="font-medium text-emerald-600">${estimatedCashback.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between text-sm text-slate-600">
-                          <div>Estimated cashback (5%)</div>
-                          <div>${estimatedCashback.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-gray-100">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2 block">
-                           Choose your desired airport for departure:
-                        </label>
-                        <select 
-                           {...register('departureAirport', { required: true })}
-                           className={`w-full bg-gray-50 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all
-                              ${errors.departureAirport ? 'border-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.1)]' : 'border-gray-200 hover:border-gray-300'}
-                           `}
-                        >
-                           <option value="">Select an airport...</option>
-                           {tourData.departureAirports && tourData.departureAirports.length > 0 ? (
-                              tourData.departureAirports.map((ap) => (
-                                <option key={ap} value={ap}>{ap}</option>
-                              )) 
-                           ) : (
-                               <>
-                                <option value="JFK">New York (JFK)</option>
-                                <option value="EWR">Newark (EWR)</option>
-                                <option value="MIA">Miami (MIA)</option>
-                                <option value="ORD">Chicago (ORD)</option>
-                                <option value="LAX">Los Angeles (LAX)</option>
-                                <option value="BOS">Boston (BOS)</option>
-                                <option value="YYZ">Toronto (YYZ)</option>
-                               </>
-                           )}
-                           <option value="OTHER">Other (Request custom)</option>
-                        </select>
-                        
-                        {watch('departureAirport') === 'OTHER' && (
-                           <div className="mt-2 animate-in fade-in slide-in-from-top-1">
-                              <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1 block">
-                                 Specify your preferred airport:
-                              </label>
-                              <input 
-                                 type="text"
-                                 {...register('customDepartureAirport', { required: watch('departureAirport') === 'OTHER' })}
-                                 placeholder="e.g. Heathrow (LHR)"
-                                 className={`w-full bg-white border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all
-                                    ${errors.customDepartureAirport ? 'border-red-500' : 'border-gray-200'}
-                                 `}
-                              />
-                           </div>
-                        )}
-
-                        <p className="text-[10px] text-gray-500 mt-2 italic leading-tight">
-                            Can&apos;t find your airport? Select &quot;Other&quot; to request a custom connection.
-                        </p>
-
-                        {errors.departureAirport && (
-                           <p className="text-[10px] text-red-500 mt-1 font-medium italic">Departure airport is required</p>
-                        )}
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 text-sm text-gray-700 space-y-2">
-                  <div className="mt-1">
-                    <label className="text-xs text-gray-500">Comments</label>
-                    <textarea {...register('comments')} rows={2} className="w-full rounded-lg border px-3 py-2 text-sm" placeholder="Add any notes or requests (optional)" />
-                  </div>
+                {/* Icons for Airport and Comments */}
+                <div className="mt-3 flex gap-3">
+                  <button 
+                    type="button"
+                    onClick={() => setAirportExpanded(!airportExpanded)}
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border transition-colors ${airportExpanded ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                    <span className="text-base font-medium">Flights</span>
+                  </button>
 
-                  <div className="mt-3 flex items-center gap-3">
-                    <label className="flex items-center gap-2 text-sm text-gray-600">
-                      <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-                      <span>I have read and agree to the </span>
-                      <button type="button" onClick={() => setTermsModalOpen(true)} className="underline text-sm text-gray-700">terms &amp; conditions</button>
+                  <button 
+                    type="button"
+                    onClick={() => setCommentsExpanded(!commentsExpanded)}
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border transition-colors ${commentsExpanded ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                    </svg>
+                    <span className="text-base font-medium">Notes</span>
+                  </button>
+                </div>
+
+                {/* Expanded Airport Section */}
+                {airportExpanded && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 animate-in fade-in slide-in-from-top-2">
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                       Departure Airport
+                    </label>
+                    <select 
+                       {...register('departureAirport', { required: true })}
+                       className={`w-full bg-white border rounded-md px-4 py-3 text-base text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none transition-all
+                          ${errors.departureAirport ? 'border-red-500 shadow-[0_0_0_2px_rgba(239,68,68,0.1)]' : 'border-gray-200 hover:border-gray-300'}
+                       `}
+                    >
+                       <option value="">Select an airport...</option>
+                       {tourData.departureAirports && tourData.departureAirports.length > 0 ? 
+                          tourData.departureAirports.map((ap) => (
+                            <option key={ap} value={ap}>{ap}</option>
+                          )) 
+                       : (
+                           <>
+                            <option value="JFK">New York (JFK)</option>
+                            <option value="EWR">Newark (EWR)</option>
+                            <option value="MIA">Miami (MIA)</option>
+                            <option value="ORD">Chicago (ORD)</option>
+                            <option value="LAX">Los Angeles (LAX)</option>
+                            <option value="BOS">Boston (BOS)</option>
+                            <option value="YYZ">Toronto (YYZ)</option>
+                           </>
+                       )}
+                       <option value="OTHER">Other (Request custom)</option>
+                    </select>
+                    
+                    {watch('departureAirport') === 'OTHER' && (
+                       <div className="mt-3 animate-in fade-in slide-in-from-top-1">
+                          <input 
+                             type="text"
+                             {...register('customDepartureAirport', { required: watch('departureAirport') === 'OTHER' })}
+                             placeholder="e.g. Heathrow (LHR)"
+                             className={`w-full bg-white border rounded-md px-4 py-3 text-base text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none transition-all
+                                ${errors.customDepartureAirport ? 'border-red-500' : 'border-gray-200'}
+                             `}
+                          />
+                       </div>
+                    )}
+                    {errors.departureAirport && (
+                       <p className="text-sm text-red-500 mt-2">Required</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Expanded Comments Section */}
+                {commentsExpanded && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100 animate-in fade-in slide-in-from-top-2">
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">Additional Notes</label>
+                    <textarea {...register('comments')} rows={3} className="w-full rounded-md border border-gray-200 px-4 py-3 text-base text-gray-700 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Add any requests (optional)" />
+                  </div>
+                )}
+
+                <div className="mt-auto pt-6">
+                  <div className="flex items-center gap-3 mb-5">
+                    <input type="checkbox" id="terms" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" />
+                    <label htmlFor="terms" className="text-base text-gray-600">
+                      I agree to the <button type="button" onClick={() => setTermsModalOpen(true)} className="underline hover:text-gray-900">terms &amp; conditions</button>
                     </label>
                   </div>
 
-                  <div className="mt-3 flex justify-center">
-                    <button
-                      onClick={handleSubmit(onSubmit)}
-                      disabled={!isValid || isSubmitting || !termsAccepted}
-                      className="px-6 py-2 bg-emerald-600 text-white text-base rounded-lg hover:bg-emerald-700 disabled:bg-gray-400"
-                    >
-                      {isSubmitting ? 'Confirming...' : 'Submit reservation'}
-                    </button>
-                  </div>
-                  <div className="mt-2 text-xs text-gray-600 text-center">
-                    {!sbSession?.user ? (
+                  <button
+                    onClick={handleSubmit(onSubmit)}
+                    disabled={!isValid || isSubmitting || !termsAccepted}
+                    className="w-full py-4 bg-emerald-600 text-white text-lg font-medium rounded-lg hover:bg-emerald-700 disabled:bg-gray-400 transition-colors"
+                  >
+                    {isSubmitting ? 'Confirming...' : 'Submit reservation'}
+                  </button>
+                  
+                  {!sbSession?.user && (
+                    <div className="mt-4 text-center">
                       <button
                         type="button"
                         onClick={() => {
                           if (typeof onOpenRegister === 'function') return onOpenRegister();
                           return router.push('/auth/register');
                         }}
-                        className="text-xs font-medium text-slate-700 hover:text-slate-900"
+                        className="text-sm font-medium text-slate-700 hover:text-slate-900"
                         style={{ animation: 'ibero-pulse 3s infinite ease-in-out' }}
                       >
                         You need to register to book a tour.
                       </button>
-                    ) : null}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -620,69 +771,86 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
           {/* End of Left column */}
 
           {/* Right column: What's included, Optionals, Important, Need help */}
-          <div ref={rightColumnRef} style={rightColumnMinHeight ? { minHeight: `${rightColumnMinHeight}px` } : undefined} className="flex flex-col space-y-3 h-full min-h-0">
+          <div 
+             ref={rightColumnRef} 
+             style={rightColumnMinHeight ? { minHeight: `${rightColumnMinHeight}px` } : undefined} 
+             className={`flex flex-col space-y-3 h-full min-h-0 mobile-right-drawer ${mobileInfoExpanded ? 'open' : ''}`}
+          >
+            {/* Mobile-only Close Button */}
+            <div className="md:hidden pb-2 mb-2 border-b border-gray-100 mt-4 px-4">
+               <button 
+                  onClick={() => setMobileInfoExpanded(false)}
+                  className="flex items-center gap-2 text-base font-medium text-gray-600 hover:text-gray-900"
+               >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Close Info
+               </button>
+            </div>
+
             {/* What's included - first and open by default */}
-            <div className="p-4 rounded-lg border bg-white min-w-0">
+            <div className="p-4 md:p-6 rounded-lg border bg-white min-w-0 flex-1 flex flex-col">
               <div 
                 className="flex items-start justify-between cursor-pointer group"
                 onClick={() => setRightPanelOpen((p) => p === 'included' ? null : 'included')}
               >
-                <h3 className="text-lg font-medium text-gray-900 group-hover:text-emerald-700 transition-colors">What&apos;s included</h3>
+                <h3 className="text-xl font-medium text-gray-900 group-hover:text-emerald-700 transition-colors">What&apos;s included</h3>
                 <button aria-label={rightPanelOpen === 'included' ? 'Collapse included' : 'Expand included'} className="text-gray-500">
-                  {rightPanelOpen === 'included' ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
+                  {rightPanelOpen === 'included' ? <ChevronUpIcon className="w-6 h-6" /> : <ChevronDownIcon className="w-6 h-6" />}
                 </button>
               </div>
               {/* Always render list container so the white card remains visible even when data is missing */}
-              <ul className={`mt-3 text-sm text-gray-700 grid grid-cols-1 gap-2 ${rightPanelOpen !== 'included' ? 'hidden' : ''}`} aria-hidden={rightPanelOpen !== 'included'}>
+              <ul className={`mt-4 text-base text-gray-700 grid grid-cols-1 gap-3 flex-1 overflow-y-auto ${rightPanelOpen !== 'included' ? 'hidden' : ''}`} aria-hidden={rightPanelOpen !== 'included'}>
                 {(Array.isArray(tourData?.inclusions) && tourData.inclusions.length > 0) ? (
                   tourData.inclusions.filter((inc) => !/flight/i.test(inc)).map((inc, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <CheckIcon className="w-4 h-4 text-green-500 mt-1" />
+                    <li key={i} className="flex items-start gap-3">
+                      <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
                       <span>{inc}</span>
                     </li>
                   ))
                 ) : (
                   // Placeholder rows when inclusions are not available
                   [1, 2, 3].map((n) => (
-                    <li key={n} className="flex items-start gap-2">
-                      <span className="inline-block h-4 w-4 rounded bg-gray-200" />
-                      <div className="h-4 w-3/4 rounded bg-gray-200" />
+                    <li key={n} className="flex items-start gap-3">
+                      <span className="inline-block h-5 w-5 rounded bg-gray-200 shrink-0" />
+                      <div className="h-5 w-3/4 rounded bg-gray-200" />
                     </li>
                   ))
                 )}
-                <li className="flex items-start gap-2">
-                  <CheckIcon className="w-4 h-4 text-green-500 mt-1" />
+                <li className="flex items-start gap-3">
+                  <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
                   <div>24h support during the trip</div>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckIcon className="w-4 h-4 text-green-500 mt-1" />
+                <li className="flex items-start gap-3">
+                  <CheckIcon className="w-5 h-5 text-green-500 mt-0.5 shrink-0" />
                   <div className="font-medium">Flights from New York, Boston &amp; Toronto</div>
                 </li>
               </ul>
             </div>
 
             {/* Optionals: render only a persistent button (no box/background) */}
-            <div className="flex">
-              <button type="button" onClick={() => setOptionalsOpen(true)} className="w-full px-3 py-2 bg-emerald-600 text-white rounded-lg font-medium">View optionals & add-ons</button>
+            <div className="flex shrink-0">
+              <button type="button" onClick={() => setOptionalsOpen(true)} className="w-full px-4 py-3 bg-emerald-600 text-white rounded-lg font-medium text-lg hover:bg-emerald-700 transition-colors">View optionals & add-ons</button>
             </div>
 
             {/* Important information (now controlled by accordion) */}
-            <div className="p-4 rounded-lg border bg-white min-w-0">
+            <div className="p-4 md:p-6 rounded-lg border bg-white min-w-0 shrink-0">
               <div 
                 className="flex items-center justify-between cursor-pointer group"
                 onClick={() => setRightPanelOpen((p) => p === 'important' ? null : 'important')}
               >
-                <h3 className="text-lg font-medium text-gray-900 group-hover:text-emerald-700 transition-colors">Important information</h3>
+                <h3 className="text-xl font-medium text-gray-900 group-hover:text-emerald-700 transition-colors">Important information</h3>
                 <button aria-label={rightPanelOpen === 'important' ? 'Collapse important information' : 'Expand important information'} className="text-gray-500">
-                  {rightPanelOpen === 'important' ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
+                  {rightPanelOpen === 'important' ? <ChevronUpIcon className="w-6 h-6" /> : <ChevronDownIcon className="w-6 h-6" />}
                 </button>
               </div>
-              <div className={`mt-3 text-sm text-gray-700 space-y-2 overflow-auto max-h-48 ${rightPanelOpen !== 'important' ? 'hidden' : ''}`} aria-hidden={rightPanelOpen !== 'important'}>
+              <div className={`mt-4 text-base text-gray-700 space-y-3 overflow-auto max-h-48 ${rightPanelOpen !== 'important' ? 'hidden' : ''}`} aria-hidden={rightPanelOpen !== 'important'}>
                 <p className="whitespace-pre-wrap">{tourData?.disclaimer ?? 'Important trip information will appear here.'}</p>
                 <p>
                   Ibero guarantees an unforgettable trip, crafted with your experience at the core. The purpose of our tours is to help you discover &amp; connect with other people &amp; places of our world, promoting a type of tourism that tries to benefit all the agents involved.
                 </p>
-                <ul className="mt-2 space-y-1">
+                <ul className="mt-2 space-y-2">
                   <li>Prices are indicative and may fluctuate with exchange rates.</li>
                   <li>Flights and accommodations are subject to availability at time of booking.</li>
                   <li>Substitutions for itinerary components may occur; equal or higher value guaranteed.</li>
@@ -691,20 +859,20 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
             </div>
 
             {/* Need help card as sibling (accordion item) */}
-            <div className="p-4 rounded-lg border bg-white min-w-0">
+            <div className="p-4 md:p-6 rounded-lg border bg-white min-w-0 shrink-0">
               <div 
                 className="flex items-center justify-between cursor-pointer group"
                 onClick={() => setRightPanelOpen((p) => p === 'help' ? null : 'help')}
               >
-                <h3 className="text-lg font-medium text-gray-900 group-hover:text-emerald-700 transition-colors">Need help?</h3>
+                <h3 className="text-xl font-medium text-gray-900 group-hover:text-emerald-700 transition-colors">Need help?</h3>
                 <button aria-label={rightPanelOpen === 'help' ? 'Collapse help panel' : 'Expand help panel'} className="text-gray-500">
-                  {rightPanelOpen === 'help' ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}
+                  {rightPanelOpen === 'help' ? <ChevronUpIcon className="w-6 h-6" /> : <ChevronDownIcon className="w-6 h-6" />}
                 </button>
               </div>
-              <div className={`mt-3 text-sm text-gray-700 ${rightPanelOpen !== 'help' ? 'hidden' : ''}`} aria-hidden={rightPanelOpen !== 'help'}>
+              <div className={`mt-4 text-base text-gray-700 ${rightPanelOpen !== 'help' ? 'hidden' : ''}`} aria-hidden={rightPanelOpen !== 'help'}>
                 <p>If you need assistance, open a support ticket and our team will follow up. Tickets can be managed from your dashboard.</p>
-                <div className="mt-3">
-                  <button onClick={() => setNeedHelpModalOpen(true)} className="px-3 py-2 bg-emerald-600 text-white rounded">Open support ticket</button>
+                <div className="mt-4">
+                  <button onClick={() => setNeedHelpModalOpen(true)} className="px-4 py-3 bg-emerald-600 text-white rounded-lg font-medium text-lg hover:bg-emerald-700 transition-colors">Open support ticket</button>
                 </div>
               </div>
             </div>
@@ -966,6 +1134,7 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
                   <p className="font-semibold">2. Booking and Payment</p>
                   <p>2.1. A booking is considered confirmed once payment has been received and written confirmation has been issued by Ibero.</p>
                   <p>2.2. By completing the payment, the Client authorizes Ibero to proceed with the organization and purchase of the travel services on the Client’s behalf.</p>
+                  <p>2.3. The Client may choose to pay a deposit of $1,000 USD per person or the full price at the time of booking. The remaining balance, if applicable, is due no later than 30 days before the departure date.</p>
                 </div>
                 <div>
                   <p className="font-semibold">3. Refund Policy and Cooling-Off Period</p>
@@ -1014,12 +1183,32 @@ export default function ReservationTab({ tourData, onOpenRegister }: Reservation
                   <p>Ibero's liability is limited to the role of travel organizer and/or intermediary. Ibero shall not be liable for indirect, incidental, or consequential damages arising from travel services provided by third parties.</p>
                 </div>
                 <div>
-                  <p className="font-semibold">12. Governing Law and Jurisdiction</p>
-                  <p>These Terms shall be governed by and interpreted in accordance with the applicable laws of the jurisdiction in which Ibero operates. Any disputes shall be subject to the competent courts of that jurisdiction.</p>
+                  <p className="font-semibold">12. European Package Travel Directive</p>
+                  <p>As a registered agency in the European Union, Ibero complies fully with Directive (EU) 2015/2302 of the European Parliament and of the Council on package travel and linked travel arrangements. Ibero takes full responsibility for the proper performance of all travel services included in the package, regardless of whether those services are provided directly or by third-party suppliers.</p>
                 </div>
                 <div>
-                  <p className="font-semibold">13. Acceptance of Terms</p>
+                  <p className="font-semibold">13. Financial Security</p>
+                  <p>13.1. Ibero maintains a legally binding Surety Bond (Aval de Caución) valued at €100,000, ensuring 100% protection of client prepayments and guaranteed repatriation in the event of insolvency.</p>
+                  <p>13.2. Ibero carries a Comprehensive Civil Liability Insurance policy with coverage up to €300,000, covering bodily injury, property damage, professional indemnity, and third-party liability arising from travel services.</p>
+                </div>
+                <div>
+                  <p className="font-semibold">14. Data Protection (GDPR)</p>
+                  <p>14.1. Ibero processes personal data in strict compliance with Regulation (EU) 2016/679 (General Data Protection Regulation — GDPR).</p>
+                  <p>14.2. Personal data is collected solely for the purpose of organizing and executing travel services and is processed transparently, minimized to what is necessary, and stored securely.</p>
+                  <p>14.3. Ibero never sells, trades, or shares personal data with unauthorized third parties for marketing purposes.</p>
+                  <p>14.4. Clients retain the right to access, rectify, or request the erasure of their personal data at any time by contacting tours@ibero.world.</p>
+                </div>
+                <div>
+                  <p className="font-semibold">15. Governing Law and Jurisdiction</p>
+                  <p>These Terms shall be governed by and interpreted in accordance with the applicable laws of the European Union and the specific jurisdiction in which Ibero operates. Any disputes shall be subject to the competent courts of that jurisdiction.</p>
+                </div>
+                <div>
+                  <p className="font-semibold">16. Acceptance of Terms</p>
                   <p>By booking with Ibero, the Client acknowledges and accepts these Terms and Conditions in full.</p>
+                </div>
+                <div className="border-t pt-3 mt-3 text-xs text-gray-500">
+                  <p>Ibero · CIEX: 06-00049-Om · REG: AV-00661 · tours@ibero.world · www.ibero.world</p>
+                  <p className="mt-1">Last updated: March 5, 2026</p>
                 </div>
               </div>
               <div className="mt-6 flex justify-end gap-3">

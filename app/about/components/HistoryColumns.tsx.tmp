@@ -1,0 +1,123 @@
+"use client";
+
+import React from 'react';
+import { behindYears, type YearData } from '@/data/behindYears';
+import { getSupabaseUrl } from '@/lib/media-resolver';
+
+const merged2122: YearData = {
+  year: 2021,
+  title: '2021-22',
+  paragraphs: [
+    ...(behindYears.find((y) => y.year === 2021)?.paragraphs ?? []),
+    ...(behindYears.find((y) => y.year === 2022)?.paragraphs ?? []),
+  ],
+  hitos: [
+    ...(behindYears.find((y) => y.year === 2021)?.hitos ?? []),
+    ...(behindYears.find((y) => y.year === 2022)?.hitos ?? []),
+  ],
+  media: behindYears.find((y) => y.year === 2022)?.media ?? behindYears.find((y) => y.year === 2021)?.media,
+};
+
+const orderedRows: YearData[] = [
+  merged2122,
+  ...behindYears.filter((y) => y.year !== 2021 && y.year !== 2022),
+];
+
+const yearMediaMap: Record<number, string> = {
+  2021: getSupabaseUrl('YEARS MEDIA/2022.mp4'),
+  2022: getSupabaseUrl('YEARS MEDIA/2022.mp4'),
+  2023: getSupabaseUrl('YEARS MEDIA/2023.mov'),
+  2024: getSupabaseUrl('YEARS MEDIA/2024.webp'),
+  2025: getSupabaseUrl('YEARS MEDIA/2025.webp'),
+};
+
+export default function HistoryColumns({ historyIndex, onHistoryIndexChangeAction }: { historyIndex: number; onHistoryIndexChangeAction: (index: number) => void }) {
+  void historyIndex;
+  void onHistoryIndexChangeAction;
+
+  return (
+    <div className="history-snap-container h-screen overflow-y-auto scroll-smooth">
+      {orderedRows.map((row, idx) => {
+        const next = orderedRows[idx + 1];
+        return (
+          <section key={`year-${row.year}-${idx}`} className="year-section snap-start min-h-screen">
+            <div className="year-top flex items-center">
+              <div className="history-stage mx-auto w-full px-6 md:px-10">
+                <div className="content-grid">
+                  <div className="left-col">
+                    <div className="year-kicker">{String(row.title ?? row.year)}</div>
+                    <div className="hitos-stack hitos-grid">
+                      {row.hitos.map((hito, i) => (
+                        <div key={`hito-${i}`} className="hito-item text-sm md:text-[0.95rem] text-justify text-[#171717]">
+                          {hito}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="right-col">
+                    <div className="paragraphs-stack">
+                      {row.paragraphs.map((p, i) => (
+                        <p key={`para-${i}`} className="history-paragraph text-[0.98rem] md:text-[1rem] text-justify text-[#171717]">
+                          {p}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <aside className="history-media-shell" aria-label={`Media for ${String(row.title ?? row.year)}`}>
+                  <MediaCard media={yearMediaMap[row.year] ?? row.media} alt={String(row.title ?? row.year)} yearLabel={String(row.title ?? row.year)} />
+                </aside>
+              </div>
+            </div>
+
+            <div className="year-bottom flex items-center justify-center">
+              {next ? (
+                <div className="next-year-label text-[1.6rem] md:text-[2.4rem] font-semibold text-[#111827] opacity-80">
+                  {String(next.title ?? next.year)}
+                </div>
+              ) : (
+                <div className="next-year-label text-[1rem] text-[#111827] opacity-30">&nbsp;</div>
+              )}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
+function MediaCard({ media, alt, yearLabel }: { media?: string; alt: string; yearLabel: string }) {
+  const resolvedMedia = media ? getSupabaseUrl(media) : '';
+
+  if (!resolvedMedia) {
+    return <div className="w-full aspect-[16/10] rounded-[28px] bg-transparent border border-black/8" />;
+  }
+
+  const isVideo = /\.(mp4|mov|webm)$/i.test(resolvedMedia);
+
+  return (
+    <div className="relative w-full h-full min-h-[160px] aspect-[16/10] rounded-[30px] overflow-hidden bg-[#f8f4ed] border border-black/8 shadow-[0_18px_44px_rgba(0,0,0,0.06)] transition-all duration-500 ease-out hover:shadow-[0_28px_60px_rgba(0,0,0,0.10)]">
+      {isVideo ? (
+        <video src={resolvedMedia} className="w-full h-full object-cover scale-[1.01]" muted playsInline autoPlay loop preload="metadata" />
+      ) : (
+        <img src={resolvedMedia} className="w-full h-full object-cover scale-[1.01]" alt={alt} loading="eager" />
+      )}
+
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(248,244,237,0.04),rgba(248,244,237,0.18))] pointer-events-none" />
+
+      <div className="absolute inset-x-0 bottom-0 p-5 md:p-6 pointer-events-none bg-gradient-to-t from-black/45 to-transparent">
+        <div className="text-[1.15rem] md:text-[1.35rem] font-medium tracking-[-0.02em] leading-tight text-white/95 drop-shadow-sm">
+          {yearLabel}
+        </div>
+      </div>
+
+      <div className="absolute top-3 right-3 pointer-events-none">
+        <div className="text-[2.8rem] md:text-[4.4rem] lg:text-[5rem] font-extrabold tracking-[-0.06em] leading-none text-[#f5f0e8] mix-blend-lighten opacity-80 select-none">
+          {yearLabel}
+        </div>
+      </div>
+    </div>
+  );
+}

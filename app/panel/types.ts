@@ -6,7 +6,8 @@ export type PanelSection =
   | 'support'
   | 'bonus'
   | 'call'
-  | 'whatsapp';
+  | 'whatsapp'
+  | 'legal';
 
 export const PANEL_SECTIONS: PanelSection[] = [
   'reservations',
@@ -17,6 +18,7 @@ export const PANEL_SECTIONS: PanelSection[] = [
   'bonus',
   'call',
   'whatsapp',
+  'legal',
 ];
 
 export const PANEL_SECTION_DEFAULT: PanelSection = 'reservations';

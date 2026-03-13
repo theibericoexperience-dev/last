@@ -59,8 +59,11 @@ export function useLandingSectionsController(): UseLandingSectionsController {
       window.history.scrollRestoration = 'manual';
     }
 
-    // Si arrancamos en una sección distinta de 0, forzamos la posición antes de pintar nada visible
-    if (currentIndex > 0 && scrollerRef.current) {
+    // Solo forzar scroll si explícitamente venimos a una sección vía URL
+    const params = new URLSearchParams(window.location.search);
+    const hasSectionParam = params.has('section');
+
+    if (hasSectionParam && currentIndex > 0 && scrollerRef.current) {
       const vh = window.innerHeight || 1000;
       // Forzar layout reflow si es necesario para asegurar que el scroll se aplique
       scrollerRef.current.scrollTop = currentIndex * vh;
@@ -71,6 +74,9 @@ export function useLandingSectionsController(): UseLandingSectionsController {
            scrollerRef.current.scrollTop = currentIndex * vh;
         }
       });
+    } else if (!hasSectionParam && scrollerRef.current) {
+      // Si no hay parámetro, asegurarnos de que estamos arriba (Hero)
+      scrollerRef.current.scrollTo(0, 0);
     }
     // Solo se debe ejecutar al montar
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,14 +128,62 @@ export function useLandingSectionsController(): UseLandingSectionsController {
     const idx = SECTION_IDS.indexOf(id);
     if (isScrolling.current) return;
 
-    // Force offset recompute to ensure accuracy before scrolling
-    recomputeOffsets();
-
     const scroller = scrollerRef.current;
     if (!scroller) return;
 
-    // Use PRECISE element offset if available, otherwise fallback to vh calculation
-    // This fixes the bug where "2027" is detected while visually on "2026" due to height mismatches.
+    const isTourTarget = id === 'tour-2026' || id === 'tour-2027';
+    const currentSection = SECTION_IDS[currentIndex];
+    const isCurrentTour = currentSection === 'tour-2026' || currentSection === 'tour-2027';
+
+    // ─── CASO 1: Navegación interna entre años de tour ───
+    // Solo cambiar índice. El DesktopTourSweep ya está visible y reacciona al cambio.
+    if (isTourTarget && isCurrentTour) {
+      setCurrentIndex(idx);
+      return;
+    }
+
+    // ─── CASO 2: Entrada a tours desde hero ───
+    // Solo cambiar índice. El sweep aparece via CSS translateY(0).
+    // NO mover scrollTop — eso es lo que causaba el "empuje".
+    if (isTourTarget && !isCurrentTour) {
+      setCurrentIndex(idx);
+      return;
+    }
+
+    // ─── CASO 3: Salida de tours hacia hero ───
+    // Cambiar índice (el sweep se oculta via CSS translateY(100%)).
+    // Asegurar que el scroller esté en scrollTop=0 para el hero.
+    if (id === 'hero-section' && isCurrentTour) {
+      setCurrentIndex(idx);
+      try { scroller.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_e) { scroller.scrollTop = 0; }
+      return;
+    }
+
+    // ─── CASO 3b: Salida de tours hacia join-club ───
+    // El sweep se oculta y necesitamos scroll animado al join-club.
+    // Primero actualizamos el índice para que el sweep se cierre,
+    // luego animamos el scroller.
+    if (id === 'join-club' && isCurrentTour) {
+      setCurrentIndex(idx);
+      // El sweep se cerrará porque activeSectionId ya no es tour-*
+      // Ahora animamos scroll hasta join-club
+      recomputeOffsets();
+      const offsets = offsetsRef.current;
+      let targetTop = 0;
+      if (offsets[idx] !== undefined && Number.isFinite(offsets[idx])) {
+        targetTop = offsets[idx];
+      } else {
+        const vh = window.innerHeight || 1000;
+        targetTop = idx * vh;
+      }
+      try { scroller.scrollTo({ top: targetTop, behavior: 'smooth' }); } catch (_e) { scroller.scrollTop = targetTop; }
+      return;
+    }
+
+    // ─── CASO 4: Transiciones que necesitan scroll animado real ───
+    // hero → join-club, join-club → hero, etc.
+    recomputeOffsets();
+
     const offsets = offsetsRef.current;
     let targetTop = 0;
     
@@ -140,7 +194,6 @@ export function useLandingSectionsController(): UseLandingSectionsController {
        targetTop = idx * vh;
     }
 
-    // Controlled RAF animation to ensure there is no free/native scrolling
     const startScroll = scroller.scrollTop;
     const duration = 600;
     const startTime = performance.now();
@@ -159,16 +212,14 @@ export function useLandingSectionsController(): UseLandingSectionsController {
       if (elapsed < duration) {
         requestAnimationFrame(step);
       } else {
-        // Ensure exact final position
         try { scroller.scrollTop = targetTop; } catch (e) {}
-        // Sincronizar el índice
         setCurrentIndex(targetIndexRef.current);
         isScrolling.current = false;
       }
     };
 
     requestAnimationFrame(step);
-  }, []);
+  }, [currentIndex, recomputeOffsets]);
 
   // Ir a la siguiente sección
   const goNext = useCallback(() => {
@@ -190,18 +241,23 @@ export function useLandingSectionsController(): UseLandingSectionsController {
   // navega inmediatamente a la sección siguiente/anterior. Bloqueamos
   // mientras hacemos el scroll programático para evitar múltiples disparos.
   const onWheel = useCallback((e: WheelEvent) => {
-    // En modo seccional: SIEMPRE bloqueamos el scroll nativo y forzamos salto.
     try { e.preventDefault(); } catch (err) {}
 
-    // Filtrar solo deltas extremadamente pequeños (ruido puro), pero permitir gestos normales.
     const delta = e.deltaY;
-    if (Math.abs(delta) < 1) return; // Reducido para mayor sensibilidad
+    if (Math.abs(delta) < 1) return;
 
     if (isScrolling.current) return;
 
-    // Calcular el índice actual basado en scrollTop real, para mayor robustez
+    // ─── Si estamos en una sección de tours, NO hacer nada ───
+    // El DesktopTourSweep tiene su propio wheel handler en window que
+    // maneja la navegación interna 2026↔2027 y la salida al hero.
+    const currentSection = SECTION_IDS[currentIndex];
+    if (currentSection === 'tour-2026' || currentSection === 'tour-2027') {
+      return;
+    }
+
+    // Calcular el índice actual basado en scrollTop real
     const scroller = scrollerRef.current;
-    const vh = window.innerHeight || 1000;
     const currentScrollTop = scroller ? scroller.scrollTop : 0;
     const currentIdx = getClosestIndexFromScrollTop(currentScrollTop);
 
@@ -215,7 +271,7 @@ export function useLandingSectionsController(): UseLandingSectionsController {
       if (currentIdx <= 0) return;
       goTo(SECTION_IDS[currentIdx - 1]);
     }
-  }, [goTo, getClosestIndexFromScrollTop]);
+  }, [currentIndex, goTo, getClosestIndexFromScrollTop]);
 
   
 
@@ -251,6 +307,11 @@ export function useLandingSectionsController(): UseLandingSectionsController {
 
     const update = () => {
       if (isScrolling.current) return;
+      // No sincronizar desde scrollTop cuando estamos en tours,
+      // ya que el índice se gestiona programáticamente (goTo solo cambia estado).
+      const currentSection = SECTION_IDS[currentIndex];
+      if (currentSection === 'tour-2026' || currentSection === 'tour-2027') return;
+      
       const idx = getClosestIndexFromScrollTop(scroller.scrollTop);
       setCurrentIndex((prev) => (prev === idx ? prev : idx));
     };

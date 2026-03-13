@@ -148,7 +148,7 @@ const SmartSlideshow: React.FC<SmartSlideshowProps> = ({ basePath, className, da
   }
 
   return (
-    <div className={`relative overflow-hidden bg-black ${className}`}>
+    <div className={`relative overflow-hidden bg-black ${className} aspect-video`}>
       <AnimatePresence>
         {/* If current is portrait and we have a group of >=2 consecutive portraits, render them stacked vertically */}
         {current.isPortrait ? (
@@ -188,10 +188,10 @@ const SmartSlideshow: React.FC<SmartSlideshowProps> = ({ basePath, className, da
             // not enough portrait images to fill the vertical space: fall back to single image
             return (
               <motion.img
-                key={current.src}
-                src={current.src}
-                alt="Slideshow"
-                className="absolute inset-0 w-full h-full object-cover"
+              key={current.src}
+              src={current.src}
+              alt="Slideshow"
+              className="absolute inset-0 w-full h-full object-cover"
                 initial={{ scale: disableZoom ? 1 : 1.1, opacity: 0 }}
                 animate={{ 
                   scale: 1.0, 

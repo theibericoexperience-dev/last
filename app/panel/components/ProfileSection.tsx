@@ -88,6 +88,21 @@ export default function ProfileSection({ loading }: { loading?: boolean }) {
     window.open(WHATSAPP_COMMUNITY_URL, '_blank');
   };
 
+  const handleDeleteAccount = async () => {
+    if (!confirm('Are you sure you want to delete your account? This action is permanent and cannot be undone.')) return;
+    try {
+      const res = await apiFetch('/api/user/profile', { method: 'DELETE' });
+      if (res.ok) {
+        await handleLogout();
+      } else {
+        alert('Failed to delete account. Please contact support.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred.');
+    }
+  };
+
   const handleLogout = async () => {
     try {
       // Clear local reservation store so user data isn't visible after logout
@@ -182,12 +197,21 @@ export default function ProfileSection({ loading }: { loading?: boolean }) {
           Join the WhatsApp community
         </button>
 
-        <button
-          onClick={() => setConfirmLogoutOpen(true)}
-          className="ml-auto inline-flex items-center rounded-full border border-transparent bg-red-50 px-4 py-2 text-sm text-red-700 hover:bg-red-100"
-        >
-          Log out
-        </button>
+        <div className="ml-auto flex items-center gap-4">
+          <button
+            onClick={handleDeleteAccount}
+            className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+          >
+            Delete account
+          </button>
+          
+          <button
+            onClick={() => setConfirmLogoutOpen(true)}
+            className="inline-flex items-center rounded-full border border-transparent bg-red-50 px-4 py-2 text-sm text-red-700 hover:bg-red-100 transition-colors"
+          >
+            Log out
+          </button>
+        </div>
       </div>
 
       {message && <div className="mt-3 text-sm text-slate-700">{message}</div>}

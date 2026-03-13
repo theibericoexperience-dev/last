@@ -1,5 +1,4 @@
 import PanelClient from './PanelClient';
-import PanelHydrateClient from './PanelHydrateClient';
 import { headers } from 'next/headers';
 import { supabaseServer } from '@/lib/db/supabaseServer';
 import { TransitionLink } from '@/components/GlobalLoaderProvider';
@@ -42,22 +41,10 @@ export default async function PanelPage() {
   }
 
   if (!user) {
-    // Unauthenticated: render landing / register prompt (server-rendered)
-    return (
-      <>
-        <div id="ibero-landing" className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-          <div className="max-w-md w-full text-center">
-            <h1 className="text-2xl font-bold text-slate-900 mb-4">Welcome to IBERO</h1>
-            <p className="text-slate-600 mb-8">Create your account to manage reservations, view payments, and access your personalized dashboard.</p>
-            <TransitionLink href="/auth/login" className="w-full inline-flex justify-center bg-slate-900 text-white px-6 py-3 rounded-full font-semibold hover:bg-slate-800 transition-colors">Sign in or Create Account</TransitionLink>
-          </div>
-        </div>
-        {/* Client-side hydrator: if the browser has a Supabase session (user just logged in),
-            the hydrator will render PanelClient on the client so the user sees their panel
-            immediately without requiring the server to detect the cookie on first request. */}
-        <PanelHydrateClient />
-      </>
-    );
+    // TEMPORARY DEV BYPASS: allow unauthenticated access to the panel so we can
+    // preview and work on the dashboard without signing in. Remove this bypass
+    // before deploying to any staging/production environment.
+    return <PanelClient />;
   }
 
   // Authenticated - render the client panel which will use client hooks

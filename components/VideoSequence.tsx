@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 interface VideoSequenceProps {
   className?: string;
@@ -11,142 +11,111 @@ interface VideoSequenceProps {
 
 export default function VideoSequence({ className = "", isPaused = false, contained = false, poster, onLoad }: VideoSequenceProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [needsUserGesture, setNeedsUserGesture] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [videoSrc, setVideoSrc] = useState("");
-  const landingVideoSrc = "https://pub-4595df28cecb404d939e877381aec4a0.r2.dev/IBERO-LANDING_hero_295mb.mp4";
+  const [failed, setFailed] = useState(false);
+  const landingVideoSrc = "https://video.ibero.world/IBERO-LANDING_hero_295mb.mp4";
 
-  // Lazy load the video src to prevent contention with initial JS chunk loading (avoids ChunkLoadError)
+  // Set video src immediately on mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setVideoSrc(landingVideoSrc);
-    }, 500); // Small delay to let critical chunks load first
-    return () => clearTimeout(timer);
+    setVideoSrc(landingVideoSrc);
   }, []);
 
-  // Pausar/reanudar video según prop isPaused
+  // Ref callback: force muted + play as soon as the <video> DOM node mounts
+  const videoCallbackRef = useCallback((node: HTMLVideoElement | null) => {
+    (videoRef as React.MutableRefObject<HTMLVideoElement | null>).current = node;
+    if (!node) return;
+    // Fix React muted attribute bug: force it on the DOM element directly
+    node.muted = true;
+    node.defaultMuted = true;
+    // Attempt autoplay immediately when the element appears
+    node.play().catch(() => {});
+  }, []);
+
+  // Unified play/pause control — reacts to isPaused AND videoSrc changes
   useEffect(() => {
     const el = videoRef.current;
     if (!el || !videoSrc) return;
-    if (isPaused) {
-      el.pause();
-    } else {
-      try { el.play(); } catch (e) {}
-    }
-  }, [isPaused]);
 
-  const [failed, setFailed] = useState(false);
+    // Always enforce muted (browser autoplay policy)
+    el.muted = true;
 
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-
-    // Best-effort autoplay attempt; if blocked, show the button.
-    const tryPlay = () => {
+    const attemptPlay = async () => {
       try {
-        const p = el.play();
-        if (p && typeof (p as any).then === 'function') {
-          (p as Promise<void>).then(() => setNeedsUserGesture(false)).catch(() => setNeedsUserGesture(true));
+        if (isPaused) {
+          el.pause();
+        } else {
+          await el.play();
         }
-      } catch (e) {
-        setNeedsUserGesture(true);
+      } catch {
+        // Autoplay blocked — will retry on first user interaction
       }
     };
 
-    // Try immediately and again on first user interaction.
-    tryPlay();
-    const onFirstInteraction = () => tryPlay();
-    window.addEventListener('pointerdown', onFirstInteraction, { once: true } as any);
+    attemptPlay();
 
-    return () => {
-      try { window.removeEventListener('pointerdown', onFirstInteraction as any); } catch (e) {}
+    // Fallback: retry play on first user interaction
+    const onInteraction = () => {
+      if (!isPaused && videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
     };
-  }, []);
+    window.addEventListener('pointerdown', onInteraction, { once: true });
+    return () => window.removeEventListener('pointerdown', onInteraction);
+  }, [videoSrc, isPaused]);
 
   return (
     <div className={`relative w-full h-full overflow-hidden ${className}`}>
-      {/* Poster Image (visible while loading) */}
-      {!isLoaded && poster && (
-         <img 
-            src={poster} 
-            alt="background preview" 
-            className="absolute inset-0 w-full h-full object-cover z-10 transition-opacity duration-1000"
-            style={{ opacity: isLoaded ? 0 : 1 }}
-         />
-      )}
+      <style>{`@media (max-width: 767px) { .landing-video { object-position: center center !important; } }`}</style>
 
-      {/* Fallback Black Background (only if no poster or while loading poster) */}
-      {!isLoaded && !poster && (
+      {/* Poster / Fallback — visible while video loads, fades out once ready */}
+      {(!isLoaded || failed) && (
         <div
-          style={{
-            position: contained ? 'absolute' : 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: contained ? '100%' : '100vh',
-            background: '#000',
-            zIndex: 1,
-            transition: 'opacity 0.4s',
-            opacity: 1,
-            pointerEvents: 'none',
-          }}
-        />
+          className="absolute inset-0 z-10 transition-opacity duration-1000"
+          style={{ opacity: isLoaded && !failed ? 0 : 1, background: '#000' }}
+        >
+          {poster && (
+            <img src={poster} alt="background preview" className="w-full h-full object-cover" />
+          )}
+        </div>
       )}
 
       {videoSrc && (
         <video
-          ref={videoRef}
+          ref={videoCallbackRef}
           src={videoSrc}
-          className={`transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{
-            position: contained ? 'absolute' : 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: contained ? '100%' : '100vh',
-            objectFit: 'cover',
-            zIndex: contained ? 0 : 20,
-          }}
+          className={`transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'} landing-video`}
+          style={
+            contained
+              ? {
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center center',
+                  zIndex: 20,
+                }
+              : {
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  width: '100%',
+                  height: '100dvh',
+                  objectFit: 'cover',
+                  objectPosition: 'center center',
+                  zIndex: 20,
+                }
+          }
           muted
           autoPlay
           playsInline
           preload="auto"
           loop
-          // Native poster is not needed if we handle it manually, but good as backup
-          poster={poster}
-          onCanPlay={() => { setIsLoaded(true); setFailed(false); if (onLoad) onLoad(); }}
-          onLoadedData={() => { setIsLoaded(true); setFailed(false); if (onLoad) onLoad(); }}
-          onError={() => { setIsLoaded(false); setFailed(true); if (onLoad) onLoad(); }}
+          onCanPlayThrough={() => { setIsLoaded(true); setFailed(false); if (onLoad) onLoad(); }}
+          onError={() => { setFailed(true); if (onLoad) onLoad(); }}
         />
-      )}
-
-      {needsUserGesture && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-          <button
-            onClick={() => {
-              try {
-                const el = videoRef.current;
-                if (!el) return;
-                el.play().then(() => setNeedsUserGesture(false)).catch(() => setNeedsUserGesture(true));
-              } catch (e) {
-                setNeedsUserGesture(true);
-              }
-            }}
-            className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full font-medium tracking-wide hover:bg-white/30 transition-all duration-300 hover:scale-105 shadow-lg flex items-center space-x-2"
-          >
-            <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z"/>
-            </svg>
-            <span>Reproducir Video</span>
-          </button>
-        </div>
-      )}
-
-      {/* If video failed to load, show a full-bleed poster as fallback */}
-      {failed && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 19, pointerEvents: 'none' }}>
-          <img src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/thumbnail.jpg" alt="landing thumbnail" style={{ width: '100%', height: '100vh', objectFit: 'cover' }} />
-        </div>
       )}
     </div>
   );

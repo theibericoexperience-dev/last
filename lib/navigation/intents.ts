@@ -11,10 +11,11 @@
  */
 
 export type LandingIntentName = 'landing:scrollTo';
+export type LandingIntentExtras = 'landing:open-services';
 export type PanelIntentName = 'panel:openConfirm';
 export type TourIntentName = 'tour:returnToLanding' | 'tour:openReservation';
 
-export type NavigationIntentName = LandingIntentName | PanelIntentName | TourIntentName;
+export type NavigationIntentName = LandingIntentName | LandingIntentExtras | PanelIntentName | TourIntentName;
 
 export type LandingScrollToDetail = {
   id: string;
@@ -34,6 +35,7 @@ export type TourOpenReservationDetail = Record<string, never>;
 
 export type NavigationIntentDetailMap = {
   'landing:scrollTo': LandingScrollToDetail;
+  'landing:open-services': Record<string, never>;
   'panel:openConfirm': PanelOpenConfirmDetail;
   'tour:returnToLanding': TourReturnToLandingDetail;
   'tour:openReservation': TourOpenReservationDetail;
@@ -85,6 +87,14 @@ export function publishLandingScrollTo(id: string): void {
 
 export function subscribeLandingScrollTo(handler: (detail: LandingScrollToDetail) => void): () => void {
   return subscribeIntent('landing:scrollTo', handler);
+}
+
+export function publishLandingOpenServices(): void {
+  publishIntent({ name: 'landing:open-services', detail: {} });
+}
+
+export function subscribeLandingOpenServices(handler: () => void): () => void {
+  return subscribeIntent('landing:open-services', () => handler());
 }
 
 export function publishPanelOpenConfirm(): void {

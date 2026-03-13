@@ -1,0 +1,150 @@
+'use client';
+
+import React, { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import VideoSequence from '@/components/VideoSequence';
+import ReservationCard from '@/components/reservation/ReservationCard';
+import TravelersSection from './TravelersSection';
+import PaymentsSection from './PaymentsSection';
+import WhatsAppSection from './WhatsAppSection';
+import { SparklesIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import PanelTourGrid from './PanelTourGrid';
+import TourCreatorWizard from './TourCreatorWizard';
+
+interface Order {
+  id: string;
+// ... existing Order properties ...
+  order_id?: string;
+  tour_name?: string;
+  tourName?: string;
+  tour?: any;
+  tour_title?: string;
+  departure_date?: string;
+  departureDate?: string;
+  adults?: number;
+  children?: number;
+  total_amount?: number;
+  totalAmount?: number;
+  status?: string;
+  created_at?: string;
+}
+
+interface ReservationSectionProps {
+  orders: Order[];
+  personalTours?: any[];
+  loading?: boolean;
+  focusedOrderId?: string;
+  onViewDetails?: (orderId: string) => void;
+  onEditTravelers?: (orderId: string) => void;
+  onEditPayments?: (orderId: string) => void;
+  onVideoReady?: () => void;
+  onOpenSidebar?: () => void;
+}
+
+export default function ReservationSection({ 
+    orders, 
+    personalTours = [],
+    loading, 
+    focusedOrderId, 
+    onViewDetails, 
+    onEditTravelers, 
+    onEditPayments,
+    onVideoReady,
+    onOpenSidebar
+  }: ReservationSectionProps) {
+  const router = useRouter();
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<'explore'|'custom'>('explore');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [availableHeight, setAvailableHeight] = useState<number | null>(null);
+  const [isGridHovered, setIsGridHovered] = useState(false);
+  const [hasHoveredGrid, setHasHoveredGrid] = useState(false);
+
+  useEffect(() => {
+    if (isGridHovered) setHasHoveredGrid(true);
+  }, [isGridHovered]);
+  const lastFocusedId = React.useRef<string | undefined>(undefined);
+  const heroRef = React.useRef<HTMLDivElement | null>(null);
+  const tabContentRef = useRef<HTMLDivElement | null>(null);
+
+  // Provide default no-op handlers so child components that require callbacks
+  // receive a function even if the parent didn't pass one.
+  const _onViewDetails = onViewDetails || (() => {});
+  const _onEditTravelers = onEditTravelers || (() => {});
+  const _onEditPayments = onEditPayments || (() => {});
+
+  const handleDeleteDraft = async (orderId: string) => {
+    if (!confirm('Are you sure you want to delete this draft?')) return;
+    
+    // Optimistic update
+    setDeletedIds(prev => new Set(prev).add(orderId));
+
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        throw new Error('Failed to delete');
+      }
+      router.refresh();
+    } catch (e) {
+      console.error(e);
+      // Revert optimistic update
+      setDeletedIds(prev => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
+      alert('Could not delete draft. Please try again.');
+    }
+  };
+
+  // The focusedOrderId is purely declarative (source of truth is the URL via usePanelState).
+  // We perform a local UI effect (scroll + highlight) when focusedOrderId changes —
+  // this is purely presentational and does NOT affect application state.
+  useEffect(() => {
+    if (!focusedOrderId || focusedOrderId === lastFocusedId.current) return;
+    
+    const el = document.getElementById('order-' + focusedOrderId);
+    if (!el) return;
+    
+    lastFocusedId.current = focusedOrderId;
+
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('ring-2', 'ring-emerald-300');
+      const t = setTimeout(() => { try { el.classList.remove('ring-2', 'ring-emerald-300'); } catch(e){} }, 4000);
+      return () => clearTimeout(t);
+    } catch (e) {
+      // ignore UI errors
+    }
+  }, [focusedOrderId, orders]);
+
+  // Ensure the hero height is applied immediately on the client and responds to resizes.
+  // We use Tailwind classes now for better reactiveness.
+
+  // Measure available vertical space below hero so children can size themselves
+  useEffect(() => {
+    const measure = () => {
+      try {
+        const hero = heroRef.current;
+        if (!hero || typeof window === 'undefined') { setAvailableHeight(null); return; }
+        const rect = hero.getBoundingClientRect();
+        const viewport = window.innerHeight;
+        // leave 48px for margins/headers
+        const available = Math.max(200, Math.floor(viewport - rect.bottom - 48));
+        setAvailableHeight(available);
+        // expose for dev inspection
+        (hero as HTMLElement).dataset['availableHeight'] = String(available);
+        console.log('[Reservation] availableHeight=', available);
+      } catch (e) {
+        setAvailableHeight(null);
+      }
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    return () => { window.removeEventListener('resize', measure); window.removeEventListener('orientationchange', measure); };
+  }, [heroRef]);
+
+  const visibleOrders = orders.filter(o => {
