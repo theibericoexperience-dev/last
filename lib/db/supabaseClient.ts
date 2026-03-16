@@ -17,7 +17,6 @@ export const supabaseClient = SUPABASE_URL && SUPABASE_ANON_KEY
         headers: {
           'x-my-custom-header': 'ibero-client'
         },
-        site: typeof window !== 'undefined' ? window.location.origin : undefined,
       }
     })
   : null;

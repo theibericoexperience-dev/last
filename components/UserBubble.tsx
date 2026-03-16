@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useTransition } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import React, { useTransition } from 'react';
+import { useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLoader } from '@/components/GlobalLoaderProvider';
 
@@ -30,36 +30,14 @@ export default function UserBubble({
   const logged = status === 'authenticated';
   const email = session?.user?.email || null;
   const checking = status === 'loading';
-      }
-    }
-    (async () => {
-      setChecking(true);
-      await check();
-      setChecking(false);
-    })();
-    const { data: sub } = supabaseClient?.auth.onAuthStateChange?.((event, sess) => {
-      if (!mounted) return;
-      if (sess?.user) {
-        setLogged(true);
-        setEmail((sess.user as any).email || null);
-      } else {
-        setLogged(false);
-        setEmail(null);
-      }
-    }) ?? { data: null };
-    return () => { mounted = false; try { sub?.subscription?.unsubscribe?.(); } catch(e){} };
-  }, []);
-
 
   const isLanding = pathname === '/' || pathname === '';
   const isTourPage = pathname?.startsWith('/tour');
   const isBehindPage = pathname === '/behind';
   const isPanelPage = pathname?.startsWith('/panel');
 
-  const handleClick = async () => {
-    // If not logged, navigate to login/register flow (maintain current behaviour)
-    const { data: { session } = {} as any } = await supabaseClient.auth.getSession();
-    if (session?.user) {
+  const handleClick = () => {
+    if (logged) {
       startLoading();
       startTransition(() => {
         router.push('/panel');

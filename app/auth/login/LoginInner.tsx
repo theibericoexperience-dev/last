@@ -52,16 +52,17 @@ export default function LoginInner() {
 
   const handleEmailLogin = async (event: FormEvent) => {
     event.preventDefault();
-    if (loading || !supabaseClient) return;
+    if (loading) return;
     try {
       setLoading(true);
       setError(null);
-      const { error } = await supabaseClient.auth.signInWithPassword({
+      const result = await signIn('credentials', {
         email,
         password,
+        redirect: false,
       });
 
-      if (error) {
+      if (result?.error) {
         setError('We could not sign you in with that email and password.');
         setLoading(false);
         return;

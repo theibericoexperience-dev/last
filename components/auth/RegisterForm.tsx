@@ -66,12 +66,13 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
       }
 
       // 2. Account created and synced. Now sign in to get a session.
-      const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+      const signInResult = await signIn('credentials', {
         email,
         password,
+        redirect: false,
       });
 
-      if (signInError) {
+      if (signInResult?.error) {
         setError('Account created but could not sign in automatically. Please try logging in.');
         setLoading(false);
         return;
