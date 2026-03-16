@@ -72,6 +72,32 @@ const authConfig = NextAuth({
     error: '/auth/login',
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Sync user profile with metadata from social provider (Google)
+      if (account?.provider === 'google' && user?.email) {
+        try {
+          const { upsertUserProfile } = await import('@/lib/db/upsertUserProfile');
+
+          const fullName = user.name || profile?.name || '';
+          const parts = fullName.split(' ');
+          const firstName = parts[0] || '';
+          const lastName = parts.slice(1).join(' ') || '';
+
+          await upsertUserProfile({
+            email: user.email,
+            first_name: firstName,
+            last_name: lastName,
+            user_id: user.id
+          }, { id: user.id });
+
+          console.log(`>>> [NEXTAUTH CALLBACK] Profile sync successful for ${user.email}`);
+        } catch (syncError) {
+          console.error('>>> [NEXTAUTH CALLBACK] Profile sync failed:', syncError);
+          // Don't fail the sign in if profile sync fails
+        }
+      }
+      return true;
+    },
     async session({ session, user }) {
       // Add user id to session
       if (user?.id) {
