@@ -8,5 +8,16 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 }
 
 export const supabaseClient = SUPABASE_URL && SUPABASE_ANON_KEY
-  ? createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  ? createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        flowType: 'pkce',
+        detectSessionInUrl: true,
+      },
+      global: {
+        headers: {
+          'x-my-custom-header': 'ibero-client'
+        },
+        site: typeof window !== 'undefined' ? window.location.origin : undefined,
+      }
+    })
   : null;
