@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useLoader } from '@/components/GlobalLoaderProvider';
 
+export const dynamic = 'force-dynamic';
+
 export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccessAction?: () => void; autoFocus?: boolean }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -133,7 +135,7 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
       </form>
 
       <button
-        onClick={handleGoogle}
+        onClick={() => signIn('google', { callbackUrl: 'https://ibero.world/api/auth/callback/google' })}
         disabled={loading}
         className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-800 shadow-sm ring-offset-2 transition hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
       >

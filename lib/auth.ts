@@ -3,6 +3,8 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { SupabaseAdapter } from '@auth/supabase-adapter';
 import { supabaseServer } from '@/lib/db/supabaseServer';
+
+export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
 
 declare module 'next-auth' {
