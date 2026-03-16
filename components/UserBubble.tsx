@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useTransition } from 'react';
-import { supabaseClient } from '@/lib/db/supabaseClient';
+import { useSession, signOut } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLoader } from '@/components/GlobalLoaderProvider';
 
@@ -26,28 +26,10 @@ export default function UserBubble({
   const router = useRouter();
   const { startLoading } = useLoader();
   const [isPending, startTransition] = useTransition();
-  const [logged, setLogged] = useState<boolean | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
-  const [checking, setChecking] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-    async function check() {
-      if (!supabaseClient) return setLogged(false);
-      try {
-        const { data: { session } = {} as any } = await supabaseClient.auth.getSession();
-        if (!mounted) return;
-        if (session?.user) {
-          setLogged(true);
-          setEmail((session.user as any).email || null);
-        } else {
-          setLogged(false);
-          setEmail(null);
-        }
-      } catch (e) {
-        if (!mounted) return;
-        setLogged(false);
-        setEmail(null);
+  const { data: session, status } = useSession();
+  const logged = status === 'authenticated';
+  const email = session?.user?.email || null;
+  const checking = status === 'loading';
       }
     }
     (async () => {

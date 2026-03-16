@@ -2,7 +2,7 @@
 
 import { FormEvent, useState, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { supabaseClient } from '@/lib/db/supabaseClient';
+import { signIn } from 'next-auth/react';
 import { useLoader } from '@/components/GlobalLoaderProvider';
 
 export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccessAction?: () => void; autoFocus?: boolean }) {
@@ -18,22 +18,22 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
   const [error, setError] = useState<string | null>(null);
 
   const handleGoogle = async () => {
-    if (loading || !supabaseClient) return;
+    if (loading) return;
     
     try {
       setLoading(true);
       setError(null);
       
-      const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(callbackUrl)}`,
-        },
+      const result = await signIn('google', {
+        callbackUrl: callbackUrl,
+        redirect: false,
       });
 
-      if (error) {
-        setError(error.message);
+      if (result?.error) {
+        setError(result.error);
         setLoading(false);
+      } else if (result?.url) {
+        window.location.href = result.url;
       }
     } catch (error: any) {
       console.error('[RegisterForm] handleGoogle error:', error);

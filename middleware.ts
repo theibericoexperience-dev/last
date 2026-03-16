@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { supabaseServer } from './lib/db/supabaseServer';
+import { auth } from '@/lib/auth';
 
 // Global middleware to immediately short-circuit any client attempts to POST
 // diagnostics. This is an emergency measure so the server doesn't waste CPU or
@@ -19,38 +19,11 @@ export async function middleware(req: NextRequest) {
 
   if (isProtectedRoute) {
     try {
-      // Extract token from cookies
-      const cookieHeader = req.headers.get('cookie') || '';
-      const cookiesMap = Object.fromEntries(cookieHeader.split(';').map(p => {
-        const [k, ...v] = p.split('=');
-        return [k?.trim(), decodeURIComponent((v || []).join('='))];
-      }));
+      // Check authentication using NextAuth
+      const session = await auth();
 
-      const token = cookiesMap['sb-access-token'] ||
-                    cookiesMap['supabase-auth-token'] ||
-                    Object.keys(cookiesMap).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
-                    ? (function() {
-                        const key = Object.keys(cookiesMap).find(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-                        if (!key) return null;
-                        try {
-                          const val = cookiesMap[key];
-                          if (val.startsWith('{')) {
-                            return JSON.parse(val).access_token;
-                          }
-                          return val;
-                        } catch { return cookiesMap[key]; }
-                      })()
-                    : null;
-
-      if (!token || !supabaseServer) {
-        // Redirect to login if no token
-        return NextResponse.redirect(new URL('/auth/login', req.url));
-      }
-
-      // Verify token with Supabase
-      const { data: { user }, error } = await supabaseServer.auth.getUser(token);
-      if (error || !user) {
-        // Redirect to login if invalid token
+      if (!session?.user) {
+        // Redirect to login if no session
         return NextResponse.redirect(new URL('/auth/login', req.url));
       }
 

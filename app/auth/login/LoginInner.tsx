@@ -3,7 +3,7 @@
 import { FormEvent, useMemo, useState, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import AuthLayout from '@/components/auth/AuthLayout';
-import { supabaseClient } from '@/lib/db/supabaseClient';
+import { signIn } from 'next-auth/react';
 import { useLoader } from '@/components/GlobalLoaderProvider';
 
 function buildLink(base: string, callbackUrl?: string | null) {
@@ -26,19 +26,21 @@ export default function LoginInner() {
   const registerHref = useMemo(() => buildLink('/auth/register', callbackUrl), [callbackUrl]);
 
   const handleGoogle = async () => {
-    if (loading || !supabaseClient) return;
+    if (loading) return;
     try {
       setLoading(true);
-      const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(callbackUrl)}`,
-        },
+      const result = await signIn('google', {
+        callbackUrl: callbackUrl,
+        redirect: false,
       });
-      if (error) {
-        console.error('Google sign in error:', error);
+
+      if (result?.error) {
+        console.error('Google sign in error:', result.error);
         setError('Failed to sign in with Google.');
         setLoading(false);
+      } else if (result?.url) {
+        // Redirect will happen automatically
+        window.location.href = result.url;
       }
       // OAuth will redirect automatically
     } catch (error) {

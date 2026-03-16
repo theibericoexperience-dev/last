@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { signOut } from 'next-auth/react';
 import { supabaseClient } from '@/lib/db/supabaseClient';
 import useReservationStore from '@/lib/reservations/store';
 import { apiFetch } from '@/lib/fetch/apiFetch';
@@ -113,17 +114,8 @@ export default function ProfileSection({ loading }: { loading?: boolean }) {
         // ignore
       }
 
-      // Sign out from Supabase to clear its session/cookie
-      try {
-        if (supabaseClient && supabaseClient.auth && typeof supabaseClient.auth.signOut === 'function') {
-          await supabaseClient.auth.signOut();
-        }
-      } catch (e) {
-        console.error('Supabase signOut failed', e);
-      }
-
-      // Redirect to home after sign out
-      window.location.href = '/';
+      // Sign out from NextAuth
+      await signOut({ callbackUrl: '/' });
     } catch (err) {
       console.error('Logout failed', err);
       // Best-effort redirect

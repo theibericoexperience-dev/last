@@ -9,6 +9,7 @@ import SentryInitClient from './components/SentryInitClient';
 import { NotificationProvider } from '../components/NotificationProvider';
 import UserBubble from '../components/UserBubble';
 import { GlobalLoaderProvider } from '@/components/GlobalLoaderProvider';
+import { SessionProvider } from './components/SessionProvider';
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -77,12 +78,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   ` }} />
       </head>
       <body>
-        <GlobalLoaderProvider>
-          <MobileFullScreen />
-          <NotificationProvider>
-            {children}
-            <UserBubble />
-          </NotificationProvider>
+        <SessionProvider>
+          <GlobalLoaderProvider>
+            <MobileFullScreen />
+            <NotificationProvider>
+              {children}
+              <UserBubble />
+            </NotificationProvider>
         <script dangerouslySetInnerHTML={{ __html: `(function(){
           function loadGA(){
             var id = window.__NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ''}';
@@ -97,6 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         })();`}} />
           <CookieConsent />
         </GlobalLoaderProvider>
+        </SessionProvider>
         <script dangerouslySetInnerHTML={{ __html: `(function(){
           function loadGA(){
             var id = window.__NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ''}';

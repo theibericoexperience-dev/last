@@ -21,7 +21,7 @@
     "sync:behind:from-years": "node ./scripts/sync_behind_data.js --sync-from=years"
   },
   "dependencies": {
-    "@auth/supabase-adapter": "^1.10.0",
+    "@auth/supabase-adapter": "^1.11.1",
     "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
