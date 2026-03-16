@@ -64,12 +64,12 @@ export function tryImageFallback(imgEl: HTMLImageElement) {
       imgEl.onerror = null;
       imgEl.src = base + '.jpg';
       setTimeout(() => { if (imgEl.naturalWidth === 0) imgEl.src = base + '.png'; }, 200);
-      setTimeout(() => { if (imgEl.naturalWidth === 0) imgEl.src = 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/providers/placeholder.jpg'; }, 800);
+      setTimeout(() => { if (imgEl.naturalWidth === 0) imgEl.src = 'https://auth.ibero.world/storage/v1/object/public/behind/providers/placeholder.jpg'; }, 800);
       return;
     }
     imgEl.onerror = null;
-    imgEl.src = 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/providers/placeholder.jpg';
-  } catch (e) { imgEl.src = 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/providers/placeholder.jpg'; }
+    imgEl.src = 'https://auth.ibero.world/storage/v1/object/public/behind/providers/placeholder.jpg';
+  } catch (e) { imgEl.src = 'https://auth.ibero.world/storage/v1/object/public/behind/providers/placeholder.jpg'; }
 }
 
 // Convert text to sentence case: first letter uppercase, and uppercase after punctuation.

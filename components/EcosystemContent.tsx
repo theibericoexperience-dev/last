@@ -345,49 +345,49 @@ function CollaboratorsList() {
     },
     { 
       // explicit public URL provided by user
-      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_3685.webp',
+      path: 'https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_3685.webp',
       filename: 'TONI.webp', 
       person: 'Toni', 
       role: 'Shepperd & Cheese Maker',
       text: "Toni, who used to work in IT and decided to approach the shepherd's lifestyle, he receives us in his farm and takes us on a short hike with his goats, and lets us try homemade cheese and local treats."
     },
     {
-      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/VIDAL.webp',
+      path: 'https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/VIDAL.webp',
       filename: 'VIDAL.webp',
       person: 'Vidal',
       role: 'Dehesa Estate Owner',
       text: "Vidal, a dehesa estate owner, has bred the invaluable ibérico and retinto breeds for over 50 years and is now retired. He welcomed us and showed us the dehesa's millennial farming techniques and treated us to a traditional western Spanish rice meal (black rice)."
     },
     {
-      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/isabe%20bottle-1.webp',
+      path: 'https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/isabe%20bottle-1.webp',
       filename: 'ISABEL.webp',
       person: 'Isabel',
       role: 'Restaurant Owner',
       text: "Isabel runs a local restaurant in Monsaraz and cooks traditional family meals from Inner Alentejo. She is the warmest cook around!"
     },
     {
-      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/antonio.webp',
+      path: 'https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/antonio.webp',
       filename: 'ANTONIO.webp',
       person: 'Antonio',
       role: 'Historian in Extremadura',
       text: "Antonio is one of the most knowledgeable historians in Extremadura, and he is always ready to lead wonderful walking tours with many discoveries."
     },
     {
-      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_4275.webp',
+      path: 'https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_4275.webp',
       filename: 'RENACER.webp',
       person: 'Renacer',
       role: 'Folklore Group',
       text: "One of Spain's finest folklore groups, they are very connected with Ibero's mission of showcasing to the world the true gems of Extremadura & Alentejo."
     },
     {
-      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/nelson.webp',
+      path: 'https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/nelson.webp',
       filename: 'NELSON.webp',
       person: 'Nelson',
       role: "Alentejo Local Expert",
       text: "Nelson's expertise in the Alentejo Region helps us dive faster into its History & Culture"
     },
     {
-      path: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606291333_aa65f02d0b_o.webp',
+      path: 'https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606291333_aa65f02d0b_o.webp',
       filename: 'JOAO.webp',
       person: 'Joao',
       role: 'Local in Salvaterra',

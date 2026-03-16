@@ -24,7 +24,7 @@ export default function AboutIntro({ onStartAction }: { onStartAction: () => voi
         preload="auto"
       >
         <source
-          src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/video%20behind%20last/tinta-behind-background-2x.webm"
+          src="https://auth.ibero.world/storage/v1/object/public/video%20behind%20last/tinta-behind-background-2x.webm"
           type="video/webm"
         />
       </video>

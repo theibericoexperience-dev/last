@@ -204,7 +204,7 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
   } = initialData || {};
 
    // PDF info for download button: derive filename from URL when available
-   const pdfUrl = initialData?.pdf_url || "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/pdf-prueba/Forgotten%20Iberia.pdf";
+   const pdfUrl = initialData?.pdf_url || "https://auth.ibero.world/storage/v1/object/public/pdf-prueba/Forgotten%20Iberia.pdf";
    const pdfFileLabel = useMemo(() => {
       try {
          const parts = (pdfUrl || '').split('/');
@@ -304,7 +304,7 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
   }, [initialData, price_data]);
   
   // Hero Image (Background)
-  const heroSrc = initialData?.card_image || 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/MAIN TOUR/hero.webp';
+  const heroSrc = initialData?.card_image || 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/MAIN TOUR/hero.webp';
 
   // Auth User Effect
   useEffect(() => {
@@ -2179,7 +2179,7 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
                                                                   {/* TOP: Visual Image */}
                                                                   <div className="w-full h-40 xl:h-48 relative overflow-hidden shrink-0">
                                                                      <img 
-                                                                       src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/IberoPackage.webp" 
+                                                                       src="https://auth.ibero.world/storage/v1/object/public/MISC/IberoPackage.webp" 
                                                                        alt="Ibero Package" 
                                                                        className="absolute inset-0 w-full h-full object-cover"
                                                                      />
@@ -2390,7 +2390,7 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
                                            {/* TOP: Visual Image */}
                                            <div className="w-full h-40 xl:h-48 relative overflow-hidden shrink-0">
                                               <img 
-                                                src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/IberoPackage.webp" 
+                                                src="https://auth.ibero.world/storage/v1/object/public/MISC/IberoPackage.webp" 
                                                 alt="Ibero Package" 
                                                 className="absolute inset-0 w-full h-full object-cover"
                                               />

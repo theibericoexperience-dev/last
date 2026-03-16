@@ -26,7 +26,7 @@ export default function IberoPackageModal({
          {/* TOP: Visual Image (Cinematic) */}
          <div className="w-full h-48 relative overflow-hidden shrink-0">
             <img 
-              src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/IberoPackage.webp" 
+              src="https://auth.ibero.world/storage/v1/object/public/MISC/IberoPackage.webp" 
               alt="Ibero Package" 
               className="absolute inset-0 w-full h-full object-cover"
             />

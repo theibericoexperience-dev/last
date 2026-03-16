@@ -13,7 +13,7 @@ if (!fs.existsSync(MANIFEST)) {
   console.error('Manifest not found at', MANIFEST);
   process.exit(2);
 }
-const manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp'No mediacards or MADRID TO LISBOA entries found in manifest');
+const manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp'No mediacards or MADRID TO LISBOA entries found in manifest');
   process.exit(0);
 }
 
@@ -52,9 +52,9 @@ for (const file of files) {
 
     // Build a permissive regex to match quoted strings that reference the same logical file
     // Accept variants like:
-    // - 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp'
-    // - 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/1welcome.webp'
-    // - 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/hero.webp'
+    // - 'https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp'
+    // - 'https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/1welcome.webp'
+    // - 'https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/hero.webp'
     const pattern = "(['\"`])([^'\"`]*?(?:MADRID TO LISBOA|/MEDIAWEB/TOURS/2026/MADRID TO LISBOA|2026/MADRID TO LISBOA|mediacards)[^'\"`]*?" + escBaseNoExt + "(?:\\.[a-z0-9]{1,6})?[^'\"`]*)\\1";
     const re = new RegExp(pattern, 'gi');
 
@@ -64,7 +64,7 @@ for (const file of files) {
       return q + t.url + q;
     });
 
-    // Also handle the simple relative case like 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp' where basename with ext matches
+    // Also handle the simple relative case like 'https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp' where basename with ext matches
     const simplePattern = "(['\"`])([^'\"`]*?mediacards[^'\"`]*?" + escBasename + "[^'\"`]*)\\1";
     const simpleRe = new RegExp(simplePattern, 'gi');
     modified = modified.replace(simpleRe, (m, q, inner) => {
@@ -112,7 +112,7 @@ if (addedFiles.length === 0) {
   }
   process.exit(1);
 }
-child.execSync('git commit -m "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp"', { stdio: 'inherit' });
+child.execSync('git commit -m "https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp"', { stdio: 'inherit' });
 
 // Write reports
 const reportList = changes.map(c => c.file).join('\n');

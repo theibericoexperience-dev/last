@@ -25,7 +25,7 @@ export function IntroSection({ phase, setPhase, inkRef, showBehindModal }: Intro
         preload="auto"
       >
   {/* Replaced by explicit fast.last.webm per request */}
-  <source src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/video%20behind%20last/tinta-behind-background-2x.webm" type="video/webm" />
+  <source src="https://auth.ibero.world/storage/v1/object/public/video%20behind%20last/tinta-behind-background-2x.webm" type="video/webm" />
       </video>
 
       <div className={`absolute inset-0 ${showBehindModal ? 'z-10' : 'z-50'} pointer-events-none`}>

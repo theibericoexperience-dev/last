@@ -1,11 +1,11 @@
 {
   "generated_at": "2026-02-03T12:36:18.330Z",
-  "project_ref": "https://wqpyfdxbkvvzjoniguld.supabase.co",
+  "project_ref": "https://auth.ibero.world",
   "buckets": {
     "pdf-prueba": [
       {
         "path": "Forgotten Iberia.pdf",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/pdf-prueba/Forgotten%20Iberia.pdf",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/pdf-prueba/Forgotten%20Iberia.pdf",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:28:01.342Z",
@@ -15,7 +15,7 @@
       },
       {
         "path": "Iberico Experience.pptx-1_compressed.pdf",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/pdf-prueba/Iberico%20Experience.pptx-1_compressed.pdf",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/pdf-prueba/Iberico%20Experience.pptx-1_compressed.pdf",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T09:03:33.568Z",
@@ -25,7 +25,7 @@
       },
       {
         "path": "Ibero para Volpe - Trans Iberia & Portugal.pdf",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/pdf-prueba/Ibero%20para%20Volpe%20-%20Trans%20Iberia%20%26%20Portugal.pdf",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/pdf-prueba/Ibero%20para%20Volpe%20-%20Trans%20Iberia%20%26%20Portugal.pdf",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:27:47.324Z",
@@ -37,7 +37,7 @@
     "Tours": [
       {
         "path": "Open Tours/LAOS & VIETNAM/laos.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/LAOS%20%26%20VIETNAM/laos.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/LAOS%20%26%20VIETNAM/laos.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.545Z",
@@ -47,7 +47,7 @@
       },
       {
         "path": "Open Tours/LAOS & VIETNAM/laos26.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/LAOS%20%26%20VIETNAM/laos26.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/LAOS%20%26%20VIETNAM/laos26.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.362Z",
@@ -57,7 +57,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/madrid.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.616Z",
@@ -67,7 +67,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/Azores_Extension/azores_dia1_furnas.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Azores_Extension/azores_dia1_furnas.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Azores_Extension/azores_dia1_furnas.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.705Z",
@@ -77,7 +77,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/Azores_Extension/Azores_Dia3_SeteCidades.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Azores_Extension/Azores_Dia3_SeteCidades.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Azores_Extension/Azores_Dia3_SeteCidades.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.580Z",
@@ -87,7 +87,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/Azores_Extension/Azores_Dia4_Flores.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Azores_Extension/Azores_Dia4_Flores.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Azores_Extension/Azores_Dia4_Flores.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.583Z",
@@ -97,7 +97,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/Barcelona_PreArrival/delta_del_ebro.jpg.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/delta_del_ebro.jpg.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/delta_del_ebro.jpg.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.625Z",
@@ -107,7 +107,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/Barcelona_PreArrival/deltaebro.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/deltaebro.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/deltaebro.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.494Z",
@@ -117,7 +117,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/Barcelona_PreArrival/pexels-apasaric-1388030.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/pexels-apasaric-1388030.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/pexels-apasaric-1388030.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.704Z",
@@ -127,7 +127,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/Barcelona_PreArrival/pexels-santiagob-5032324.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/pexels-santiagob-5032324.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/Barcelona_PreArrival/pexels-santiagob-5032324.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.619Z",
@@ -137,7 +137,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/Dia3_Granadilla.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/Dia3_Granadilla.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/Dia3_Granadilla.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.792Z",
@@ -147,7 +147,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/hero.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/hero.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/hero.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.870Z",
@@ -157,7 +157,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/madrid_tourcard.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/madrid_tourcard.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/madrid_tourcard.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:20.815Z",
@@ -167,7 +167,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/49067356371_4c3e9b30ed_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/49067356371_4c3e9b30ed_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/49067356371_4c3e9b30ed_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.666Z",
@@ -177,7 +177,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/day3-Monsanto.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/day3-Monsanto.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/day3-Monsanto.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.761Z",
@@ -187,7 +187,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/dia1_Madrid.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia1_Madrid.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia1_Madrid.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.658Z",
@@ -197,7 +197,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/dia10_Winery.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia10_Winery.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia10_Winery.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.650Z",
@@ -207,7 +207,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/Dia2_Avila.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia2_Avila.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia2_Avila.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.675Z",
@@ -217,7 +217,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/dia4_alburquerque.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia4_alburquerque.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia4_alburquerque.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:22.422Z",
@@ -227,7 +227,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/dia5_guadalupe.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia5_guadalupe.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia5_guadalupe.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:22.307Z",
@@ -237,7 +237,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/dia6_merida.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia6_merida.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/dia6_merida.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:22.407Z",
@@ -247,7 +247,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/Dia7_Badajoz.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia7_Badajoz.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia7_Badajoz.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:22.472Z",
@@ -257,7 +257,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/Dia8_Marmol.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia8_Marmol.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia8_Marmol.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:22.427Z",
@@ -267,7 +267,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/Dia9_Jerez.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia9_Jerez.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/Dia9_Jerez.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:22.534Z",
@@ -277,7 +277,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/MAIN TOUR/stops/imagen.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/imagen.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/stops/imagen.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:22.404Z",
@@ -287,7 +287,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/10elvas.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/10elvas.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/10elvas.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.273Z",
@@ -297,7 +297,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/10elvas1.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/10elvas1.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/10elvas1.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.224Z",
@@ -307,7 +307,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/10marble.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/10marble.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/10marble.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.311Z",
@@ -317,7 +317,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/11.isabelmonsaraz.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11.isabelmonsaraz.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11.isabelmonsaraz.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.361Z",
@@ -327,7 +327,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/11isabel monsaraz.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11isabel%20monsaraz.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11isabel%20monsaraz.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.267Z",
@@ -337,7 +337,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/11monsaraz.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11monsaraz.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11monsaraz.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.396Z",
@@ -347,7 +347,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/11oliveza.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11oliveza.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/11oliveza.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.472Z",
@@ -357,7 +357,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/12portocovo.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/12portocovo.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/12portocovo.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.443Z",
@@ -367,7 +367,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/12setubal.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/12setubal.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/12setubal.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.552Z",
@@ -377,7 +377,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/13lisbon.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/13lisbon.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/13lisbon.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:15.729Z",
@@ -387,7 +387,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/14depature.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/14depature.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/14depature.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.473Z",
@@ -397,7 +397,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/1madridwalking.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/1madridwalking.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/1madridwalking.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.510Z",
@@ -407,7 +407,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/1welcome.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/1welcome.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/1welcome.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.422Z",
@@ -417,7 +417,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/2arrivalplasencia.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/2arrivalplasencia.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/2arrivalplasencia.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.472Z",
@@ -427,7 +427,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/2avilawalking.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/2avilawalking.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/2avilawalking.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.455Z",
@@ -437,7 +437,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/3lvgaris.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3lvgaris.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3lvgaris.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.562Z",
@@ -447,7 +447,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/3monfraague.HEIC",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3monfraague.HEIC",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3monfraague.HEIC",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.075Z",
@@ -457,7 +457,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/3monfrague1.heic",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3monfrague1.heic",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3monfrague1.heic",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.198Z",
@@ -467,7 +467,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/3monfrague2.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3monfrague2.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/3monfrague2.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.559Z",
@@ -477,7 +477,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/4borderlands.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/4borderlands.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/4borderlands.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:16.652Z",
@@ -487,7 +487,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/4MARIA.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/4MARIA.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/4MARIA.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.987Z",
@@ -497,7 +497,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/4monsanto.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/4monsanto.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/4monsanto.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.878Z",
@@ -507,7 +507,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/53630421009_c5b7003d90_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/53630421009_c5b7003d90_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/53630421009_c5b7003d90_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.821Z",
@@ -517,7 +517,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/5barruecos.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5barruecos.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5barruecos.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.977Z",
@@ -527,7 +527,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/5barruecos1.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5barruecos1.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5barruecos1.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.902Z",
@@ -537,7 +537,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/5barruecos2.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5barruecos2.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5barruecos2.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:18.257Z",
@@ -547,7 +547,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/5caceres.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5caceres.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/5caceres.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:17.989Z",
@@ -557,7 +557,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/6dehesa.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/6dehesa.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/6dehesa.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:18.204Z",
@@ -567,7 +567,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/6toni.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/6toni.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/6toni.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:18.463Z",
@@ -577,7 +577,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/7guadalupe.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/7guadalupe.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/7guadalupe.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:18.246Z",
@@ -587,7 +587,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/7trujillo.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/7trujillo.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/7trujillo.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.099Z",
@@ -597,7 +597,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/8merida.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/8merida.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/8merida.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.163Z",
@@ -607,7 +607,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/8zafra.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/8zafra.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/8zafra.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.127Z",
@@ -617,7 +617,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/9folklore.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/9folklore.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/9folklore.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.222Z",
@@ -627,7 +627,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/9ramiros.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/9ramiros.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/9ramiros.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.181Z",
@@ -637,7 +637,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/day1welcomeevent.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/day1welcomeevent.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/day1welcomeevent.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.154Z",
@@ -647,7 +647,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/IMG_3566.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/IMG_3566.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/IMG_3566.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:19.689Z",
@@ -657,7 +657,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/IMG_3723.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/IMG_3723.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/IMG_3723.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.253Z",
@@ -667,7 +667,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/toni.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/toni.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/toni.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.308Z",
@@ -677,7 +677,7 @@
       },
       {
         "path": "Open Tours/MADRID TO LISBOA/activities/TONI.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/TONI.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/MADRID%20TO%20LISBOA/activities/TONI.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:19.297Z",
@@ -687,7 +687,7 @@
       },
       {
         "path": "Open Tours/NEW ZEALAND & AUSTRALIA/aus26.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/NEW%20ZEALAND%20%26%20AUSTRALIA/aus26.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/NEW%20ZEALAND%20%26%20AUSTRALIA/aus26.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.494Z",
@@ -697,7 +697,7 @@
       },
       {
         "path": "Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/NEW%20ZEALAND%20%26%20AUSTRALIA/australia.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/NEW%20ZEALAND%20%26%20AUSTRALIA/australia.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.425Z",
@@ -707,7 +707,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/por26.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/por26.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/por26.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.544Z",
@@ -717,7 +717,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/porto.mp4",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/porto.mp4",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/porto.mp4",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:14.631Z",
@@ -727,7 +727,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/porto.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/porto.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/porto.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.491Z",
@@ -737,7 +737,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/media/canon-sil.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/canon-sil.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/canon-sil.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.470Z",
@@ -747,7 +747,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/media/caption.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/caption.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/caption.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.470Z",
@@ -757,7 +757,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/media/licensed-image.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/licensed-image.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/licensed-image.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.562Z",
@@ -767,7 +767,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/media/pagina-playa-de-rodas-2023-09-05-pagina-playa-de-rodas-1024x679-optimized.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/pagina-playa-de-rodas-2023-09-05-pagina-playa-de-rodas-1024x679-optimized.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/pagina-playa-de-rodas-2023-09-05-pagina-playa-de-rodas-1024x679-optimized.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.588Z",
@@ -777,7 +777,7 @@
       },
       {
         "path": "Open Tours/PORTO & GALICIA/media/santiago-de-compostela-catedral-s1292171812.avif",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/santiago-de-compostela-catedral-s1292171812.avif",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20%26%20GALICIA/media/santiago-de-compostela-catedral-s1292171812.avif",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:10:21.536Z",
@@ -787,7 +787,7 @@
       },
       {
         "path": "Open Tours/lofoten/lofotensummer.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/lofoten/lofotensummer.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/lofoten/lofotensummer.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.636Z",
@@ -797,7 +797,7 @@
       },
       {
         "path": "Open Tours/lofoten/lofotenwinter.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/lofoten/lofotenwinter.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/lofoten/lofotenwinter.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-01-26T17:09:10.600Z",
@@ -809,7 +809,7 @@
     "MISC": [
       {
         "path": "thumbnail.jpg",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/thumbnail.jpg",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/MISC/thumbnail.jpg",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T12:39:48.323Z",
@@ -821,7 +821,7 @@
     "behind": [
       {
         "path": "BEHIND_OPTIMIZED/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:22.091Z",
@@ -831,7 +831,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/busgrupo.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/busgrupo.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/busgrupo.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:21.499Z",
@@ -841,7 +841,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/HERO-BEHIND.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/HERO-BEHIND.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/HERO-BEHIND.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:21.136Z",
@@ -851,7 +851,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/herobehidwrittten.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/herobehidwrittten.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/herobehidwrittten.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:21.417Z",
@@ -861,7 +861,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/RAMI CARLOS SNOWMOBILE.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/RAMI%20CARLOS%20SNOWMOBILE.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/RAMI%20CARLOS%20SNOWMOBILE.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:21.360Z",
@@ -871,7 +871,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YEARS MEDIA/2022.mp4",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2022.mp4",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2022.mp4",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:40.323Z",
@@ -881,7 +881,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YEARS MEDIA/2023.mov",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2023.mov",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2023.mov",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:44.678Z",
@@ -891,7 +891,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YEARS MEDIA/2024.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2024.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2024.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:24.979Z",
@@ -901,7 +901,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YEARS MEDIA/2025.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2025.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YEARS%20MEDIA/2025.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:25.217Z",
@@ -911,7 +911,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/48911802801_a010379b7a_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/48911802801_a010379b7a_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/48911802801_a010379b7a_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:45.505Z",
@@ -921,7 +921,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/49067356371_4c3e9b30ed_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/49067356371_4c3e9b30ed_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/49067356371_4c3e9b30ed_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:26.587Z",
@@ -931,7 +931,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/53630085536_c0859fe778_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/53630085536_c0859fe778_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/53630085536_c0859fe778_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:25.432Z",
@@ -941,7 +941,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/53630196026_070974613f_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/53630196026_070974613f_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/53630196026_070974613f_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:25.672Z",
@@ -951,7 +951,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/54493416093_970e7aa194_b.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/54493416093_970e7aa194_b.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/54493416093_970e7aa194_b.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:25.515Z",
@@ -961,7 +961,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/fe6d8aea-023c-49d2-83dd-77ce6cfe79b1.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/fe6d8aea-023c-49d2-83dd-77ce6cfe79b1.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/fe6d8aea-023c-49d2-83dd-77ce6cfe79b1.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:25.416Z",
@@ -971,7 +971,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/IMG_4012.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_4012.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_4012.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:46.150Z",
@@ -981,7 +981,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/IMG_4414.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_4414.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_4414.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:47.170Z",
@@ -991,7 +991,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/IMG_7994 (1).webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_7994%20(1).webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_7994%20(1).webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:08:11.547Z",
@@ -1001,7 +1001,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/IMG_8347 (1).webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8347%20(1).webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8347%20(1).webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:08:10.782Z",
@@ -1011,7 +1011,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/IMG_8351 (1).webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8351%20(1).webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8351%20(1).webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:08:09.727Z",
@@ -1021,7 +1021,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/IMG_8355 (1).webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8355%20(1).webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8355%20(1).webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:08:12.485Z",
@@ -1031,7 +1031,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/YOU/IMG_8388 (1).webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8388%20(1).webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/YOU/IMG_8388%20(1).webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:08:13.264Z",
@@ -1041,7 +1041,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/53606291333_aa65f02d0b_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606291333_aa65f02d0b_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606291333_aa65f02d0b_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:21.595Z",
@@ -1051,7 +1051,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/53606404313_ae13317f1f_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606404313_ae13317f1f_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606404313_ae13317f1f_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:24.214Z",
@@ -1061,7 +1061,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/53606418044_df6f54da5e_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606418044_df6f54da5e_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606418044_df6f54da5e_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:21.563Z",
@@ -1071,7 +1071,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/53606418514_24e91b80c4_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606418514_24e91b80c4_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53606418514_24e91b80c4_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:23.632Z",
@@ -1081,7 +1081,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/53610664074_524beb3fe7_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53610664074_524beb3fe7_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53610664074_524beb3fe7_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:23.233Z",
@@ -1091,7 +1091,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/53610665019_2b0a87e76c_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53610665019_2b0a87e76c_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53610665019_2b0a87e76c_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:20.801Z",
@@ -1101,7 +1101,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/53632311703_eb40a1516c_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53632311703_eb40a1516c_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/53632311703_eb40a1516c_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:23.511Z",
@@ -1111,7 +1111,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:21.342Z",
@@ -1121,7 +1121,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/IMG_3685.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_3685.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_3685.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:23.990Z",
@@ -1131,7 +1131,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/IMG_4275.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_4275.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_4275.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:24.179Z",
@@ -1141,7 +1141,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/IMG_7855-1.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_7855-1.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/IMG_7855-1.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:12:53.360Z",
@@ -1151,7 +1151,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/isabe bottle-1.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/isabe%20bottle-1.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/isabe%20bottle-1.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:12:50.821Z",
@@ -1161,7 +1161,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/MARIA-1.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/MARIA-1.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/MARIA-1.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:12:52.104Z",
@@ -1171,7 +1171,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/TONI.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/TONI.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/TONI.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:22.875Z",
@@ -1181,7 +1181,7 @@
       },
       {
         "path": "BEHIND_OPTIMIZED/providers/VIDAL.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/VIDAL.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/behind/BEHIND_OPTIMIZED/providers/VIDAL.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T18:54:23.038Z",
@@ -1193,7 +1193,7 @@
     "vidoe behind": [
       {
         "path": "tinta-behind-background-opt.webm",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/vidoe%20behind/tinta-behind-background-opt.webm",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/vidoe%20behind/tinta-behind-background-opt.webm",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T19:06:56.276Z",
@@ -1205,7 +1205,7 @@
     "ACTIVITITES": [
       {
         "path": "activities_optimized/contrabando.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/contrabando.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/contrabando.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:03.041Z",
@@ -1215,7 +1215,7 @@
       },
       {
         "path": "activities_optimized/IMG_3587.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/IMG_3587.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/IMG_3587.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:09.544Z",
@@ -1225,7 +1225,7 @@
       },
       {
         "path": "activities_optimized/renacer.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/renacer.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/renacer.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:07.678Z",
@@ -1235,7 +1235,7 @@
       },
       {
         "path": "activities_optimized/TONI.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/TONI.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/TONI.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:07.867Z",
@@ -1245,7 +1245,7 @@
       },
       {
         "path": "activities_optimized/trujillo.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/trujillo.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/trujillo.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:10.051Z",
@@ -1255,7 +1255,7 @@
       },
       {
         "path": "activities_optimized/VIDAL.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/VIDAL.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/VIDAL.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:06.324Z",
@@ -1265,7 +1265,7 @@
       },
       {
         "path": "activities_optimized/YOU/49067356371_4c3e9b30ed_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/49067356371_4c3e9b30ed_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/49067356371_4c3e9b30ed_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:14.589Z",
@@ -1275,7 +1275,7 @@
       },
       {
         "path": "activities_optimized/YOU/53630085536_c0859fe778_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/53630085536_c0859fe778_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/53630085536_c0859fe778_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:03.630Z",
@@ -1285,7 +1285,7 @@
       },
       {
         "path": "activities_optimized/YOU/53630196026_070974613f_o.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/53630196026_070974613f_o.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/53630196026_070974613f_o.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:12.362Z",
@@ -1295,7 +1295,7 @@
       },
       {
         "path": "activities_optimized/YOU/54493416093_970e7aa194_b.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/54493416093_970e7aa194_b.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/54493416093_970e7aa194_b.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:10.746Z",
@@ -1305,7 +1305,7 @@
       },
       {
         "path": "activities_optimized/YOU/fe6d8aea-023c-49d2-83dd-77ce6cfe79b1.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/fe6d8aea-023c-49d2-83dd-77ce6cfe79b1.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/fe6d8aea-023c-49d2-83dd-77ce6cfe79b1.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:07.338Z",
@@ -1315,7 +1315,7 @@
       },
       {
         "path": "activities_optimized/YOU/IMG_4012.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_4012.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_4012.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:16.125Z",
@@ -1325,7 +1325,7 @@
       },
       {
         "path": "activities_optimized/YOU/IMG_4334.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_4334.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_4334.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:14.602Z",
@@ -1335,7 +1335,7 @@
       },
       {
         "path": "activities_optimized/YOU/IMG_4414.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_4414.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_4414.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:15.610Z",
@@ -1345,7 +1345,7 @@
       },
       {
         "path": "activities_optimized/YOU/IMG_7994.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_7994.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_7994.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:12.284Z",
@@ -1355,7 +1355,7 @@
       },
       {
         "path": "activities_optimized/YOU/IMG_8351.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_8351.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_8351.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:01.502Z",
@@ -1365,7 +1365,7 @@
       },
       {
         "path": "activities_optimized/YOU/IMG_8355.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_8355.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_8355.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:01.787Z",
@@ -1375,7 +1375,7 @@
       },
       {
         "path": "activities_optimized/YOU/IMG_8388.webp",
-        "publicUrl": "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_8388.webp",
+        "publicUrl": "https://auth.ibero.world/storage/v1/object/public/ACTIVITITES/activities_optimized/YOU/IMG_8388.webp",
         "metadata": {
           "size": null,
           "updated_at": "2026-02-02T20:22:11.834Z",

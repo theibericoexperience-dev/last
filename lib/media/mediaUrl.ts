@@ -1,7 +1,7 @@
 import { safeWebPath } from '@/app/tour/utils/media';
 
 // Helper to build absolute media URLs pointing to Supabase Storage public objects.
-// Usage: mediaUrl('https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp') or mediaUrl('https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/hero.webp')
+// Usage: mediaUrl('https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/madrid.webp') or mediaUrl('https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/hero.webp')
 export default function mediaUrl(path?: string | null): string | null {
   if (!path) return null;
   const p = String(path).trim();

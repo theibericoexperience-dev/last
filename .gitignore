@@ -51,3 +51,4 @@ unused-files.json
 # Generated files
 public/compiled-globals.css
 scripts/migration_logs/
+.env.local

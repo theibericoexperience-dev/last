@@ -11,15 +11,15 @@ function getMediacardForTour(tour: TourOverview) {
   const lc = (tour.id || '').toLowerCase();
   const title = (tour.title || '').toLowerCase();
   const mapping: Record<string, string> = {
-    'madrid': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/madrid.webp',
-    'porto': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
-    'porto & galicia': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
-    'laos': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/LAOS%20&%20VIETNAM/laos.webp',
-    'australia': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp',
-    'new zealand': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp',
-    'lofo': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp',
-    'lofoten': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp',
-    'lofotensummer': 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp'
+    'madrid': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/madrid.webp',
+    'porto': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
+    'porto & galicia': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
+    'laos': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/LAOS%20&%20VIETNAM/laos.webp',
+    'australia': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp',
+    'new zealand': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp',
+    'lofo': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp',
+    'lofoten': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp',
+    'lofotensummer': 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp'
   };
 
   for (const key of Object.keys(mapping)) {

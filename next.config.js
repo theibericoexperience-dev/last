@@ -4,9 +4,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'wqpyfdxbkvvzjoniguld.supabase.co',
+        hostname: 'auth.ibero.world',
         port: '',
         pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'video.ibero.world',
+        port: '',
+        pathname: '/**',
       },
       {
         protocol: 'https',

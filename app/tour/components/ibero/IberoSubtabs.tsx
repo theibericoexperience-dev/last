@@ -94,7 +94,7 @@ We conclude our experience in Setúbal, a tranquil coastal town near Lisbon. Fro
           <div className="grid grid-cols-1 gap-4">
             <div className="flex gap-4 items-center p-3">
               <div className="w-36 h-36 bg-gray-100 overflow-hidden">
-                <img src="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/behind/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp" alt="Ramiro" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={(e) => tryImageFallback(e.currentTarget as HTMLImageElement)} />
+                <img src="https://auth.ibero.world/storage/v1/object/public/behind/89df8474-1078-4a09-bbf8-a719c29b1b7c.webp" alt="Ramiro" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={(e) => tryImageFallback(e.currentTarget as HTMLImageElement)} />
               </div>
               <div className="flex-1">
                 <div className="font-semibold text-lg">Ramiro</div>

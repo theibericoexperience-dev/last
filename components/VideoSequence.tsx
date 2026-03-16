@@ -14,7 +14,8 @@ export default function VideoSequence({ className = "", isPaused = false, contai
   const [isLoaded, setIsLoaded] = useState(false);
   const [videoSrc, setVideoSrc] = useState("");
   const [failed, setFailed] = useState(false);
-  const landingVideoSrc = "https://video.ibero.world/IBERO-LANDING_hero_295mb.mp4";
+  const landingVideoSrc = "https://video.ibero.world/IBERO_HERO_SEO.webm";
+  const landingVideoSrcMp4 = "https://video.ibero.world/IBERO_HERO_FINAL.mp4";
 
   // Set video src immediately on mount
   useEffect(() => {
@@ -111,11 +112,13 @@ export default function VideoSequence({ className = "", isPaused = false, contai
           muted
           autoPlay
           playsInline
-          preload="auto"
+          preload="metadata"
           loop
           onCanPlayThrough={() => { setIsLoaded(true); setFailed(false); if (onLoad) onLoad(); }}
           onError={() => { setFailed(true); if (onLoad) onLoad(); }}
-        />
+        >
+          <source src={landingVideoSrcMp4} type="video/mp4" />
+        </video>
       )}
     </div>
   );

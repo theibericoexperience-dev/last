@@ -8,7 +8,7 @@ const ModalTourGrid = dynamic(() => import('./ModalTourGrid'), { ssr: false });
 
 type Props = { open?: boolean; onCloseAction?: () => void };
 
-const DEFAULT_IMAGE = 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/madrid_tourcard.webp';
+const DEFAULT_IMAGE = 'https://auth.ibero.world/storage/v1/object/public/Open%20Tours/Open%20Tours/MADRID%20TO%20LISBOA/MAIN%20TOUR/madrid_tourcard.webp';
 
 function safeWebPath(raw?: string | null) {
   if (!raw) return '';

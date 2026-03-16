@@ -169,7 +169,7 @@ function Page() {
           className="w-full h-full"
           isPaused={isVideoPaused}
           contained={false}
-          poster="https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/MISC/thumbnail.jpg"
+          poster="https://auth.ibero.world/storage/v1/object/public/MISC/hero-poster.webp"
         />
       </div>
 

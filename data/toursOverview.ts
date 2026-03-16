@@ -17,7 +17,7 @@ const tours: TourOverview[] = [
     id: 'madrid-2026',
     title: 'MADRID TO LISBOA',
     year: 2026,
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/madrid.webp',
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/MADRID TO LISBOA/madrid.webp',
     startDate: '2026-03',
     days: 12,
     stopsPath: 'Open Tours/MADRID TO LISBOA/MAIN TOUR/stops',
@@ -31,7 +31,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'porto-galicia-2026',
     title: 'PORTO & GALICIA',
     year: 2026,
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
     startDate: '2026-04',
     days: 10,
     stopsPath: 'Open Tours/PORTO & GALICIA/media',
@@ -41,7 +41,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'laos-vietnam-2026',
     title: 'LAOS & VIETNAM',
     year: 2026,
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/LAOS%20&%20VIETNAM/laos.webp',
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/LAOS%20&%20VIETNAM/laos.webp',
     startDate: '2026-05',
     days: 18,
     stopsPath: 'Open Tours/LAOS & VIETNAM/media'
@@ -50,7 +50,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'aus-nz-2026',
     title: 'NEW ZEALAND & AUSTRALIA',
     year: 2026,
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp',
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/NEW ZEALAND & AUSTRALIA/australia.webp',
     startDate: '2026-09',
     days: 21,
     stopsPath: 'Open Tours/NEW ZEALAND & AUSTRALIA/media'
@@ -61,7 +61,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'lofo-summer-2026',
     title: 'LOFOTEN - SUMMER',
     year: 2026,
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp',
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/lofoten/lofotensummer.webp',
     startDate: '2026-07',
     days: 8,
     stopsPath: 'Open Tours/lofoten/media'
@@ -72,7 +72,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'lofo-winter-2027', 
     title: 'LOFOTEN - WINTER', 
     year: 2027, 
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/lofowinter27.jpg', 
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/2027/lofowinter27.jpg', 
     stopsPath: '2027/lofowinter27_media', 
     startDate: '2027-01',
     days: 7
@@ -81,7 +81,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'madrid-2027', 
     title: 'MADRID TO LISBON (2027)', 
     year: 2027, 
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/mad27.jpg', 
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/2027/mad27.jpg', 
     stopsPath: '2027/mad27_media',
     days: 12
   },
@@ -89,7 +89,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'porto-2027', 
     title: 'PORTO & GALICIA (2027)', 
     year: 2027, 
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/por27.jpg', 
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/2027/por27.jpg', 
     stopsPath: '2027/por27_media',
     days: 10
   },
@@ -97,7 +97,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'lofo-summer-2027', 
     title: 'LOFOTEN - SUMMER', 
     year: 2027, 
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/lofosummer27.jpg', 
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/2027/lofosummer27.jpg', 
     stopsPath: '2027/lofosummer27_media', 
     startDate: '2027-07',
     days: 8
@@ -106,7 +106,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'laos-2027', 
     title: 'LAOS & VIETNAM (2027)', 
     year: 2027, 
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/laos27.jpg', 
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/2027/laos27.jpg', 
     stopsPath: '2027/laos27_media',
     days: 18
   },
@@ -114,7 +114,7 @@ This area tends to have mild temperatures in Winter & Early Spring`
     id: 'aus-2027', 
     title: 'NEW ZEALAND & AUSTRALIA (2027)', 
     year: 2027, 
-    cardImage: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/2027/aus27.jpg', 
+    cardImage: 'https://auth.ibero.world/storage/v1/object/public/Tours/2027/aus27.jpg', 
     stopsPath: '2027/aus27_media',
     days: 21
   }

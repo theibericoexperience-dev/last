@@ -22,7 +22,7 @@ const tourData = {
   summary: `Discover the hidden corners of Northern Portugal and Spain’s Atlantic coast.
 Experience the green landscapes, the unique vineyards of the Douro Valley, and the spiritual path of Santiago.
 Enjoy fresh seafood, Albariño wine, and the celtic heritage of Galicia.`,
-  card_image: 'https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
+  card_image: 'https://auth.ibero.world/storage/v1/object/public/Tours/Open Tours/PORTO & GALICIA/porto.webp',
   start_date: '2026-04-15T00:00:00Z', 
   stops_path: 'Open Tours/PORTO & GALICIA/media'
 };
@@ -58,12 +58,12 @@ const activities = [
     morning: {
       title: "Welcome to Porto",
       text: "Arrival in Porto. Welcome drink and transfer to the hotel overlooking the Douro River.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     },
     afternoon: {
       title: "Ribeira District",
       text: "Walking tour through the colorful streets of Ribeira and a boat cruise under the 6 bridges.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     }
   },
   {
@@ -71,12 +71,12 @@ const activities = [
     morning: {
       title: "Douro Valley Wine Tasting",
       text: "Journey into the heart of the Douro Valley. Visit a family-owned quinta for port wine tasting.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     },
     afternoon: {
       title: "River Cruise",
       text: "Relaxing cruise up the Douro river, admiring the terraced vineyards from the water.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     }
   },
   {
@@ -84,12 +84,12 @@ const activities = [
     morning: {
       title: "Birthplace of Portugal",
       text: "Visit Guimarães, the birthplace of the nation. Tour the medieval castle and the Palace of the Dukes.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     },
     afternoon: {
       title: "Historic Center",
       text: "Free time to explore the UNESCO-listed historic center of Guimarães.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     }
   },
   {
@@ -97,12 +97,12 @@ const activities = [
     morning: {
       title: "The Pilgrim's Goal",
       text: "Arrival in Santiago de Compostela. Visit the magnificent cathedral and witness the Botafumeiro ritual if scheduled.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     },
     afternoon: {
       title: "Old Town Santiago",
       text: "Wander through the granite streets of Santiago's old town, tasting tapas and Tarta de Santiago.",
-      media: "https://wqpyfdxbkvvzjoniguld.supabase.co/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
+      media: "https://auth.ibero.world/storage/v1/object/public/Tours/Open%20Tours/PORTO%20&%20GALICIA/porto.webp"
     }
   }
 ];
