@@ -46,38 +46,7 @@ export function usePanelData(): PanelData {
 
       let fetchedOrders = ordersRes.orders || [];
       
-            // Mockup reservation if no real orders are found (for development/UI testing)
-      if (fetchedOrders.length === 0) {
-        fetchedOrders = [{
-          id: 'mock-123',
-          order_id: 'IB-2026-MOCK',
-          tour_name: 'Imperial Spain & Portugal',
-          tour_title: 'Imperial Spain & Portugal',
-          departure_date: '2026-05-15',
-          status: 'confirmed',
-          payment_status: 'pending',
-          adults: 2,
-          children: 1,
-          travelers_count: 3,
-          total_amount: 4500,
-          deposit_amount: 3000,
-          amount_paid: 0,
-          currency: 'USD',
-          created_at: new Date().toISOString(),
-          card_image: 'https://images.unsplash.com/photo-1543783232-a744210a720f?q=80&w=2070&auto=format&fit=crop',
-          tour: {
-            title: 'Imperial Spain & Portugal',
-            image_url: 'https://images.unsplash.com/photo-1543783232-a744210a720f?q=80&w=2070&auto=format&fit=crop',
-            duration_days: 12,
-            cities: ['Madrid', 'Toledo', 'Seville', 'Lisbon']
-          },
-          travelers: [
-            { first_name: 'John', last_name: 'Doe' },
-            { first_name: 'Jane', last_name: 'Doe' },
-            { first_name: '', last_name: '' }
-          ]
-        }];
-      }
+      // SECURITY: No mockup data in production - only use real orders
 
       setOrders(fetchedOrders);
       setTickets(ticketsRes.tickets || []);
