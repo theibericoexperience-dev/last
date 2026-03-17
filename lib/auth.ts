@@ -65,8 +65,6 @@ const authConfig = NextAuth({
       },
     },
   },
-  // Ensure NextAuth trusts the host/proxy (required for platforms like Vercel)
-  trustHost: true,
   // `secret` is the top-level option used to sign/verifiy tokens in NextAuth.
   // Move the env secret here to satisfy the JWTOptions typings.
   secret: process.env.NEXTAUTH_SECRET!,
