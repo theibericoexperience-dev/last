@@ -54,8 +54,6 @@ const authConfig = NextAuth({
   // When testing behind a proxy/tunnel (localtunnel/ngrok) we need to ensure
   // NextAuth trusts the host/proxy so cookies set by NextAuth are valid.
   trustHost: true,
-  // Ensure redirect proxy handling for deployments behind proxies (Vercel)
-  redirectProxyStore: true,
   // Simplified cookie policy: use secure, sameSite lax in production with canonical domain
   cookies: {
     sessionToken: {
