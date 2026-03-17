@@ -65,9 +65,9 @@ const authConfig = NextAuth({
       },
     },
   },
-  jwt: {
-    secret: process.env.NEXTAUTH_SECRET!,
-  },
+  // `secret` is the top-level option used to sign/verifiy tokens in NextAuth.
+  // Move the env secret here to satisfy the JWTOptions typings.
+  secret: process.env.NEXTAUTH_SECRET!,
   pages: {
     signIn: '/auth/login',
     error: '/auth/login',
