@@ -21,11 +21,10 @@ declare module 'next-auth' {
 const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-
 if (!googleClientId || !googleClientSecret) {
-  console.error('❌ ERROR: Google OAuth credentials are incomplete!');
-  console.error('   - GOOGLE_CLIENT_ID from GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
-  console.error('   - GOOGLE_CLIENT_ID from NEXT_PUBLIC_:', process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
+  if (process.env.NODE_ENV !== 'production') {
+    console.error('❌ ERROR: Google OAuth credentials are incomplete!');
+  }
 }
 
 if (!process.env.NEXTAUTH_SECRET) {
@@ -70,8 +69,8 @@ const authConfig = NextAuth({
   },
   providers: [
     GoogleProvider({
-      clientId: googleClientId || '',
-      clientSecret: googleClientSecret || '',
+      clientId: (googleClientId || '').trim(),
+      clientSecret: (googleClientSecret || '').trim(),
       allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
