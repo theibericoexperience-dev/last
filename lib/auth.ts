@@ -69,8 +69,8 @@ const authConfig = NextAuth({
   },
   providers: [
     GoogleProvider({
-      clientId: (googleClientId || '').trim(),
-      clientSecret: (googleClientSecret || '').trim(),
+      clientId: process.env.GOOGLE_CLIENT_ID?.trim() || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim(),
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim(),
       allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
