@@ -54,6 +54,20 @@ const authConfig = NextAuth({
   // When testing behind a proxy/tunnel (localtunnel/ngrok) we need to ensure
   // NextAuth trusts the host/proxy so cookies set by NextAuth are valid.
   trustHost: true,
+  // Cookie options: prefer explicit production cookie domain when provided.
+  // You can override by setting SESSION_COOKIE_DOMAIN in Vercel to e.g. .ibero.world
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'none',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.SESSION_COOKIE_DOMAIN || (process.env.NODE_ENV === 'production' ? '.ibero.world' : undefined),
+      },
+    },
+  },
   session: {
     strategy: 'jwt',
   },
@@ -181,13 +195,29 @@ const authConfig = NextAuth({
       return token;
     },
     async redirect({ url, baseUrl }) {
-      // If url is relative, keep it relative to the baseUrl
+      // In production prefer the canonical ibero.world origin to avoid
+      // cross-host authentication between Vercel preview URLs and the custom domain.
+      const prodOrigin = 'https://ibero.world';
+      if (process.env.NODE_ENV === 'production') {
+        try {
+          if (url.startsWith('/')) return `${prodOrigin}${url}`;
+          const parsed = new URL(url);
+          // If the redirect target already points to our canonical origin, allow it.
+          if (parsed.origin === prodOrigin) return url;
+          // Otherwise normalize to prod origin to avoid mixed-host flows.
+          return `${prodOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
+        } catch (e) {
+          return prodOrigin;
+        }
+      }
+
+      // Development / fallback behavior: keep relative or same-origin redirects.
       try {
         if (url.startsWith('/')) return `${baseUrl}${url}`;
         const parsed = new URL(url);
         if (parsed.origin === baseUrl) return url;
       } catch (e) {
-        // malformed url - fall through
+        /* fall through */
       }
       return baseUrl;
     },
