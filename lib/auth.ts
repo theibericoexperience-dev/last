@@ -59,12 +59,14 @@ const authConfig = NextAuth({
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        // For local development (HTTP) we must not set `secure: true`.
-        // The dev environment will use secure cookies in production only.
-        secure: false,
+        // Use secure cookies in production (Vercel uses HTTPS). In local
+        // development keep secure=false so cookies work over HTTP.
+        secure: process.env.NODE_ENV === 'production',
       },
     },
   },
+  // Ensure NextAuth trusts the host/proxy (required for platforms like Vercel)
+  trustHost: true,
   // `secret` is the top-level option used to sign/verifiy tokens in NextAuth.
   // Move the env secret here to satisfy the JWTOptions typings.
   secret: process.env.NEXTAUTH_SECRET!,
