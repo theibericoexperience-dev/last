@@ -69,7 +69,7 @@ export default function GoogleOneTap() {
         }
       };
 
-      window.google.accounts.id.initialize({
+      (window as any).google.accounts.id.initialize({
         client_id: clientId,
         callback: handleResponse,
         use_fedcm: false,
@@ -79,8 +79,8 @@ export default function GoogleOneTap() {
       // Render an (invisible) button into our container so the library is happy
       try {
         const containerEl = document.getElementById('google-one-tap-container');
-        if (containerEl && typeof window.google.accounts.id.renderButton === 'function') {
-          window.google.accounts.id.renderButton(containerEl, { theme: 'outline', size: 'large', type: 'standard' });
+        if (containerEl && typeof (window as any).google.accounts.id.renderButton === 'function') {
+          (window as any).google.accounts.id.renderButton(containerEl, { theme: 'outline', size: 'large', type: 'standard' });
         }
       } catch (e) { /* ignore */ }
 
@@ -99,7 +99,7 @@ export default function GoogleOneTap() {
           }
           (window as any).__gsi_prompted = true;
 
-          window.google.accounts.id.prompt((notification: any) => {
+          (window as any).google.accounts.id.prompt((notification: any) => {
             try {
               if (notification && typeof notification.isNotDisplayed === 'function' && notification.isNotDisplayed()) {
                 console.log('One Tap no se mostró:', notification.getNotDisplayedReason && notification.getNotDisplayedReason());
