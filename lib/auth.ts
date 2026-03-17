@@ -1,8 +1,6 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { SupabaseAdapter } from '@auth/supabase-adapter';
-import { supabaseServer } from '@/lib/db/supabaseServer';
+
 
 export const dynamic = 'force-dynamic';
 import { createClient } from '@supabase/supabase-js';
@@ -18,103 +16,179 @@ declare module 'next-auth' {
   }
 }
 
+// Debug logs for JWT configuration
+
+const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+
+if (!googleClientId || !googleClientSecret) {
+  console.error('❌ ERROR: Google OAuth credentials are incomplete!');
+  console.error('   - GOOGLE_CLIENT_ID from GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
+  console.error('   - GOOGLE_CLIENT_ID from NEXT_PUBLIC_:', process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.substring(0, 20) + '...');
+}
+
+if (!process.env.NEXTAUTH_SECRET) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('⚠️ NEXTAUTH_SECRET is not set. NextAuth requires NEXTAUTH_SECRET to sign and verify session tokens.');
+  }
+}
+
+// If NEXTAUTH_SECRET is present but short, warn in development
+if (process.env.NEXTAUTH_SECRET && process.env.NODE_ENV !== 'production') {
+  if ((process.env.NEXTAUTH_SECRET || '').length < 32) {
+    console.warn('⚠️ NEXTAUTH_SECRET is shorter than 32 characters; consider generating a long random secret for local testing.');
+  }
+}
+
 const authConfig = NextAuth({
-  adapter: SupabaseAdapter({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    secret: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  }),
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    CredentialsProvider({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+  basePath: '/api/auth',
+  // When testing behind a proxy/tunnel (localtunnel/ngrok) we need to ensure
+  // cookies are created for the tunnel host and are secured. Use the
+  // NEXTAUTH_URL (or NEXT_PUBLIC_AUTH_URL) to derive the cookie domain.
+  trustHost: true,
+  session: {
+    strategy: 'jwt',
+  },
+  cookies: {
+    sessionToken: {
+      // Force a stable cookie name in development to avoid mismatches between
+      // requests and middleware when using tunnels or switching origins.
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        // For local development (HTTP) we must not set `secure: true`.
+        // The dev environment will use secure cookies in production only.
+        secure: false,
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        const email = credentials.email as string;
-        const password = credentials.password as string;
-
-        try {
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-          );
-
-          const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (error || !data.user) {
-            return null;
-          }
-
-          return {
-            id: data.user.id,
-            email: data.user.email,
-            name: data.user.user_metadata?.name || data.user.email,
-          };
-        } catch (error) {
-          console.error('Auth error:', error);
-          return null;
-        }
-      },
-    }),
-  ],
+    },
+  },
+  jwt: {
+    secret: process.env.NEXTAUTH_SECRET!,
+  },
   pages: {
     signIn: '/auth/login',
     error: '/auth/login',
   },
+  providers: [
+    GoogleProvider({
+      clientId: googleClientId || '',
+      clientSecret: googleClientSecret || '',
+      allowDangerousEmailAccountLinking: true,
+      authorization: {
+        params: {
+          prompt: 'select_account',
+        },
+      },
+    })
+  ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Sync user profile with metadata from social provider (Google)
       if (account?.provider === 'google' && user?.email) {
         try {
-          const { upsertUserProfile } = await import('@/lib/db/upsertUserProfile');
+          const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          );
+
+          // Buscar perfil existente
+          const { data: existing } = await supabase
+            .from('user_profiles')
+            .select('id, metadata, roles, whatsapp_phone_e164')
+            .eq('email', user.email)
+            .maybeSingle();
 
           const fullName = user.name || profile?.name || '';
-          const parts = fullName.split(' ');
-          const firstName = parts[0] || '';
-          const lastName = parts.slice(1).join(' ') || '';
+          const [firstName, ...lastNameParts] = fullName.split(' ');
+          const lastName = lastNameParts.join(' ');
 
-          await upsertUserProfile({
+          const upsertPayload: Record<string, any> = {
             email: user.email,
-            first_name: firstName,
-            last_name: lastName,
-            user_id: user.id
-          }, { id: user.id });
+            first_name: firstName || '',
+            last_name: lastName || '',
+            name: user.name || profile?.name,
+            avatar_url: user.image,
+            provider: account.provider,
+            provider_account_id: account.providerAccountId,
+            updated_at: new Date().toISOString(),
+          };
 
-          console.log(`>>> [NEXTAUTH CALLBACK] Profile sync successful for ${user.email}`);
-        } catch (syncError) {
-          console.error('>>> [NEXTAUTH CALLBACK] Profile sync failed:', syncError);
-          // Don't fail the sign in if profile sync fails
+          if (!existing) {
+            upsertPayload.metadata = {};
+            upsertPayload.roles = ['user'];
+          } else {
+            upsertPayload.metadata = existing.metadata;
+            upsertPayload.roles = existing.roles;
+            upsertPayload.whatsapp_phone_e164 = existing.whatsapp_phone_e164;
+          }
+
+          const { data: profileRow, error } = await supabase
+            .from('user_profiles')
+            .upsert(upsertPayload, { onConflict: 'email' })
+            .select('id')
+            .single();
+
+          if (error || !profileRow) {
+            console.error('Upsert user_profiles error:', error);
+            return false;
+          }
+
+          (user as any)._internalProfileId = profileRow.id;
+          return true;
+        } catch (err) {
+          console.error('SignIn sync failed:', err);
+          return false;
         }
       }
       return true;
     },
-    async session({ session, user }) {
-      // Add user id to session
-      if (user?.id) {
-        session.user.id = user.id;
+    async session({ session, token }) {
+      // Log token for debugging session issues in development
+      try {
+        // Avoid heavy serializing in production
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[next-auth] session callback token:', token);
+        }
+      } catch (e) {
+        /* ignore logging errors */
       }
+
+      // Add email and id to session from JWT token
+      if (session.user) {
+        session.user.id = token.sub || '';
+        session.user.email = token.email || '';
+      }
+
+      try {
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[next-auth] session callback session:', session?.user);
+        }
+      } catch (e) {
+        /* ignore logging errors */
+      }
+
       return session;
     },
-    async jwt({ token, user }) {
-      // Add user id to JWT
-      if (user?.id) {
-        token.id = user.id;
+    async jwt({ token, user, account }) {
+      if (user && (user as any)._internalProfileId) {
+        token.sub = (user as any)._internalProfileId;
       }
       return token;
+    },
+    async redirect({ url, baseUrl }) {
+      // If url is relative, keep it relative to the baseUrl
+      try {
+        if (url.startsWith('/')) return `${baseUrl}${url}`;
+        const parsed = new URL(url);
+        if (parsed.origin === baseUrl) return url;
+      } catch (e) {
+        // malformed url - fall through
+      }
+      return baseUrl;
     },
   },
 });
 
-export const { handlers, auth, signIn, signOut } = authConfig;// Fix: Client ID undefined resolved
+export const { handlers, auth, signIn, signOut } = authConfig;

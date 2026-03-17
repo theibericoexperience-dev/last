@@ -106,19 +106,48 @@ export default function ProfileSection({ loading }: { loading?: boolean }) {
 
   const handleLogout = async () => {
     try {
+      console.log('🔴 Starting logout process...');
+      
       // Clear local reservation store so user data isn't visible after logout
       try {
         const store = useReservationStore.getState ? useReservationStore.getState() : null;
-        if (store && typeof store.clear === 'function') store.clear();
+        if (store && typeof store.clear === 'function') {
+          store.clear();
+          console.log('✅ Reservation store cleared');
+        }
       } catch (e) {
-        // ignore
+        console.log('ℹ️ Reservation store not available');
       }
 
-      // Sign out from NextAuth
-      await signOut({ callbackUrl: '/' });
+      // Clear any local storage related to auth
+      try {
+        localStorage.removeItem('nextauth.message');
+        sessionStorage.clear();
+        console.log('✅ Local and session storage cleared');
+      } catch (e) {
+        console.log('ℹ️ Could not clear storage');
+      }
+
+      // Sign out from NextAuth - this should delete the JWT token
+      console.log('🔄 Calling signOut...');
+      const result = await signOut({ 
+        redirect: false,
+        callbackUrl: '/' 
+      });
+      
+      console.log('📍 SignOut result:', result);
+      
+      // Ensure we navigate away
+      if (result?.url) {
+        console.log('🔗 Redirecting to:', result.url);
+        window.location.href = result.url;
+      } else {
+        console.log('🔗 No redirect URL, going to home');
+        window.location.href = '/';
+      }
     } catch (err) {
-      console.error('Logout failed', err);
-      // Best-effort redirect
+      console.error('❌ Logout failed:', err);
+      console.log('🔗 Force redirect to home');
       window.location.href = '/';
     }
   };

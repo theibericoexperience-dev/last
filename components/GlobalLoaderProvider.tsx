@@ -83,7 +83,15 @@ export function TransitionLink({ href, children, className, ...props }: React.Co
     startLoading(); // Show the overlay immediately on current page
     
     startTransition(() => {
-        router.push(href.toString());
+        // Normalize href to a relative path so we don't navigate to a different origin
+        try {
+          const resolved = new URL(href.toString(), window.location.href);
+          const dest = `${resolved.pathname}${resolved.search}${resolved.hash}`;
+          router.push(dest);
+        } catch (err) {
+          // Fallback: push as-is
+          router.push(href.toString());
+        }
     });
   };
 

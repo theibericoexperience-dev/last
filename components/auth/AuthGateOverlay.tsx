@@ -15,7 +15,14 @@ export type AuthGateOverlayProps = {
 function appendCallback(base: string, callbackUrl?: string) {
   if (!callbackUrl) return base;
   const separator = base.includes('?') ? '&' : '?';
-  return `${base}${separator}callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  try {
+    // If callbackUrl is same-origin, convert to relative path to avoid cross-origin redirects
+    const parsed = new URL(callbackUrl, typeof window !== 'undefined' ? window.location.href : undefined);
+    const safe = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    return `${base}${separator}callbackUrl=${encodeURIComponent(safe)}`;
+  } catch (e) {
+    return `${base}${separator}callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  }
 }
 
 export default function AuthGateOverlay({ open, onCloseAction, callbackUrl, headline, description }: AuthGateOverlayProps) {

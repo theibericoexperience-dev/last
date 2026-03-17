@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+export const runtime = 'nodejs';
 import { auth } from '@/lib/auth';
 
 // Global middleware to immediately short-circuit any client attempts to POST
@@ -20,10 +21,17 @@ export async function middleware(req: NextRequest) {
   if (isProtectedRoute) {
     try {
       // Check authentication using NextAuth
+      // Debug: check if the session cookie is present in the incoming request
+      const cookieName = 'next-auth.session-token';
+      const hasCookie = !!req.cookies.get(cookieName);
+      console.log(`[Middleware] Path: ${pathname} | Cookie ${cookieName} present: ${hasCookie}`);
+
       const session = await auth();
+      console.log(`[Middleware] Path: ${pathname} | Session detected: ${!!session?.user}`);
 
       if (!session?.user) {
         // Redirect to login if no session
+        console.log(`[Middleware] No session for ${pathname}, redirecting to /auth/login`);
         return NextResponse.redirect(new URL('/auth/login', req.url));
       }
 

@@ -10,6 +10,7 @@ import { NotificationProvider } from '../components/NotificationProvider';
 import UserBubble from '../components/UserBubble';
 import { GlobalLoaderProvider } from '@/components/GlobalLoaderProvider';
 import { SessionProvider } from './components/SessionProvider';
+import GoogleOneTap from "@/components/auth/GoogleOneTap";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -55,7 +56,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <SessionProvider>
           <GlobalLoaderProvider>
+            <GoogleOneTap />
             <MobileFullScreen />
             <NotificationProvider>
               {children}

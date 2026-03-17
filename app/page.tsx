@@ -245,6 +245,7 @@ function Page() {
           />
 
           <div
+            suppressHydrationWarning
             className={`hero-overlay fixed inset-0 z-[99] hidden md:flex items-start justify-center pointer-events-none hero-buttons-anim${showHeroButtons ? ' hero-buttons-visible' : ''}`}
           >
             <div className="flex w-auto justify-center gap-48 mt-40 pointer-events-auto">

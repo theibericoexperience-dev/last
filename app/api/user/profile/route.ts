@@ -1,53 +1,24 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { auth } from '@/lib/auth';
 import normalizeToE164 from '@/lib/phone/normalize';
 import { supabaseAdmin } from '@/lib/db/supabaseServer';
 
-// Helper to create a Supabase client for Route Handlers using @supabase/ssr
-async function getSupabaseRouteClient() {
-  const cookieStore = await cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // Ignore if called from Server Component
-          }
-        },
-      },
-    }
-  );
-}
-
 // GET /api/user/profile - return the current user's profile row (or null)
 export async function GET(request: Request) {
-  const supabase = await getSupabaseRouteClient();
-  const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+  // Get the authenticated user from NextAuth
+  const session = await auth();
 
-  if (authError || !authUser) {
-    const cookieHeader = request.headers.get('cookie') || 'NONE';
-    console.debug('[user/profile GET] no authUser found. Error:', authError?.message);
-    if (cookieHeader.includes('sb-')) {
-      console.log('>>> [AUTH DEBUG] Supabase cookie detected but getUser failed:', authError);
-    }
-    
+  if (!session?.user?.id) {
+    console.log('[user/profile GET] No NextAuth session found');
     return NextResponse.json({ 
-      error: 'No session found in cookies',
-      debug: { cookiesPresent: cookieHeader !== 'NONE' }
+      error: 'No authenticated session',
     }, { status: 401 });
   }
 
-  console.debug('[user/profile GET] authUser', authUser.id, 'supabaseAdmin?', !!supabaseAdmin);
+  const userId = session.user.id;
+  console.log('[user/profile GET] Authenticated user:', userId);
+
   if (!supabaseAdmin) {
     // Supabase isn't configured in this environment — return a harmless profile=null so the UI can continue.
     console.warn('[user/profile] Supabase not configured; returning empty profile');
@@ -55,13 +26,11 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Phase 1: read by session email for compatibility, but prefer id in later phases.
-    // To remain non-destructive we still attempt to locate the profile row by the
-    // authenticated user's id when possible (future Phase 2 will enforce id-only).
+    // Query user_profiles by user_id (from NextAuth JWT)
     const { data, error } = await supabaseAdmin
       .from('user_profiles')
       .select('*')
-      .eq('user_id', authUser.id)
+      .eq('user_id', userId)
       .maybeSingle();
 
     if (error) {
@@ -70,22 +39,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ profile: null });
     }
 
-    // If data is null, we return a shell profile with defaults from authUser
+    // If data is null, we return a shell profile with defaults from session
     if (!data) {
       return NextResponse.json({ 
         profile: {
-          firstName: authUser.user_metadata?.first_name || authUser.user_metadata?.full_name?.split(' ')[0] || '',
-          lastName: authUser.user_metadata?.last_name || authUser.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
-          email: authUser.email || '',
+          firstName: session.user.name?.split(' ')[0] || '',
+          lastName: session.user.name?.split(' ').slice(1).join(' ') || '',
+          email: session.user.email || '',
         } 
       });
     }
 
     // Merge metadata into flat structure and convert snake_case to camelCase
     const profile = {
-      firstName: data.first_name || authUser.user_metadata?.first_name || '',
-      lastName: data.last_name || authUser.user_metadata?.last_name || '',
-      email: data.email || authUser.email || '',
+      firstName: data.first_name || session.user.name?.split(' ')[0] || '',
+      lastName: data.last_name || session.user.name?.split(' ').slice(1).join(' ') || '',
+      email: data.email || session.user.email || '',
       phone: data.phone || '',
       dateOfBirth: data.metadata?.dateOfBirth || '',
       nationality: data.metadata?.nationality || '',
@@ -108,22 +77,23 @@ export async function GET(request: Request) {
 
 // PATCH /api/user/profile - upsert profile for current user
 export async function PATCH(request: Request) {
-  const supabase = await getSupabaseRouteClient();
-  const { data: { user: authUser } } = await supabase.auth.getUser();
+  const session = await auth();
 
-  if (!authUser || !authUser.id) {
-    console.debug('[user/profile PATCH] no authUser found, returning 401');
+  if (!session?.user?.id) {
+    console.debug('[user/profile PATCH] no authenticated session found, returning 401');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  console.debug('[user/profile PATCH] authUser', authUser.id, 'supabaseAdmin?', !!supabaseAdmin);
+  
+  console.debug('[user/profile PATCH] authenticated user:', session.user.id);
+  
   if (!supabaseAdmin) {
     console.warn('[user/profile] Supabase not configured; PATCH will be a no-op');
     return NextResponse.json({ profile: null });
   }
 
-  const userId = authUser.id as string;
+  const userId = session.user.id as string;
   // Use authenticated session email as a fallback when the client doesn't send an email
-  const emailFromSession = (authUser && (authUser as any).email) ? (authUser as any).email : undefined;
+  const emailFromSession = session.user.email;
   const body = await request.json().catch(() => ({}));
 
   // Support both snake_case (legacy) and camelCase (new ProfileSection)

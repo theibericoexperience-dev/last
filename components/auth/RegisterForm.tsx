@@ -35,7 +35,16 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
         setError(result.error);
         setLoading(false);
       } else if (result?.url) {
-        window.location.href = result.url;
+        try {
+          const parsed = new URL(result.url, window.location.href);
+          if (parsed.hostname === window.location.hostname) {
+            window.location.href = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+          } else {
+            window.location.href = result.url;
+          }
+        } catch (e) {
+          window.location.href = result.url;
+        }
       }
     } catch (error: any) {
       console.error('[RegisterForm] handleGoogle error:', error);
@@ -86,7 +95,13 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
       } else {
         startLoading();
         startTransition(() => {
-          router.push(callbackUrl);
+          try {
+            const parsed = new URL(callbackUrl, window.location.href);
+            const dest = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+            router.push(dest);
+          } catch (e) {
+            router.push(callbackUrl);
+          }
         });
       }
     } catch (err) {
@@ -135,7 +150,7 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
       </form>
 
       <button
-        onClick={() => signIn('google', { callbackUrl: 'https://ibero.world/api/auth/callback/google' })}
+        onClick={() => signIn('google', { callbackUrl: '/panel' })}
         disabled={loading}
         className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-800 shadow-sm ring-offset-2 transition hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
       >
