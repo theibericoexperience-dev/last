@@ -63,10 +63,10 @@ const authConfig = NextAuth({
         httpOnly: true,
         sameSite: 'none',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: String(process.env.NODE_ENV) === 'production',
         // Force production cookie domain to .ibero.world so cookies are valid
         // across the main domain and any Vercel preview subdomains when using the custom domain.
-        domain: process.env.NODE_ENV === 'production' ? (process.env.SESSION_COOKIE_DOMAIN || '.ibero.world') : undefined,
+        domain: String(process.env.NODE_ENV) === 'production' ? (process.env.SESSION_COOKIE_DOMAIN || '.ibero.world') : undefined,
       },
     },
   },
@@ -198,7 +198,7 @@ const authConfig = NextAuth({
     },
     async redirect({ url, baseUrl }) {
       // Ensure production always redirects to the canonical domain configured for ibero.world
-      if (process.env.NODE_ENV === 'production') {
+      if (String(process.env.NODE_ENV) === 'production') {
         const prodOrigin = 'https://ibero.world';
         try {
           if (url.startsWith('/')) return `${prodOrigin}${url}`;
@@ -212,7 +212,7 @@ const authConfig = NextAuth({
       // In production prefer the canonical ibero.world origin to avoid
       // cross-host authentication between Vercel preview URLs and the custom domain.
       const prodOrigin = 'https://ibero.world';
-      if (process.env.NODE_ENV === 'production') {
+      if (String(process.env.NODE_ENV) === 'production') {
         try {
           if (url.startsWith('/')) return `${prodOrigin}${url}`;
           const parsed = new URL(url);
@@ -240,7 +240,7 @@ const authConfig = NextAuth({
 
 // Production safety checks: require explicit AUTH_URL / NEXTAUTH_URL to avoid
 // runtime host-guessing that can cause mixed-host auth flows on Vercel.
-if (process.env.NODE_ENV === 'production') {
+if (String(process.env.NODE_ENV) === 'production') {
   if (!process.env.AUTH_URL && !process.env.NEXTAUTH_URL) {
     console.error('❌ Production requires AUTH_URL or NEXTAUTH_URL to be set to https://ibero.world');
   } else {
