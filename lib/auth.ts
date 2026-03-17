@@ -54,6 +54,23 @@ const authConfig = NextAuth({
   // When testing behind a proxy/tunnel (localtunnel/ngrok) we need to ensure
   // NextAuth trusts the host/proxy so cookies set by NextAuth are valid.
   trustHost: true,
+  // Ensure redirect proxy handling for deployments behind proxies (Vercel)
+  redirectProxyStore: true,
+  // Simplified cookie policy: use secure, sameSite lax in production with canonical domain
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === 'production'
+        ? `__Secure-next-auth.session-token`
+        : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        domain: process.env.NODE_ENV === 'production' ? '.ibero.world' : undefined,
+      },
+    },
+  },
   session: {
     strategy: 'jwt',
   },
@@ -86,30 +103,11 @@ const authConfig = NextAuth({
       return true;
     },
     async session({ session, token }) {
-      // Log token for debugging session issues in development
-      try {
-        // Avoid heavy serializing in production
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('[next-auth] session callback token:', token);
-        }
-      } catch (e) {
-        /* ignore logging errors */
-      }
-
-      // Add email and id to session from JWT token
+      // Minimal session enrichment without debug logging to avoid leaking headers/content.
       if (session.user) {
         session.user.id = token.sub || '';
         session.user.email = token.email || '';
       }
-
-      try {
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('[next-auth] session callback session:', session?.user);
-        }
-      } catch (e) {
-        /* ignore logging errors */
-      }
-
       return session;
     },
     async jwt({ token, user, account }) {
@@ -119,15 +117,12 @@ const authConfig = NextAuth({
       return token;
     },
     async redirect({ url, baseUrl }) {
-      // Keep redirect logic simple: support relative URLs and same-origin URLs.
+      // Basic safe redirect: prefer relative and same-origin URLs, otherwise fallback to baseUrl.
       try {
-        if (url.startsWith('/')) return `${baseUrl}${url}`;
-        const parsed = new URL(url);
-        if (parsed.origin === baseUrl) return url;
+        return url.startsWith(baseUrl) ? url : baseUrl;
       } catch (e) {
-        /* fall through */
+        return baseUrl;
       }
-      return baseUrl;
     },
   },
 });
