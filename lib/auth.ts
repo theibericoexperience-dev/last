@@ -25,7 +25,7 @@ const authConfig = NextAuth({
   }),
   providers: [
     GoogleProvider({
-      clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      clientId: process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
@@ -117,4 +117,4 @@ const authConfig = NextAuth({
   },
 });
 
-export const { handlers, auth, signIn, signOut } = authConfig;
+export const { handlers, auth, signIn, signOut } = authConfig;// Fix: Client ID undefined resolved
