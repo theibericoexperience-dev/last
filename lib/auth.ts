@@ -54,22 +54,6 @@ const authConfig = NextAuth({
   // When testing behind a proxy/tunnel (localtunnel/ngrok) we need to ensure
   // NextAuth trusts the host/proxy so cookies set by NextAuth are valid.
   trustHost: true,
-  // Cookie options: prefer explicit production cookie domain when provided.
-  // You can override by setting SESSION_COOKIE_DOMAIN in Vercel to e.g. .ibero.world
-  cookies: {
-    sessionToken: {
-      name: 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'none',
-        path: '/',
-        secure: String(process.env.NODE_ENV) === 'production',
-        // Force production cookie domain to .ibero.world so cookies are valid
-        // across the main domain and any Vercel preview subdomains when using the custom domain.
-        domain: String(process.env.NODE_ENV) === 'production' ? (process.env.SESSION_COOKIE_DOMAIN || '.ibero.world') : undefined,
-      },
-    },
-  },
   session: {
     strategy: 'jwt',
   },
@@ -96,71 +80,9 @@ const authConfig = NextAuth({
     })
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      if (account?.provider === 'google' && user?.email) {
-          try {
-            if (!supabaseUrl || !supabaseServiceRole) {
-              // Supabase not configured in this environment; skip profile sync.
-              if (process.env.NODE_ENV !== 'production') {
-                console.warn('Skipping Supabase user_profiles upsert: missing envs.');
-              }
-              return true;
-            }
-
-            const supabase = createClient(
-              supabaseUrl,
-              supabaseServiceRole
-            );
-
-          // Buscar perfil existente
-          const { data: existing } = await supabase
-            .from('user_profiles')
-            .select('id, metadata, roles, whatsapp_phone_e164')
-            .eq('email', user.email)
-            .maybeSingle();
-
-          const fullName = user.name || profile?.name || '';
-          const [firstName, ...lastNameParts] = fullName.split(' ');
-          const lastName = lastNameParts.join(' ');
-
-          const upsertPayload: Record<string, any> = {
-            email: user.email,
-            first_name: firstName || '',
-            last_name: lastName || '',
-            name: user.name || profile?.name,
-            avatar_url: user.image,
-            provider: account.provider,
-            provider_account_id: account.providerAccountId,
-            updated_at: new Date().toISOString(),
-          };
-
-          if (!existing) {
-            upsertPayload.metadata = {};
-            upsertPayload.roles = ['user'];
-          } else {
-            upsertPayload.metadata = existing.metadata;
-            upsertPayload.roles = existing.roles;
-            upsertPayload.whatsapp_phone_e164 = existing.whatsapp_phone_e164;
-          }
-
-          const { data: profileRow, error } = await supabase
-            .from('user_profiles')
-            .upsert(upsertPayload, { onConflict: 'email' })
-            .select('id')
-            .single();
-
-          if (error || !profileRow) {
-            console.error('Upsert user_profiles error:', error);
-            return false;
-          }
-
-          (user as any)._internalProfileId = profileRow.id;
-          return true;
-        } catch (err) {
-          console.error('SignIn sync failed:', err);
-          return false;
-        }
-      }
+    async signIn({ user, account }) {
+      // Allow Google sign-ins. Keep this callback minimal to avoid blocking auth.
+      if (account?.provider === 'google') return true;
       return true;
     },
     async session({ session, token }) {
@@ -197,35 +119,7 @@ const authConfig = NextAuth({
       return token;
     },
     async redirect({ url, baseUrl }) {
-      // Ensure production always redirects to the canonical domain configured for ibero.world
-      if (String(process.env.NODE_ENV) === 'production') {
-        const prodOrigin = 'https://ibero.world';
-        try {
-          if (url.startsWith('/')) return `${prodOrigin}${url}`;
-          const parsed = new URL(url);
-          if (parsed.origin === prodOrigin) return url;
-          return `${prodOrigin}${parsed.pathname}${parsed.search || ''}${parsed.hash || ''}`;
-        } catch (e) {
-          return prodOrigin;
-        }
-      }
-      // In production prefer the canonical ibero.world origin to avoid
-      // cross-host authentication between Vercel preview URLs and the custom domain.
-      const prodOrigin = 'https://ibero.world';
-      if (String(process.env.NODE_ENV) === 'production') {
-        try {
-          if (url.startsWith('/')) return `${prodOrigin}${url}`;
-          const parsed = new URL(url);
-          // If the redirect target already points to our canonical origin, allow it.
-          if (parsed.origin === prodOrigin) return url;
-          // Otherwise normalize to prod origin to avoid mixed-host flows.
-          return `${prodOrigin}${parsed.pathname}${parsed.search}${parsed.hash}`;
-        } catch (e) {
-          return prodOrigin;
-        }
-      }
-
-      // Development / fallback behavior: keep relative or same-origin redirects.
+      // Keep redirect logic simple: support relative URLs and same-origin URLs.
       try {
         if (url.startsWith('/')) return `${baseUrl}${url}`;
         const parsed = new URL(url);
@@ -237,20 +131,5 @@ const authConfig = NextAuth({
     },
   },
 });
-
-// Production safety checks: require explicit AUTH_URL / NEXTAUTH_URL to avoid
-// runtime host-guessing that can cause mixed-host auth flows on Vercel.
-if (String(process.env.NODE_ENV) === 'production') {
-  if (!process.env.AUTH_URL && !process.env.NEXTAUTH_URL) {
-    console.error('❌ Production requires AUTH_URL or NEXTAUTH_URL to be set to https://ibero.world');
-  } else {
-    // Prefer the provided AUTH_URL/NEXTAUTH_URL but do not attempt to derive from requests.
-    // This enforces the deployment to use the canonical host in redirects and cookie domains.
-    const configured = process.env.AUTH_URL || process.env.NEXTAUTH_URL;
-    if (configured && !configured.includes('ibero.world')) {
-      console.warn('⚠️ AUTH_URL/NEXTAUTH_URL does not contain ibero.world; ensure it is set to https://ibero.world');
-    }
-  }
-}
 
 export const { handlers, auth, signIn, signOut } = authConfig;
