@@ -9,6 +9,17 @@ import { auth } from '@/lib/auth';
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // Allow auth routes and static assets to pass through without middleware checks.
+  if (
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname === '/favicon.ico' ||
+    pathname.match(/\.(png|jpg|jpeg|svg|css|js|ico|webmanifest)$/)
+  ) {
+    return NextResponse.next();
+  }
+
   // Block diagnostic endpoint
   if (pathname.startsWith('/api/diagnostic')) {
     return new NextResponse(null, { status: 204 });
