@@ -64,7 +64,9 @@ const authConfig = NextAuth({
         sameSite: 'none',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.SESSION_COOKIE_DOMAIN || (process.env.NODE_ENV === 'production' ? '.ibero.world' : undefined),
+        // Force production cookie domain to .ibero.world so cookies are valid
+        // across the main domain and any Vercel preview subdomains when using the custom domain.
+        domain: process.env.NODE_ENV === 'production' ? (process.env.SESSION_COOKIE_DOMAIN || '.ibero.world') : undefined,
       },
     },
   },
@@ -195,6 +197,18 @@ const authConfig = NextAuth({
       return token;
     },
     async redirect({ url, baseUrl }) {
+      // Ensure production always redirects to the canonical domain configured for ibero.world
+      if (process.env.NODE_ENV === 'production') {
+        const prodOrigin = 'https://ibero.world';
+        try {
+          if (url.startsWith('/')) return `${prodOrigin}${url}`;
+          const parsed = new URL(url);
+          if (parsed.origin === prodOrigin) return url;
+          return `${prodOrigin}${parsed.pathname}${parsed.search || ''}${parsed.hash || ''}`;
+        } catch (e) {
+          return prodOrigin;
+        }
+      }
       // In production prefer the canonical ibero.world origin to avoid
       // cross-host authentication between Vercel preview URLs and the custom domain.
       const prodOrigin = 'https://ibero.world';
@@ -223,5 +237,20 @@ const authConfig = NextAuth({
     },
   },
 });
+
+// Production safety checks: require explicit AUTH_URL / NEXTAUTH_URL to avoid
+// runtime host-guessing that can cause mixed-host auth flows on Vercel.
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.AUTH_URL && !process.env.NEXTAUTH_URL) {
+    console.error('❌ Production requires AUTH_URL or NEXTAUTH_URL to be set to https://ibero.world');
+  } else {
+    // Prefer the provided AUTH_URL/NEXTAUTH_URL but do not attempt to derive from requests.
+    // This enforces the deployment to use the canonical host in redirects and cookie domains.
+    const configured = process.env.AUTH_URL || process.env.NEXTAUTH_URL;
+    if (configured && !configured.includes('ibero.world')) {
+      console.warn('⚠️ AUTH_URL/NEXTAUTH_URL does not contain ibero.world; ensure it is set to https://ibero.world');
+    }
+  }
+}
 
 export const { handlers, auth, signIn, signOut } = authConfig;
