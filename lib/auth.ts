@@ -41,33 +41,29 @@ if (process.env.NEXTAUTH_SECRET && process.env.NODE_ENV !== 'production') {
   }
 }
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceRole) {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn('⚠️ Supabase envs missing: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. Skipping server-side profile sync.');
+  }
+}
+
 const authConfig = NextAuth({
   basePath: '/api/auth',
   // When testing behind a proxy/tunnel (localtunnel/ngrok) we need to ensure
-  // cookies are created for the tunnel host and are secured. Use the
-  // NEXTAUTH_URL (or NEXT_PUBLIC_AUTH_URL) to derive the cookie domain.
+  // NextAuth trusts the host/proxy so cookies set by NextAuth are valid.
   trustHost: true,
   session: {
     strategy: 'jwt',
   },
-  cookies: {
-    sessionToken: {
-      // Force a stable cookie name in development to avoid mismatches between
-      // requests and middleware when using tunnels or switching origins.
-      name: 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        // Use secure cookies in production (Vercel uses HTTPS). In local
-        // development keep secure=false so cookies work over HTTP.
-        secure: process.env.NODE_ENV === 'production',
-      },
-    },
-  },
+  // Let NextAuth manage cookies by default. Manual cookie overrides caused
+  // configuration issues in some hosting environments — remove custom cookie
+  // definitions so NextAuth can pick sensible defaults for Vercel/HTTPS.
   // `secret` is the top-level option used to sign/verifiy tokens in NextAuth.
-  // Move the env secret here to satisfy the JWTOptions typings.
-  secret: process.env.NEXTAUTH_SECRET!,
+  // Allow either AUTH_SECRET or NEXTAUTH_SECRET to be provided in the env.
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: '/auth/login',
     error: '/auth/login',
@@ -87,11 +83,19 @@ const authConfig = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google' && user?.email) {
-        try {
-          const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
-          );
+          try {
+            if (!supabaseUrl || !supabaseServiceRole) {
+              // Supabase not configured in this environment; skip profile sync.
+              if (process.env.NODE_ENV !== 'production') {
+                console.warn('Skipping Supabase user_profiles upsert: missing envs.');
+              }
+              return true;
+            }
+
+            const supabase = createClient(
+              supabaseUrl,
+              supabaseServiceRole
+            );
 
           // Buscar perfil existente
           const { data: existing } = await supabase
