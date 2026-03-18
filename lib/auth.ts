@@ -18,15 +18,25 @@ declare module 'next-auth' {
 
 // Debug logs for JWT configuration
 
-// Prefer AUTH_GOOGLE_* env names for production (Vercel convention), but
-// fall back to legacy GOOGLE_CLIENT_* env names if present for local/dev.
-const googleClientId = process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID;
-const googleClientSecret = process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET;
+// Resolve Google OAuth credentials.
+// Auth.js auto-detects AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET from env at init
+// (see @auth/core/lib/utils/env.js). We also accept the legacy names
+// GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET for local dev (.env.local compat).
+// IMPORTANT: pass `undefined` (not empty string) when missing so Auth.js's own
+// env detection can still kick in as fallback.
+const googleClientId =
+  process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID || undefined;
+const googleClientSecret =
+  process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET || undefined;
 
 if (!googleClientId || !googleClientSecret) {
-  if (process.env.NODE_ENV !== 'production') {
-    console.error('❌ ERROR: Google OAuth credentials are incomplete! Ensure AUTH_GOOGLE_ID/AUTH_GOOGLE_SECRET (or GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET) are set in your environment.');
-  }
+  console.warn(
+    '⚠️ Google OAuth credentials incomplete at module load.',
+    `AUTH_GOOGLE_ID=${googleClientId ? '✓' : '✗'}`,
+    `AUTH_GOOGLE_SECRET=${googleClientSecret ? '✓' : '✗'}`,
+    `GOOGLE_CLIENT_ID=${process.env.GOOGLE_CLIENT_ID ? '✓' : '✗'}`,
+    `GOOGLE_CLIENT_SECRET=${process.env.GOOGLE_CLIENT_SECRET ? '✓' : '✗'}`,
+  );
 }
 
 if (!process.env.NEXTAUTH_SECRET) {
@@ -99,16 +109,22 @@ const authConfig = NextAuth({
   },
   providers: [
     GoogleProvider({
-      // Pass the server-side client id/secret explicitly — do not rely on client/public fallbacks.
-      clientId: (googleClientId || '').trim(),
-      clientSecret: (googleClientSecret || '').trim(),
+      // Pass credentials explicitly when available; leave undefined to let
+      // Auth.js auto-detect from AUTH_GOOGLE_ID / AUTH_GOOGLE_SECRET env vars.
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
       allowDangerousEmailAccountLinking: true,
       // Force the issuer to Google's accounts endpoint so provider callbacks
       // use the expected issuer instead of any inferred proxy origin.
       issuer: 'https://accounts.google.com',
+      // Use client_secret_post: sends client_id + client_secret in POST body
+      // instead of an Authorization Basic header. Avoids encoding/proxy issues
+      // that cause "invalid_client" with the default client_secret_basic method.
+      client: {
+        token_endpoint_auth_method: 'client_secret_post',
+      },
       authorization: {
         params: {
-          // Force server-side authorization code flow to avoid invalid_client errors.
           prompt: 'consent',
           access_type: 'offline',
           response_type: 'code',
