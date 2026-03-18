@@ -18,18 +18,31 @@ declare module 'next-auth' {
 
 // Debug logs for JWT configuration
 
-const googleClientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
 if (!googleClientId || !googleClientSecret) {
   if (process.env.NODE_ENV !== 'production') {
-    console.error('❌ ERROR: Google OAuth credentials are incomplete!');
+    console.error('❌ ERROR: Google OAuth credentials are incomplete! Ensure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set in your environment.');
   }
 }
 
 if (!process.env.NEXTAUTH_SECRET) {
   if (process.env.NODE_ENV !== 'production') {
     console.warn('⚠️ NEXTAUTH_SECRET is not set. NextAuth requires NEXTAUTH_SECRET to sign and verify session tokens.');
+  }
+}
+
+// Warn if AUTH_SECRET and NEXTAUTH_SECRET differ or one is missing
+const envAuthSecret = process.env.AUTH_SECRET;
+const envNextAuthSecret = process.env.NEXTAUTH_SECRET;
+if (envAuthSecret && envNextAuthSecret && envAuthSecret !== envNextAuthSecret) {
+  console.warn('⚠️ AUTH_SECRET and NEXTAUTH_SECRET differ. Ensure the same secret is set in Vercel production and locally to avoid cookie/signing mismatches.');
+} else if (!envAuthSecret && !envNextAuthSecret) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ No NEXTAUTH_SECRET/AUTH_SECRET found in production environment. Aborting to avoid mis-signed sessions.');
+    // In production we prefer to fail fast
+    throw new Error('NEXTAUTH_SECRET or AUTH_SECRET must be set in production');
   }
 }
 
@@ -84,15 +97,19 @@ const authConfig = NextAuth({
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID?.trim() || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim(),
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim(),
+      // Pass the server-side client id/secret explicitly — do not rely on client/public fallbacks.
+      clientId: (googleClientId || '').trim(),
+      clientSecret: (googleClientSecret || '').trim(),
       allowDangerousEmailAccountLinking: true,
       // Force the issuer to Google's accounts endpoint so provider callbacks
       // use the expected issuer instead of any inferred proxy origin.
       issuer: 'https://accounts.google.com',
       authorization: {
         params: {
-          prompt: 'select_account',
+          // Force server-side authorization code flow to avoid invalid_client errors.
+          prompt: 'consent',
+          access_type: 'offline',
+          response_type: 'code',
         },
       },
     })
