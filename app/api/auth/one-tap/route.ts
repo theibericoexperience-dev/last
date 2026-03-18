@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import * as jose from 'jose';
+import { encode as encodeAuthJwt } from 'next-auth/jwt';
 import { upsertUserProfile } from '@/lib/db/upsertUserProfile';
 import { cookies } from 'next/headers';
 
@@ -70,41 +71,36 @@ export async function POST(req: Request) {
       is_email_verified: emailVerified === true,
     });
 
-    // Issue a NextAuth session by calling the server-side signIn.
-    // We use the "credentials" provider pattern with redirect: false
-    // so we can control the response. Auth.js signIn server-side returns
-    // a redirect response; we capture the session cookie it sets.
-    //
-    // Alternative approach: directly encode a JWT and set the session cookie.
-    // This is more reliable since Auth.js server signIn for OAuth providers
-    // requires an actual OAuth code exchange.
+    // Issue a NextAuth-compatible session cookie.
+    // Auth.js v5 uses encrypted JWTs (JWE A256CBC-HS512) by default.
+    // We must use its own encode() to produce a token it can decode.
     const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
     if (!secret) {
       console.error('[one-tap] No AUTH_SECRET/NEXTAUTH_SECRET configured');
       return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
     }
 
-    // Manually create the NextAuth JWT and set it as a session cookie.
-    // This mirrors what NextAuth does internally after a successful signIn.
-    const jwtPayload: Record<string, unknown> = {
-      sub: googleSub,
-      email: (email as string).toLowerCase(),
-      name: name || '',
-      picture: picture || '',
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60, // 30 days
-    };
-
-    const encodedToken = await new jose.SignJWT(jwtPayload as jose.JWTPayload)
-      .setProtectedHeader({ alg: 'HS256' })
-      .setIssuedAt()
-      .setExpirationTime('30d')
-      .sign(new TextEncoder().encode(secret));
-
     const isProduction = process.env.NODE_ENV === 'production';
     const cookieName = isProduction
       ? '__Secure-next-auth.session-token'
       : 'next-auth.session-token';
+
+    // Build the same token shape NextAuth's jwt callback would produce
+    const tokenPayload = {
+      sub: googleSub,
+      email: (email as string).toLowerCase(),
+      name: name || '',
+      picture: picture || '',
+    };
+
+    // encode() encrypts with A256CBC-HS512 using the same HKDF derivation
+    // NextAuth uses, keyed by `salt` (cookie name) + `secret`.
+    const encodedToken = await encodeAuthJwt({
+      token: tokenPayload,
+      secret,
+      salt: cookieName,
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    });
 
     const cookieStore = await cookies();
     cookieStore.set(cookieName, encodedToken, {
