@@ -87,6 +87,9 @@ const authConfig = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID?.trim() || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim(),
       clientSecret: process.env.GOOGLE_CLIENT_SECRET?.trim(),
       allowDangerousEmailAccountLinking: true,
+      // Force the issuer to Google's accounts endpoint so provider callbacks
+      // use the expected issuer instead of any inferred proxy origin.
+      issuer: 'https://accounts.google.com',
       authorization: {
         params: {
           prompt: 'select_account',
@@ -115,11 +118,13 @@ const authConfig = NextAuth({
       return token;
     },
     async redirect({ url, baseUrl }) {
-      // Basic safe redirect: prefer relative and same-origin URLs, otherwise fallback to baseUrl.
+      // Prefer application canonical base URL when available to avoid
+      // redirects to hostnames injected by proxies/hosts (e.g., Vercel internals).
+      const canonicalBase = process.env.NEXTAUTH_URL || baseUrl;
       try {
-        return url.startsWith(baseUrl) ? url : baseUrl;
+        return url.startsWith(canonicalBase) ? url : canonicalBase;
       } catch (e) {
-        return baseUrl;
+        return canonicalBase;
       }
     },
   },
