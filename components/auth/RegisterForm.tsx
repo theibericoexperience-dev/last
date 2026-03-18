@@ -27,7 +27,7 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
       setError(null);
       
       const result = await signIn('google', {
-        callbackUrl: callbackUrl,
+        callbackUrl: 'https://ibero.world/panel',
         redirect: false,
       });
 
@@ -150,7 +150,7 @@ export default function RegisterForm({ onSuccessAction, autoFocus }: { onSuccess
       </form>
 
       <button
-        onClick={() => signIn('google', { callbackUrl: '/panel' })}
+        onClick={() => signIn('google', { callbackUrl: 'https://ibero.world/panel' })}
         disabled={loading}
         className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-800 shadow-sm ring-offset-2 transition hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
       >

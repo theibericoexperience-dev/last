@@ -60,7 +60,7 @@ export default function GoogleOneTap() {
             await signIn('google', {
               id_token: response.credential,
               redirect: false,
-              callbackUrl: '/panel',
+              callbackUrl: 'https://ibero.world/panel',
             });
             try { await router.refresh(); } catch (e) { /* ignore */ }
           } catch (e) {
