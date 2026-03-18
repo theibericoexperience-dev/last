@@ -18,12 +18,14 @@ declare module 'next-auth' {
 
 // Debug logs for JWT configuration
 
-const googleClientId = process.env.GOOGLE_CLIENT_ID;
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+// Prefer AUTH_GOOGLE_* env names for production (Vercel convention), but
+// fall back to legacy GOOGLE_CLIENT_* env names if present for local/dev.
+const googleClientId = process.env.AUTH_GOOGLE_ID || process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.AUTH_GOOGLE_SECRET || process.env.GOOGLE_CLIENT_SECRET;
 
 if (!googleClientId || !googleClientSecret) {
   if (process.env.NODE_ENV !== 'production') {
-    console.error('❌ ERROR: Google OAuth credentials are incomplete! Ensure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are set in your environment.');
+    console.error('❌ ERROR: Google OAuth credentials are incomplete! Ensure AUTH_GOOGLE_ID/AUTH_GOOGLE_SECRET (or GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET) are set in your environment.');
   }
 }
 
