@@ -69,19 +69,11 @@ export default function GoogleOneTap() {
         console.debug('[GoogleOneTap] Initialized with client_id:', clientId.slice(0, 12) + '…');
       }
 
-      // Prompt once
+      // Prompt once — no status callback to avoid deprecated FedCM warnings
       if (!promptedRef.current) {
         promptedRef.current = true;
         setTimeout(() => {
-          gsi.prompt((notification: any) => {
-            if (notification?.isNotDisplayed?.()) {
-              console.debug('[GoogleOneTap] Not displayed:', notification.getNotDisplayedReason?.() || 'unknown');
-            } else if (notification?.isSkippedMoment?.()) {
-              console.debug('[GoogleOneTap] Skipped:', notification.getSkippedReason?.() || 'unknown');
-            } else {
-              console.debug('[GoogleOneTap] Prompt shown');
-            }
-          });
+          gsi.prompt();
         }, 1200);
       }
     };
