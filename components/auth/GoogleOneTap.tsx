@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -17,68 +17,69 @@ import { useRouter } from "next/navigation";
 export default function GoogleOneTap() {
   const { status } = useSession();
   const router = useRouter();
-  const [isMounted, setIsMounted] = useState(false);
   const clientId = (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '').trim();
-
-  useEffect(() => setIsMounted(true), []);
+  const initializedRef = useRef(false);
+  const promptedRef = useRef(false);
 
   useEffect(() => {
-    if (!isMounted) return;
-    if (status === "authenticated") return;
+    // Wait until session status is definitively resolved
+    if (status !== "unauthenticated") return;
     if (typeof window === "undefined") return;
-    if (!clientId) return;
 
-    // Avoid re-initializing the GSI library within the same page lifecycle
-    if ((window as any).__gsi_initialized) return;
+    if (!clientId) {
+      console.warn('[GoogleOneTap] NEXT_PUBLIC_GOOGLE_CLIENT_ID is empty — One Tap disabled');
+      return;
+    }
 
-    const initGSI = () => {
-      if (!(window as any).google?.accounts?.id) return;
-      if ((window as any).__gsi_initialized) return;
-      (window as any).__gsi_initialized = true;
+    const handleResponse = async (response: any) => {
+      if (!response?.credential || typeof response.credential !== 'string') return;
 
-      const handleResponse = async (response: any) => {
-        if (!response?.credential || typeof response.credential !== 'string') return;
+      try {
+        const res = await fetch('/api/auth/one-tap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: response.credential }),
+        });
 
-        try {
-          const res = await fetch('/api/auth/one-tap', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ credential: response.credential }),
-          });
-
-          if (res.ok) {
-            // Session cookie was set by the API — refresh to pick it up
-            router.refresh();
-            // Small delay to let the session propagate, then navigate
-            setTimeout(() => {
-              window.location.href = '/panel';
-            }, 300);
-          } else {
-            // One Tap failed — silently fall back to normal login
-            console.warn('[GoogleOneTap] Server rejected credential:', res.status);
-          }
-        } catch (e) {
-          // Network error — silently fall back
-          console.warn('[GoogleOneTap] Network error:', e);
+        if (res.ok) {
+          router.refresh();
+          setTimeout(() => {
+            window.location.href = '/panel';
+          }, 300);
+        } else {
+          console.warn('[GoogleOneTap] Server rejected credential:', res.status);
         }
-      };
+      } catch (e) {
+        console.warn('[GoogleOneTap] Network error:', e);
+      }
+    };
 
-      (window as any).google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleResponse,
-        use_fedcm_for_prompt: true,
-      });
+    const initAndPrompt = () => {
+      const gsi = (window as any).google?.accounts?.id;
+      if (!gsi) return;
 
-      // Only prompt when the user is explicitly unauthenticated
-      if (status === 'unauthenticated') {
+      // Initialize once per page lifecycle
+      if (!initializedRef.current) {
+        initializedRef.current = true;
+        gsi.initialize({
+          client_id: clientId,
+          callback: handleResponse,
+          use_fedcm_for_prompt: true,
+        });
+        console.debug('[GoogleOneTap] Initialized with client_id:', clientId.slice(0, 12) + '…');
+      }
+
+      // Prompt once
+      if (!promptedRef.current) {
+        promptedRef.current = true;
         setTimeout(() => {
-          if ((window as any).__gsi_prompted) return;
-          (window as any).__gsi_prompted = true;
-
-          (window as any).google.accounts.id.prompt((notification: any) => {
+          gsi.prompt((notification: any) => {
             if (notification?.isNotDisplayed?.()) {
-              const reason = notification.getNotDisplayedReason?.() || 'unknown';
-              console.debug('[GoogleOneTap] Not displayed:', reason);
+              console.debug('[GoogleOneTap] Not displayed:', notification.getNotDisplayedReason?.() || 'unknown');
+            } else if (notification?.isSkippedMoment?.()) {
+              console.debug('[GoogleOneTap] Skipped:', notification.getSkippedReason?.() || 'unknown');
+            } else {
+              console.debug('[GoogleOneTap] Prompt shown');
             }
           });
         }, 1200);
@@ -88,22 +89,21 @@ export default function GoogleOneTap() {
     // Load the GSI script if not already present
     const existingScript = document.getElementById("google-one-tap-script");
     if (existingScript) {
-      if ((window as any).google?.accounts?.id) initGSI();
+      if ((window as any).google?.accounts?.id) {
+        initAndPrompt();
+      } else {
+        // Script tag exists but hasn't loaded yet — wait for it
+        existingScript.addEventListener('load', initAndPrompt);
+      }
     } else {
       const script = document.createElement("script");
       script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.id = "google-one-tap-script";
-      script.onload = () => initGSI();
+      script.onload = () => initAndPrompt();
       document.body.appendChild(script);
     }
-
-    return () => {
-      // Don't remove the script — just clean up the prompt container if any
-      const c = document.getElementById("google-one-tap-container");
-      if (c) c.remove();
-    };
-  }, [isMounted, status, clientId, router]);
+  }, [status, clientId, router]);
 
   return null;
 }
