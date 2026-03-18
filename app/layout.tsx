@@ -81,8 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
           <SessionProvider>
           <GlobalLoaderProvider>
-            {/* GoogleOneTap disabled for next deployment to avoid interfering with OAuth flow */}
-            {/* <GoogleOneTap /> */}
+            <GoogleOneTap />
             <MobileFullScreen />
             <NotificationProvider>
               {children}
