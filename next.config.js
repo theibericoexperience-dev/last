@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID:
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      '330864418503-cq8gpofrj2t07lq8ri8591id899ogs1a.apps.googleusercontent.com',
+  },
   images: {
     remotePatterns: [
       {
