@@ -624,9 +624,24 @@ video {
   margin-top: 0; /* video is fixed and covers the hero; remove forced offset */
 }
 
-/* Force header text to pure white on the landing to avoid semi-transparent appearance */
-header a, header .text-white, header .font-normal, header .font-extrabold, header .text-4xl, header .text-5xl {
+/* Force header text to pure white on the landing to avoid semi-transparent appearance.
+   Exception: when the header has bg-white (collapsed/sticky mode) we must allow black text.
+   We scope this to headers that do NOT have bg-white in their class list. */
+header:not(.bg-white) a,
+header:not(.bg-white) .text-white,
+header:not(.bg-white) .font-normal,
+header:not(.bg-white) .font-extrabold,
+header:not(.bg-white) .text-4xl,
+header:not(.bg-white) .text-5xl {
   color: #ffffff !important;
+}
+/* When header is collapsed (bg-white), override back to black for all child text */
+header.bg-white a,
+header.bg-white button,
+header.bg-white span,
+header.bg-white .font-normal,
+header.bg-white .font-extrabold {
+  color: #000000 !important;
 }
 
 /* Ensure landing action buttons (map + user) have visible white border matching one another */
@@ -734,6 +749,13 @@ body.tour-visible #landing-open-map-btn, body.tour-visible #landing-open-user-bt
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Ken Burns zoom for SmartSlideshow — CSS @keyframes runs on the GPU compositor,
+   completely bypassing JS frame rendering for butter-smooth motion */
+@keyframes kenburns-slide {
+  from { transform: scale(1.08); }
+  to   { transform: scale(1.0); }
 }
 
 /* Make sure InlineMap container fills its parent */

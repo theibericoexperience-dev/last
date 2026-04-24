@@ -179,8 +179,8 @@ export default function ReservationTab({ tourData, onOpenRegister, preSelectedOp
   // Define available addons (some per-traveler, some flat)
   const addons = useMemo(() => [
     // generic addons (insurance etc.)
-    { key: 'insHealth', label: tourData.insuranceOptions.health || 'Health insurance', price: 100, perTraveler: true, info: 'Covers basic medical emergencies.' },
-    { key: 'insCancel', label: tourData.insuranceOptions.cancellation || 'Cancellation insurance', price: 120, perTraveler: true, info: 'Covers trip cancellation per policy.' },
+    { key: 'insHealth', label: tourData.insuranceOptions?.health || 'Health insurance', price: 100, perTraveler: true, info: 'Covers basic medical emergencies.' },
+    { key: 'insCancel', label: tourData.insuranceOptions?.cancellation || 'Cancellation insurance', price: 120, perTraveler: true, info: 'Covers trip cancellation per policy.' },
   ], [tourData]);
 
   const toggleAddon = (key: string) => setSelectedAddons(prev => ({ ...prev, [key]: !prev[key] }));
@@ -547,12 +547,12 @@ export default function ReservationTab({ tourData, onOpenRegister, preSelectedOp
 
    {/* Main layout: Desktop Grid vs Mobile Block */}
   <div
-    className="mobile-reservation-grid mx-auto w-full max-w-5xl px-4 md:pl-6 md:pr-0"
+    className="mobile-reservation-grid w-full px-4 md:pl-6 md:pr-0"
     style={{
       display: 'grid',
-      // Desktop: left column flexible, right column fixed to 360px.
-      // Mobile (<=768px) is overridden by the .mobile-reservation-grid media rule which sets display:block;
-      gridTemplateColumns: 'minmax(0, 1fr) 360px',
+      // Desktop: two equal-width columns. Mobile is overridden by the .mobile-reservation-grid media rule.
+      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+      alignItems: 'stretch',
       gap: '0.5rem',
       height: '100%',
     }}

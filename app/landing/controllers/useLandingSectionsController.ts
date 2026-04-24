@@ -8,7 +8,7 @@
  * - Scroll arriba = sección anterior
  * - Sin posibilidad de quedarse entre secciones
  */
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { subscribeLandingScrollTo } from '@/lib/navigation/intents';
 
 export interface UseLandingSectionsController {
@@ -50,6 +50,9 @@ export function useLandingSectionsController(): UseLandingSectionsController {
 
   const isScrolling = useRef(false);
   const targetIndexRef = useRef<number>(currentIndex);
+  // Ref that always reflects the latest currentIndex without stale closures in callbacks/intervals
+  const currentIndexRef = useRef(currentIndex);
+  useLayoutEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
   const offsetsRef = useRef<number[]>([]);
   
   // Efecto de inicialización de scroll inmediato (sin animación)
@@ -307,9 +310,8 @@ export function useLandingSectionsController(): UseLandingSectionsController {
 
     const update = () => {
       if (isScrolling.current) return;
-      // No sincronizar desde scrollTop cuando estamos en tours,
-      // ya que el índice se gestiona programáticamente (goTo solo cambia estado).
-      const currentSection = SECTION_IDS[currentIndex];
+      // Use ref (not captured state) so this guard is never stale, even in the 5-second interval.
+      const currentSection = SECTION_IDS[currentIndexRef.current];
       if (currentSection === 'tour-2026' || currentSection === 'tour-2027') return;
       
       const idx = getClosestIndexFromScrollTop(scroller.scrollTop);

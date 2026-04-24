@@ -5,8 +5,8 @@ import { ShieldCheckIcon, LockClosedIcon, ChevronDownIcon } from '@heroicons/rea
 
 type Tab = 'guarantee' | 'privacy';
 
-export default function LegalSection() {
-  const [activeTab, setActiveTab] = useState<Tab>('guarantee');
+export default function LegalSection({ defaultTab }: { defaultTab?: Tab } = {}) {
+  const [activeTab, setActiveTab] = useState<Tab>(defaultTab ?? 'guarantee');
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

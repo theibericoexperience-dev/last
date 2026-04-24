@@ -137,15 +137,26 @@ function PanelContent() {
   };
 
   useEffect(() => {
+    const root = document.getElementById('panel-main-content');
+    if (!root) return;
     const observer = new IntersectionObserver((entries) => {
-      const visibleEntries = entries.filter(e => e.isIntersecting);
-      if (visibleEntries.length === 0) return;
-      const best = visibleEntries.reduce((prev, current) => (current.intersectionRatio > prev.intersectionRatio) ? current : prev);
-      if (best.intersectionRatio > 0.1) {
+      // Pick the entry with the highest ratio that crosses the active zone
+      let best: IntersectionObserverEntry | null = null;
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+        }
+      }
+      if (best && best.intersectionRatio > 0.05) {
         const id = best.target.id.replace('section-', '') as PanelSection;
         if (sectionRef.current !== id) setSection(id);
       }
-    }, { threshold: [0.1, 0.2, 0.4], rootMargin: '-10% 0px -50% 0px' });
+    }, {
+      root,
+      // Fire when a section enters the top 60% of the scroll container
+      rootMargin: '0px 0px -40% 0px',
+      threshold: [0, 0.05, 0.1, 0.25, 0.5],
+    });
 
     const sectionIds = ['reservations', 'whatsapp', 'profile', 'support', 'call', 'bonus', 'legal'];
     sectionIds.forEach((s) => { const el = document.getElementById(`section-${s}`); if (el) observer.observe(el); });

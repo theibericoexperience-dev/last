@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { getSupabaseUrl } from '@/lib/media-resolver';
 import { extractPlaceFromPath, toSentenceCase } from '../utils/media';
-import { ChevronRightIcon } from '@heroicons/react/24/outline'; // Or similar
 
 interface SmartSlideshowProps {
   basePath: string; // e.g. "Open Tours/MADRID TO LISBOA"
@@ -25,6 +22,13 @@ interface SmartSlideshowProps {
 const SmartSlideshow: React.FC<SmartSlideshowProps> = ({ basePath, className, daySpecificMedia, disableZoom }) => {
   const [images, setImages] = useState<Array<{ src: string; folder?: string; place?: string; width?: number; height?: number; isPortrait?: boolean }>>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  // prevIndex: the slide that was showing before — kept rendered underneath so there is NEVER a black gap
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
+  // loadedSrc: src of the most-recently decoded image; compared against current.src to derive isCurrentLoaded
+  // Using a string comparison instead of boolean avoids React stale-state races
+  const [loadedSrc, setLoadedSrc] = useState<string>('');
+  // Keep Image objects alive in memory so the browser won't evict them from cache between slides
+  const imageCache = useRef<Map<string, HTMLImageElement>>(new Map());
 
   useEffect(() => {
     // If we have specific media (Itinerary mode), use it
@@ -120,20 +124,47 @@ const SmartSlideshow: React.FC<SmartSlideshowProps> = ({ basePath, className, da
   useEffect(() => {
     if (images.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 5000);
+      setCurrentIndex(prev => {
+        setPrevIndex(prev);
+        return (prev + 1) % images.length;
+      });
+    }, 6000); // matches Ken Burns duration so zoom completes before crossfade
     return () => clearInterval(interval);
   }, [images]);
+
+  // Pre-load all images into memory cache so onLoad fires instantly for already-fetched assets
+  useEffect(() => {
+    images.forEach(img => {
+      if (!imageCache.current.has(img.src)) {
+        const el = new Image();
+        el.src = img.src;
+        imageCache.current.set(img.src, el);
+      }
+    });
+  }, [images]);
+
+  // If the incoming image is already in the preload cache, mark it loaded without waiting for onLoad
+  useEffect(() => {
+    const src = images[currentIndex]?.src;
+    if (!src) return;
+    const cached = imageCache.current.get(src);
+    if (cached?.complete && cached.naturalHeight > 0) {
+      setLoadedSrc(src);
+    }
+  }, [currentIndex, images]);
 
   if (images.length === 0) return <div className={`bg-gray-900 ${className}`} />;
 
   const current = images[currentIndex] || images[0];
   if (!current || !current.src) return <div className={`bg-gray-900 ${className}`} />;
 
+  const prev = prevIndex !== null ? (images[prevIndex] ?? null) : null;
+  // Derived from string comparison — never stale unlike a boolean flag
+  const isCurrentLoaded = loadedSrc === current.src;
+
   // Determine whether this slideshow is being used for itinerary-specific media
   const isItineraryMode = Boolean(daySpecificMedia && daySpecificMedia.length > 0);
 
-  // Compute extension and place info, but only show overlays when in itinerary mode
   const isExtension = (current.folder || current.src || '').toLowerCase().includes('extension');
   const placeName = (current.place && String(current.place).trim()) ? String(current.place).trim() : extractPlaceFromPath(current.src);
   const placeDisplay = placeName ? placeName : null;
@@ -147,84 +178,47 @@ const SmartSlideshow: React.FC<SmartSlideshowProps> = ({ basePath, className, da
     if (extensionName === '') extensionName = null;
   }
 
+  // Ken Burns origin alternates per slide so each image pans from a different corner
+  const transformOrigin = currentIndex % 2 === 0 ? '30% 30%' : '70% 70%';
+
   return (
-    <div className={`relative overflow-hidden bg-black ${className} aspect-video`}>
-      <AnimatePresence>
-        {/* If current is portrait and we have a group of >=2 consecutive portraits, render them stacked vertically */}
-        {current.isPortrait ? (
-          (() => {
-            // collect portrait images starting at currentIndex (wrap around), skipping non-portraits
-            const maxGroup = 4;
-            const group: typeof current[] = [];
-            for (let i = 0; i < images.length && group.length < maxGroup; i++) {
-              const idx = (currentIndex + i) % images.length;
-              const img = images[idx];
-              if (img && img.isPortrait) {
-                group.push(img);
-              } else {
-                // skip non-portraits but keep scanning to find more portraits
-                continue;
-              }
-            }
-            if (group.length >= 2) {
-              return (
-                <motion.div key={group.map(g => g.src).join('|')} className="absolute inset-0 w-full h-full flex flex-col" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  {group.map((g, i) => {
-                    const gPlace = (g.place && String(g.place).trim()) ? String(g.place).trim() : extractPlaceFromPath(g.src);
-                    return (
-                      <div key={g.src} style={{ height: `${100 / group.length}%` }} className="w-full relative overflow-hidden">
-                        <img src={g.src} alt={`slideshow-${i}`} className="w-full h-full object-cover" />
-                        {isItineraryMode && gPlace && (
-                          <div className="absolute bottom-3 left-3 z-50 text-white pointer-events-none">
-                            <div className="text-sm md:text-base font-bold drop-shadow-lg">{gPlace}</div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </motion.div>
-              );
-            }
-            // not enough portrait images to fill the vertical space: fall back to single image
-            return (
-              <motion.img
-              key={current.src}
-              src={current.src}
-              alt="Slideshow"
-              className="absolute inset-0 w-full h-full object-cover"
-                initial={{ scale: disableZoom ? 1 : 1.1, opacity: 0 }}
-                animate={{ 
-                  scale: 1.0, 
-                  opacity: 1, 
-                  transition: { 
-                    scale: { duration: disableZoom ? 0 : 8, ease: "linear" }, 
-                    opacity: { duration: 1.2 } 
-                  } 
-                }}
-                exit={{ opacity: 0, transition: { duration: 1.2 } }}
-              />
-            );
-          })()
-        ) : (
-          <motion.img
-            key={current.src}
-            src={current.src}
-            alt="Slideshow"
-            className="absolute inset-0 w-full h-full object-cover"
-            initial={{ scale: disableZoom ? 1 : 1.1, opacity: 0 }}
-            animate={{ 
-              scale: 1.0, 
-              opacity: 1, 
-              transition: { 
-                scale: { duration: disableZoom ? 0 : 8, ease: "linear" }, 
-                opacity: { duration: 1.2 } 
-              } 
-            }}
-            exit={{ opacity: 0, transition: { duration: 1.2 } }}
-          />
-        )}
-      </AnimatePresence>
-      
+    <div className={`relative overflow-hidden bg-gray-900 ${className} aspect-video`}>
+      {/*
+        Two-layer crossfade — prev stays fully visible underneath current.
+        This guarantees zero black frames: if current hasn't loaded yet,
+        prev fills the space. CSS @keyframes (not framer-motion) drives the
+        Ken Burns zoom so it runs on the GPU compositor thread, never jank.
+      */}
+
+      {/* Layer 1 — previous slide, static, always opaque */}
+      {prev && (
+        <img
+          src={prev.src}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      )}
+
+      {/* Layer 2 — current slide: fades in after onLoad, then Ken Burns begins */}
+      <img
+        key={current.src}
+        src={current.src}
+        alt="Slideshow"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{
+          opacity: isCurrentLoaded ? 1 : 0,
+          transition: 'opacity 0.9s ease',
+          // Static scale before animation starts (matches the 'from' keyframe — no visual jump)
+          transform: 'scale(1.08)',
+          transformOrigin: disableZoom ? undefined : transformOrigin,
+          // CSS animation runs entirely on the compositor thread — smooth at any frame rate
+          animation: (!disableZoom && isCurrentLoaded) ? 'kenburns-slide 6s ease-out forwards' : 'none',
+          willChange: 'transform, opacity',
+        }}
+        onLoad={() => setLoadedSrc(current.src)}
+      />
+
       {/* Place name overlay (show only in itinerary mode) */}
       {isItineraryMode && placeDisplay && (
         <div className="absolute bottom-12 left-4 text-white z-50 pointer-events-none">

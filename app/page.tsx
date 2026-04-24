@@ -258,7 +258,7 @@ function Page() {
                 size="lg"
                 className="gap-2 border border-white/20 bg-transparent shadow-none hover:bg-white/5"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-globe">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-globe">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="2" y1="12" x2="22" y2="12" />
                   <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
@@ -268,11 +268,11 @@ function Page() {
               <Button
                 id="landing-open-user-btn"
                 aria-label="Open user panel"
-                onClick={handleOpenPanel}
+                onClick={handleOpenRegister}
                 size="lg"
                 className="gap-2 border border-white/20 bg-transparent shadow-none hover:bg-white/5"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-user">
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-user">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
@@ -316,7 +316,7 @@ function Page() {
           pointer-events: none;
         }
         #hero-overlay[data-covered="false"] { background: transparent; opacity: 0; pointer-events: none; }
-        .landing-header-transition:not(.landing-header-visible) + main .hero-overlay { opacity: 0; pointer-events: none; transition: opacity 300ms ease; }
+        .landing-header-transition:not(.landing-header-visible) + main .hero-overlay { opacity: 0; pointer-events: none; transition: opacity 300ms ease; }\n        .landing-main::-webkit-scrollbar { display: none; }\n        .landing-main { -ms-overflow-style: none; scrollbar-width: none; }
 
         @media (max-width: 767.98px) {
           #hero-overlay {

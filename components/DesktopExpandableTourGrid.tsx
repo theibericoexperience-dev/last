@@ -74,8 +74,30 @@ function DesktopTourCard({
     return () => obs.disconnect();
   }, [expanded, tour.year]);
 
+  const rootRef = React.useRef<HTMLElement | null>(null);
+
+  React.useEffect(() => {
+    if (!expanded) return;
+    
+    // Notify Header that tour is EXPANDED
+    window.dispatchEvent(new CustomEvent('landing-tours-state', { detail: { open: true } }));
+    
+    const handler = (e: PointerEvent) => {
+      const target = e.target as Node | null;
+      if (rootRef.current && target && !rootRef.current.contains(target)) {
+        onToggle();
+      }
+    };
+    document.addEventListener('pointerdown', handler);
+    return () => {
+      document.removeEventListener('pointerdown', handler);
+      // Notify Header that tour is COLLAPSED
+      window.dispatchEvent(new CustomEvent('landing-tours-state', { detail: { open: false } }));
+    };
+  }, [expanded, onToggle]);
+
   return (
-    <article className={`group rounded-[28px] border border-white/15 bg-black/20 backdrop-blur-xl overflow-visible transition-all duration-500 ${expanded ? 'col-span-2' : ''}`}>
+    <article ref={rootRef} className={`group rounded-[28px] border border-white/15 bg-black/20 backdrop-blur-xl overflow-visible transition-all duration-500 ${expanded ? 'col-span-2' : ''}`}>
       <div className={`grid transition-all duration-500 ${expanded ? 'grid-cols-[1.1fr_0.9fr]' : 'grid-cols-1'}`}>
         <div className={
           `relative ${expanded ? 'min-h-[420px] md:min-h-[480px]' : 'min-h-[320px]'}`

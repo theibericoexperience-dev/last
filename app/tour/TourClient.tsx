@@ -1480,26 +1480,26 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
                     <div className="hidden md:flex items-center gap-2">
                        <button 
                          onClick={() => goBackToLanding(router)}
-                         className="w-8 h-8 flex items-center justify-center bg-black/5 hover:bg-black/10 rounded-full text-gray-700 transition-colors"
+                         className="w-10 h-10 flex items-center justify-center bg-black/5 hover:bg-black/10 rounded-full text-gray-700 transition-colors"
                          title="Back"
                        >
-                         <ArrowLeftIcon className="w-4 h-4" />
+                         <ArrowLeftIcon className="w-5 h-5" />
                        </button>
 
                        <button 
                           onClick={() => goBackToLanding(router)}
-                          className="flex items-center justify-center w-8 h-8 bg-black hover:bg-gray-800 text-white rounded-full shadow-lg transition-transform hover:scale-105"
+                          className="flex items-center justify-center w-10 h-10 bg-black hover:bg-gray-800 text-white rounded-full shadow-lg transition-transform hover:scale-105"
                           title="Go to 2026 section"
                           aria-label="Go to 2026 section on landing"
                        >
-                          <GlobeAltIcon className="w-4 h-4" />
+                          <GlobeAltIcon className="w-5 h-5" />
                        </button>
                     </div>
 
                     <div className="origin-left ml-0.5 hidden md:block">
                        <UserBubble 
                           variant="modalHeader" 
-                          buttonClassName="w-8 h-8 flex items-center justify-center hover:bg-black/5 rounded-full text-black transition-colors"
+                          buttonClassName="w-10 h-10 flex items-center justify-center hover:bg-black/5 rounded-full text-black transition-colors"
                        />
                     </div>
                  </div>
@@ -2616,7 +2616,7 @@ export default function TourClient({ id, initialData }: { id?: string; initialDa
                      className="py-1.5 flex flex-col items-center justify-center gap-1 transition-all text-gray-400 hover:text-black"
                      style={{ flex: 1, minWidth: 0, display: 'flex' }}
                   >
-                     <ArrowLeftIcon className={`w-4 h-4`} />
+                     <ArrowLeftIcon className={`w-5 h-5`} />
                      <span className="text-[8px] font-bold uppercase tracking-widest leading-none">Back</span>
                   </button>
 

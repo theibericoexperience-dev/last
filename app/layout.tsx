@@ -7,7 +7,7 @@ import MobileFullScreen from "@/components/MobileFullScreen";
 import CookieConsent from './components/CookieConsent';
 import SentryInitClient from './components/SentryInitClient';
 import { NotificationProvider } from '../components/NotificationProvider';
-import UserBubble from '../components/UserBubble';
+import UserBubbleMount from '../components/UserBubbleMount';
 import { GlobalLoaderProvider } from '@/components/GlobalLoaderProvider';
 import { SessionProvider } from './components/SessionProvider';
 import GoogleOneTap from "@/components/auth/GoogleOneTap";
@@ -22,7 +22,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "IBERO | Luxury Travel",
+    default: "IBERO | True Travel",
     template: "%s | IBERO",
   },
   description: "Authentic small-group travels focused on local food, culture and nature across Spain and Portugal.",
@@ -85,7 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <MobileFullScreen />
             <NotificationProvider>
               {children}
-              <UserBubble />
+              <UserBubbleMount />
             </NotificationProvider>
         <script dangerouslySetInnerHTML={{ __html: `(function(){
           function loadGA(){

@@ -103,7 +103,24 @@ export default function PanelSidebar({
 
       <ul className={`space-y-1 px-2 ${(isCollapsed || isMini) ? 'w-full flex flex-col items-center' : ''}`}>
 
-        {/* Desktop collapse/expand chevron — first item, aligned with nav buttons */}
+        {/* Go Back — returns to landing page */}
+        <li className="hidden md:flex w-full justify-center mb-1">
+          <a
+            href="/"
+            className={`
+              flex items-center rounded-lg transition text-slate-400 hover:bg-slate-100 hover:text-slate-600
+              ${(isCollapsed || isMini) ? 'p-3 justify-center' : 'w-full px-3 py-2 gap-3'}
+            `}
+            title="Go back to home"
+          >
+            <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            {!(isCollapsed || isMini) && <span className="text-base text-slate-400 truncate">Go back</span>}
+          </a>
+        </li>
+
+        {/* Desktop collapse/expand chevron — aligned with nav buttons */}
         {onCollapseToggle && (
           <li className="hidden md:flex w-full justify-center mb-1">
             <button
